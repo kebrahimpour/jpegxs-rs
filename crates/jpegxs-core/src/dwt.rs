@@ -1,3 +1,9 @@
+// DERIVATIVE WORK NOTICE:
+// The 5/3 lifting scheme implementation below is derived from concepts in the
+// JPEG XS reference software. Copyright holders: intoPIX SA, Fraunhofer IIS, Canon Inc.
+// Commercial use requires RAND license from original copyright holders.
+// This will be replaced with a clean-room implementation from ISO/IEC 21122 specification.
+
 use anyhow::Result;
 
 pub fn dwt_53_forward_2d(
