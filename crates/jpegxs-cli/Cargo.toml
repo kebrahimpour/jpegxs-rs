@@ -1,0 +1,24 @@
+[package]
+name = "jpegxs-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Command-line interface for JPEG XS codec"
+
+[[bin]]
+name = "jpegxs"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = { workspace = true }
+clap = { workspace = true }
+env_logger = { workspace = true }
+log = { workspace = true }
+jpegxs-core = { path = "../jpegxs-core" }
+jpegxs-io = { path = "../jpegxs-io" }
