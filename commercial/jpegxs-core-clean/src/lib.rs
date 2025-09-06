@@ -58,8 +58,8 @@ impl JpegXsBitstream {
         let cap_bytes = markers::CAP.to_be_bytes();
         self.data.extend_from_slice(&cap_bytes);
 
-        // Lcap: Size of capabilities marker (4 bytes minimum: 2 for length + 0 capabilities)
-        let lcap: u16 = 4;
+        // Lcap: Size of capabilities marker segment (2 bytes minimum: just the length field)
+        let lcap: u16 = 2;
         self.data.extend_from_slice(&lcap.to_be_bytes());
 
         // No capabilities required for basic implementation (empty cap array)
@@ -362,6 +362,290 @@ impl JpegXsBitstream {
     }
 }
 
+/// JPEG XS bitstream decoder
+/// Implementation based on ISO/IEC 21122-1:2024 marker parsing
+pub struct JpegXsDecoder {
+    data: Vec<u8>,
+    offset: usize,
+    width: u16,
+    height: u16,
+    num_components: u8,
+}
+
+impl JpegXsDecoder {
+    /// Create new decoder from bitstream data
+    pub fn new(data: Vec<u8>) -> Result<Self, &'static str> {
+        Ok(Self {
+            data,
+            offset: 0,
+            width: 0,
+            height: 0,
+            num_components: 0,
+        })
+    }
+
+    /// Parse JPEG XS markers and extract image parameters
+    pub fn parse_headers(&mut self) -> Result<(), &'static str> {
+        // Parse SOC marker
+        if !self.parse_soc_marker()? {
+            return Err("Invalid SOC marker");
+        }
+
+        // Parse CAP marker
+        if !self.parse_cap_marker()? {
+            return Err("Invalid CAP marker");
+        }
+
+        // Parse PIH marker
+        if !self.parse_pih_marker()? {
+            return Err("Invalid PIH marker");
+        }
+
+        // Parse CDT marker
+        if !self.parse_cdt_marker()? {
+            return Err("Invalid CDT marker");
+        }
+
+        // Parse WGT marker
+        if !self.parse_wgt_marker()? {
+            return Err("Invalid WGT marker");
+        }
+
+        Ok(())
+    }
+
+    /// Parse Start of Codestream marker
+    fn parse_soc_marker(&mut self) -> Result<bool, &'static str> {
+        if self.offset + 2 > self.data.len() {
+            return Err("Insufficient data for SOC marker");
+        }
+
+        let marker = u16::from_be_bytes([self.data[self.offset], self.data[self.offset + 1]]);
+        if marker != markers::SOC {
+            return Ok(false);
+        }
+
+        self.offset += 2;
+        Ok(true)
+    }
+
+    /// Parse Capabilities marker
+    fn parse_cap_marker(&mut self) -> Result<bool, &'static str> {
+        if self.offset + 4 > self.data.len() {
+            return Err("Insufficient data for CAP marker");
+        }
+
+        let marker = u16::from_be_bytes([self.data[self.offset], self.data[self.offset + 1]]);
+        if marker != markers::CAP {
+            return Ok(false);
+        }
+        self.offset += 2;
+
+        let length = u16::from_be_bytes([self.data[self.offset], self.data[self.offset + 1]]);
+        self.offset += 2;
+
+        // Skip capabilities data (length includes the 2-byte length field itself)
+        let payload_size = if length >= 2 { length - 2 } else { 0 };
+        if self.offset + payload_size as usize > self.data.len() {
+            return Err("Insufficient data for CAP payload");
+        }
+        self.offset += payload_size as usize;
+
+        Ok(true)
+    }
+
+    /// Parse Picture Header marker
+    fn parse_pih_marker(&mut self) -> Result<bool, &'static str> {
+        if self.offset + 4 > self.data.len() {
+            return Err("Insufficient data for PIH marker");
+        }
+
+        let marker = u16::from_be_bytes([self.data[self.offset], self.data[self.offset + 1]]);
+        if marker != markers::PIH {
+            return Ok(false);
+        }
+        self.offset += 2;
+
+        let length = u16::from_be_bytes([self.data[self.offset], self.data[self.offset + 1]]);
+        self.offset += 2;
+
+        if length < 23 || self.offset + (length as usize - 2) > self.data.len() {
+            return Err("Invalid PIH marker length");
+        }
+
+        // Skip Lcod (4 bytes), Ppih (2 bytes), Plev (2 bytes)
+        self.offset += 8;
+
+        // Extract image dimensions
+        self.width = u16::from_be_bytes([self.data[self.offset], self.data[self.offset + 1]]);
+        self.offset += 2;
+        self.height = u16::from_be_bytes([self.data[self.offset], self.data[self.offset + 1]]);
+        self.offset += 2;
+
+        // Skip Cw (2 bytes), Hsl (2 bytes)
+        self.offset += 4;
+
+        // Extract number of components
+        self.num_components = self.data[self.offset];
+        self.offset += 1;
+
+        // Skip remaining PIH data
+        self.offset += (length as usize - 19);
+
+        Ok(true)
+    }
+
+    /// Parse Component Table marker
+    fn parse_cdt_marker(&mut self) -> Result<bool, &'static str> {
+        if self.offset + 4 > self.data.len() {
+            return Err("Insufficient data for CDT marker");
+        }
+
+        let marker = u16::from_be_bytes([self.data[self.offset], self.data[self.offset + 1]]);
+        if marker != markers::CDT {
+            return Ok(false);
+        }
+        self.offset += 2;
+
+        let length = u16::from_be_bytes([self.data[self.offset], self.data[self.offset + 1]]);
+        self.offset += 2;
+
+        // Skip CDT data
+        if self.offset + (length as usize - 2) > self.data.len() {
+            return Err("Insufficient data for CDT payload");
+        }
+        self.offset += (length as usize - 2);
+
+        Ok(true)
+    }
+
+    /// Parse Weights Table marker
+    fn parse_wgt_marker(&mut self) -> Result<bool, &'static str> {
+        if self.offset + 4 > self.data.len() {
+            return Err("Insufficient data for WGT marker");
+        }
+
+        let marker = u16::from_be_bytes([self.data[self.offset], self.data[self.offset + 1]]);
+        if marker != markers::WGT {
+            return Ok(false);
+        }
+        self.offset += 2;
+
+        let length = u16::from_be_bytes([self.data[self.offset], self.data[self.offset + 1]]);
+        self.offset += 2;
+
+        // Skip WGT data
+        if self.offset + (length as usize - 2) > self.data.len() {
+            return Err("Insufficient data for WGT payload");
+        }
+        self.offset += (length as usize - 2);
+
+        Ok(true)
+    }
+
+    /// Decode entropy coded data using enhanced decoder
+    pub fn decode_entropy_data(&mut self) -> Result<Vec<i32>, &'static str> {
+        let mut coefficients = Vec::new();
+        let remaining_data = &self.data[self.offset..];
+        
+        // Find EOC marker to determine entropy data end
+        let mut entropy_end = remaining_data.len();
+        for i in 0..remaining_data.len().saturating_sub(1) {
+            if remaining_data[i] == 0xff && remaining_data[i + 1] == 0x11 {
+                entropy_end = i;
+                break;
+            }
+        }
+
+        let entropy_data = &remaining_data[..entropy_end];
+        let mut i = 0;
+
+        // Decode enhanced entropy data
+        while i < entropy_data.len() {
+            let byte = entropy_data[i];
+
+            if byte == 0x00 {
+                // Zero run-length encoding
+                i += 1;
+                if i >= entropy_data.len() {
+                    break;
+                }
+
+                let count_byte = entropy_data[i];
+                i += 1;
+
+                if count_byte == 0xFF {
+                    // Long run: read 16-bit count
+                    if i + 1 >= entropy_data.len() {
+                        break;
+                    }
+                    let count = u16::from_be_bytes([entropy_data[i], entropy_data[i + 1]]) as usize;
+                    i += 2;
+                    coefficients.extend(vec![0; count]);
+                } else {
+                    // Short run
+                    coefficients.extend(vec![0; count_byte as usize]);
+                }
+            } else if byte == 0xF0 {
+                // Pattern repetition decompression
+                if i + 3 >= entropy_data.len() {
+                    break;
+                }
+                let pattern_0 = entropy_data[i + 1];
+                let pattern_1 = entropy_data[i + 2];
+                let count = entropy_data[i + 3];
+                i += 4;
+
+                for _ in 0..count {
+                    // Decode pattern bytes as coefficients
+                    coefficients.push(pattern_0 as i8 as i32);
+                    coefficients.push(pattern_1 as i8 as i32);
+                }
+            } else if (byte & 0xF0) == 0x10 {
+                // 4-bit quantized coefficient
+                let quantized = (byte & 0x0F) as i32;
+                let coeff = quantized * 2;
+                coefficients.push(if (byte & 0x80) != 0 { -coeff } else { coeff });
+                i += 1;
+            } else if byte == 0x20 {
+                // Medium coefficient: 7-bit encoding
+                i += 1;
+                if i >= entropy_data.len() {
+                    break;
+                }
+                let encoded = entropy_data[i];
+                let quantized = (encoded & 0x7F) as i32;
+                let coeff = quantized * 4;
+                coefficients.push(if (encoded & 0x80) != 0 { -coeff } else { coeff });
+                i += 1;
+            } else if byte == 0x30 {
+                // Large coefficient: aggressive quantization
+                i += 1;
+                if i >= entropy_data.len() {
+                    break;
+                }
+                let encoded = entropy_data[i];
+                let quantized = (encoded & 0x7F) as i32;
+                let coeff = quantized * 16;
+                coefficients.push(if (encoded & 0x80) != 0 { -coeff } else { coeff });
+                i += 1;
+            } else {
+                // Direct encoded small coefficient (1-3)
+                let abs_coeff = (byte & 0x7F) as i32;
+                coefficients.push(if (byte & 0x80) != 0 { -abs_coeff } else { abs_coeff });
+                i += 1;
+            }
+        }
+
+        Ok(coefficients)
+    }
+
+    /// Get decoded image dimensions
+    pub fn dimensions(&self) -> (u16, u16, u8) {
+        (self.width, self.height, self.num_components)
+    }
+}
+
 impl Default for JpegXsBitstream {
     fn default() -> Self {
         Self::new()
@@ -418,9 +702,9 @@ mod tests {
         assert_eq!(data[2], 0xff);
         assert_eq!(data[3], 0x50);
 
-        // Lcap field (4 bytes for minimal CAP marker)
+        // Lcap field (2 bytes for minimal CAP marker)
         assert_eq!(data[4], 0x00);
-        assert_eq!(data[5], 0x04);
+        assert_eq!(data[5], 0x02);
     }
 
     #[test]
@@ -458,14 +742,14 @@ mod tests {
         bitstream.write_cdt_marker(3); // 3 components (YUV)
         let data = bitstream.data();
 
-        // Should have SOC (2) + CAP (2+2) + PIH (2+2+25) + CDT (2+2+6) = 43 bytes
+        // Should have SOC (2) + CAP (4) + PIH (29) + CDT (8) = 43 bytes
         assert_eq!(data.len(), 43);
 
         // CDT marker starts at offset 33
         assert_eq!(data[33], 0xff);
         assert_eq!(data[34], 0x13);
 
-        // Lcdt (2 + 3*2 = 8 bytes)
+        // Lcdt (2 + 3*2 = 8 bytes) 
         assert_eq!(data[35], 0x00);
         assert_eq!(data[36], 0x08);
 
@@ -491,22 +775,22 @@ mod tests {
         bitstream.write_wgt_marker();
         let data = bitstream.data();
 
-        // Should have SOC (2) + CAP (2+2) + PIH (2+2+25) + CDT (2+2+6) + WGT (2+2+20) = 67 bytes
+        // Should have SOC (2) + CAP (4) + PIH (29) + CDT (8) + WGT (24) = 67 bytes
         assert_eq!(data.len(), 67);
 
-        // WGT marker starts at offset 43
+        // WGT marker starts at offset 43 (SOC:2 + CAP:4 + PIH:29 + CDT:8 = 43)
         assert_eq!(data[43], 0xff);
         assert_eq!(data[44], 0x14);
 
-        // Lwgt (2 + 10*2 = 22 bytes)
+        // Lwgt (2 + 10*2 = 22 bytes) - starts at offset 45
         assert_eq!(data[45], 0x00);
         assert_eq!(data[46], 0x16);
 
-        // First band: gain=8, priority=128
+        // First band: gain=8, priority=128 - starts at offset 47
         assert_eq!(data[47], 0x08);
         assert_eq!(data[48], 0x80);
 
-        // Second band: gain=7, priority=128
+        // Second band: gain=7, priority=128 - starts at offset 49
         assert_eq!(data[49], 0x07);
         assert_eq!(data[50], 0x80);
     }
@@ -555,5 +839,32 @@ mod tests {
         // Verify JPEG XS compliance by checking first marker is SOC
         assert!(data.len() > 2);
         assert_eq!(&data[0..2], &[0xff, 0x10]);
+    }
+
+    #[test]
+    fn test_decoder_parser() {
+        let mut bitstream = JpegXsBitstream::new();
+        bitstream.write_cap_marker();
+        bitstream.write_pih_marker(256, 256, 3);
+        bitstream.write_cdt_marker(3);
+        bitstream.write_wgt_marker();
+        
+        let test_coefficients = vec![0, 0, 15, -7, 0, 23, -12];
+        bitstream.add_entropy_coded_data(&test_coefficients);
+        
+        bitstream.finalize();
+        let data = bitstream.into_bytes();
+
+        // Test decoder
+        let mut decoder = JpegXsDecoder::new(data).unwrap();
+        assert!(decoder.parse_headers().is_ok());
+        
+        let (width, height, components) = decoder.dimensions();
+        assert_eq!(width, 256);
+        assert_eq!(height, 256);
+        assert_eq!(components, 3);
+        
+        let decoded_coeffs = decoder.decode_entropy_data().unwrap();
+        assert!(!decoded_coeffs.is_empty());
     }
 }

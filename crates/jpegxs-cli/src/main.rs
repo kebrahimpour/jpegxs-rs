@@ -23,43 +23,47 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Encode a raw YUV file to JPEG XS format
     Encode {
+        /// Input YUV file
         #[arg(short, long)]
         input: String,
 
+        /// Output JPEG XS file
         #[arg(short, long)]
         output: String,
 
+        /// Width
         #[arg(short = 'W', long)]
         width: u32,
 
+        /// Height
         #[arg(short = 'H', long)]
         height: u32,
 
+        /// Pixel format
         #[arg(short, long, default_value = "yuv422p")]
         format: String,
 
+        /// Quality level (0.0-1.0)
         #[arg(short, long, default_value = "0.9")]
         quality: f32,
     },
 
+    /// Decode a JPEG XS file to raw YUV
     Decode {
+        /// Input JPEG XS file
         #[arg(short, long)]
         input: String,
 
+        /// Output YUV file
         #[arg(short, long)]
         output: String,
     },
 
-    Validate {
-        #[arg(short, long)]
-        input: String,
-
-        #[arg(long, default_value = "jxs")]
-        reference: String,
-    },
-
+    /// Get information about a JPEG XS file
     Info {
+        /// Input JPEG XS file
         #[arg(short, long)]
         input: String,
     },
@@ -92,7 +96,7 @@ fn main() -> Result<()> {
                 width, height, format, quality
             );
 
-            // Load input image
+            // Load raw YUV data
             let data = std::fs::read(&input)?;
             let pixel_format = match format.as_str() {
                 "yuv422p" => jpegxs_core::types::PixelFormat::Yuv422p8,
@@ -114,31 +118,89 @@ fn main() -> Result<()> {
             };
 
             // Encode
-            match jpegxs_core::encode_frame(image, &config) {
-                Ok(bitstream) => {
-                    std::fs::write(&output, &bitstream.data)?;
-                    println!("Encoded successfully: {} bytes", bitstream.data.len());
-                }
-                Err(e) => {
-                    eprintln!("Encoding failed: {}", e);
-                    return Err(e);
-                }
-            }
+            let bitstream = jpegxs_core::encode_frame(image, &config)?;
+            std::fs::write(&output, &bitstream.data)?;
+            
+            let compression_ratio = data.len() as f32 / bitstream.data.len() as f32;
+            println!(
+                "✅ Encoded successfully: {} bytes (compression ratio: {:.1}:1)",
+                bitstream.data.len(),
+                compression_ratio
+            );
         }
 
         Commands::Decode { input, output } => {
             info!("Decoding {} to {}", input, output);
-            println!("Decoding not yet implemented");
-        }
 
-        Commands::Validate { input, reference } => {
-            info!("Validating {} against {}", input, reference);
-            println!("Validation not yet implemented");
+            // Load JPEG XS bitstream
+            let bitstream_data = std::fs::read(&input)?;
+            let bitstream = jpegxs_core::types::Bitstream {
+                data: bitstream_data.clone(),
+                size_bits: bitstream_data.len() * 8,
+            };
+
+            // Configure decoder
+            let config = jpegxs_core::types::DecoderConfig {
+                strict_mode: false,
+            };
+
+            // Decode
+            let decoded_image = jpegxs_core::decode_frame(&bitstream, &config)?;
+
+            // Save raw YUV data
+            std::fs::write(&output, &decoded_image.data)?;
+
+            println!(
+                "✅ Decoded successfully: {}x{} image saved to {}",
+                decoded_image.width, decoded_image.height, output
+            );
         }
 
         Commands::Info { input } => {
             info!("Getting info for {}", input);
-            println!("Info not yet implemented");
+
+            // Load JPEG XS bitstream
+            let bitstream_data = std::fs::read(&input)?;
+
+            // Parse headers using clean-room decoder
+            let mut decoder = jpegxs_core_clean::JpegXsDecoder::new(bitstream_data.clone())
+                .map_err(|e| anyhow::anyhow!("Decoder error: {}", e))?;
+            decoder.parse_headers()
+                .map_err(|e| anyhow::anyhow!("Parse error: {}", e))?;
+
+            let (width, height, num_components) = decoder.dimensions();
+
+            println!("JPEG XS File Information:");
+            println!("========================");
+            println!("File: {}", input);
+            println!("Size: {} bytes", bitstream_data.len());
+            println!("Resolution: {}x{}", width, height);
+            println!("Components: {}", num_components);
+
+            // Check for markers
+            println!("\nMarkers found:");
+            let markers = [
+                (0xff10u16, "SOC - Start of Codestream"),
+                (0xff50, "CAP - Capabilities"),
+                (0xff12, "PIH - Picture Header"),
+                (0xff13, "CDT - Component Table"),
+                (0xff14, "WGT - Weights Table"),
+                (0xff11, "EOC - End of Codestream"),
+            ];
+
+            for (marker_code, name) in &markers {
+                let marker_bytes = marker_code.to_be_bytes();
+                if bitstream_data
+                    .windows(2)
+                    .any(|w| w[0] == marker_bytes[0] && w[1] == marker_bytes[1])
+                {
+                    println!("  ✓ 0x{:04x} - {}", marker_code, name);
+                }
+            }
+
+            let uncompressed_size = (width as usize * height as usize * 3 * 8) / 8;
+            let compression_ratio = uncompressed_size as f32 / bitstream_data.len() as f32;
+            println!("\nCompression ratio: {:.1}:1", compression_ratio);
         }
     }
 

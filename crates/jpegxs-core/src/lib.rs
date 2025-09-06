@@ -116,47 +116,37 @@ pub fn encode_frame(input: ImageView8, config: &EncoderConfig) -> Result<Bitstre
 }
 
 pub fn decode_frame(bitstream: &Bitstream, _config: &DecoderConfig) -> Result<ImageOwned8> {
-    // For now, we'll decode a fixed size (this should come from bitstream header)
-    let width = 64u32;
-    let height = 64u32;
-    let format = PixelFormat::Yuv422p8;
+    // Use clean-room JPEG XS decoder to parse headers and extract entropy data
+    let mut decoder = jpegxs_core_clean::JpegXsDecoder::new(bitstream.data.clone())
+        .map_err(|e| anyhow::anyhow!("Decoder creation failed: {}", e))?;
 
+    // Parse JPEG XS markers to extract image parameters
+    decoder.parse_headers()
+        .map_err(|e| anyhow::anyhow!("Header parsing failed: {}", e))?;
+
+    let (width, height, num_components) = decoder.dimensions();
+    let format = match num_components {
+        3 => PixelFormat::Yuv422p8,
+        _ => return Err(anyhow::anyhow!("Unsupported number of components: {}", num_components)),
+    };
+
+    // Decode entropy coded data
+    let all_coefficients = decoder.decode_entropy_data()
+        .map_err(|e| anyhow::anyhow!("Entropy decoding failed: {}", e))?;
+
+    // Split coefficients back into Y, U, V components
+    let width = width as u32;
+    let height = height as u32;
     let y_size = (width * height) as usize;
     let uv_size = (width * height / 2) as usize;
 
-    // Simple entropy decoding (just unpack bytes for now)
-    if bitstream.data.len() < (y_size + 2 * uv_size) * 4 {
-        return Err(anyhow::anyhow!("Bitstream too small"));
+    if all_coefficients.len() < y_size + 2 * uv_size {
+        return Err(anyhow::anyhow!("Insufficient decoded coefficients"));
     }
 
-    let mut offset = 0;
-
-    // Unpack Y coefficients
-    let mut y_quantized = Vec::with_capacity(y_size);
-    for _ in 0..y_size {
-        let bytes = &bitstream.data[offset..offset + 4];
-        let coeff = i32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]);
-        y_quantized.push(coeff);
-        offset += 4;
-    }
-
-    // Unpack U coefficients
-    let mut u_quantized = Vec::with_capacity(uv_size);
-    for _ in 0..uv_size {
-        let bytes = &bitstream.data[offset..offset + 4];
-        let coeff = i32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]);
-        u_quantized.push(coeff);
-        offset += 4;
-    }
-
-    // Unpack V coefficients
-    let mut v_quantized = Vec::with_capacity(uv_size);
-    for _ in 0..uv_size {
-        let bytes = &bitstream.data[offset..offset + 4];
-        let coeff = i32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]);
-        v_quantized.push(coeff);
-        offset += 4;
-    }
+    let y_quantized = all_coefficients[0..y_size].to_vec();
+    let u_quantized = all_coefficients[y_size..y_size + uv_size].to_vec();
+    let v_quantized = all_coefficients[y_size + uv_size..y_size + 2 * uv_size].to_vec();
 
     // Dequantize
     let qp_y = 1u8; // Should come from bitstream
@@ -213,7 +203,6 @@ mod tests {
     use types::{DecoderConfig, EncoderConfig, ImageView8, Level, PixelFormat, Profile};
 
     #[test]
-    #[ignore] // Decoder not updated for new entropy-coded bitstream format
     fn test_encode_decode_roundtrip() {
         let width = 64u32;
         let height = 64u32;
