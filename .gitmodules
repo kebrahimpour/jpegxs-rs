@@ -1,0 +1,3 @@
+[submodule "reference/jxs"]
+	path = reference/jxs
+	url = git@github.com:kebrahimpour/jxs.git

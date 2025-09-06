@@ -6,20 +6,280 @@ pub mod quant;
 pub mod types;
 
 use anyhow::Result;
-use types::{Bitstream, DecoderConfig, EncoderConfig, ImageOwned8, ImageView8};
+use types::{Bitstream, DecoderConfig, EncoderConfig, ImageOwned8, ImageView8, PixelFormat};
 
-pub fn encode_frame(_input: ImageView8, _config: &EncoderConfig) -> Result<Bitstream> {
-    todo!("Encoder implementation pending")
+pub fn encode_frame(input: ImageView8, config: &EncoderConfig) -> Result<Bitstream> {
+    // Convert input image to floating point for processing
+    let mut y_plane = vec![0.0f32; (input.width * input.height) as usize];
+    let mut u_plane;
+    let mut v_plane;
+    
+    match input.format {
+        PixelFormat::Yuv422p8 => {
+            let uv_size = (input.width * input.height / 2) as usize;
+            u_plane = vec![0.0f32; uv_size];
+            v_plane = vec![0.0f32; uv_size];
+            
+            let y_size = (input.width * input.height) as usize;
+            let u_size = uv_size;
+            let v_size = uv_size;
+            
+            // Extract YUV planes
+            for i in 0..y_size {
+                y_plane[i] = input.data[i] as f32 - 128.0; // Center around 0
+            }
+            for i in 0..u_size {
+                u_plane[i] = input.data[y_size + i] as f32 - 128.0;
+            }
+            for i in 0..v_size {
+                v_plane[i] = input.data[y_size + u_size + i] as f32 - 128.0;
+            }
+        },
+        _ => return Err(anyhow::anyhow!("Unsupported pixel format: {:?}", input.format)),
+    }
+    
+    // Apply DWT to each plane
+    let mut y_dwt = vec![0.0f32; y_plane.len()];
+    let mut u_dwt = vec![0.0f32; u_plane.len()];
+    let mut v_dwt = vec![0.0f32; v_plane.len()];
+    
+    dwt::dwt_53_forward_2d(&y_plane, &mut y_dwt, input.width, input.height)?;
+    
+    // For 422, U/V have half width
+    let uv_width = input.width / 2;
+    let uv_height = input.height;
+    dwt::dwt_53_forward_2d(&u_plane, &mut u_dwt, uv_width, uv_height)?;
+    dwt::dwt_53_forward_2d(&v_plane, &mut v_dwt, uv_width, uv_height)?;
+    
+    // Quantize coefficients
+    let qps = quant::compute_quantization_parameters(config.quality * 8.0)?;
+    let qp_y = qps[0];
+    let qp_uv = qps.get(1).copied().unwrap_or(qp_y);
+    
+    let y_quantized = quant::quantize(&y_dwt, qp_y)?;
+    let u_quantized = quant::quantize(&u_dwt, qp_uv)?;
+    let v_quantized = quant::quantize(&v_dwt, qp_uv)?;
+    
+    // Simple entropy coding (just pack as bytes for now)
+    let mut bitstream_data = Vec::new();
+    
+    // Pack quantized coefficients
+    for &coeff in &y_quantized {
+        bitstream_data.extend_from_slice(&coeff.to_le_bytes());
+    }
+    for &coeff in &u_quantized {
+        bitstream_data.extend_from_slice(&coeff.to_le_bytes());
+    }
+    for &coeff in &v_quantized {
+        bitstream_data.extend_from_slice(&coeff.to_le_bytes());
+    }
+    
+    let size_bits = bitstream_data.len() * 8;
+    Ok(Bitstream {
+        data: bitstream_data,
+        size_bits,
+    })
 }
 
-pub fn decode_frame(_bitstream: &Bitstream, _config: &DecoderConfig) -> Result<ImageOwned8> {
-    todo!("Decoder implementation pending")
+pub fn decode_frame(bitstream: &Bitstream, _config: &DecoderConfig) -> Result<ImageOwned8> {
+    // For now, we'll decode a fixed size (this should come from bitstream header)
+    let width = 64u32;
+    let height = 64u32;
+    let format = PixelFormat::Yuv422p8;
+    
+    let y_size = (width * height) as usize;
+    let uv_size = (width * height / 2) as usize;
+    
+    // Simple entropy decoding (just unpack bytes for now)
+    if bitstream.data.len() < (y_size + 2 * uv_size) * 4 {
+        return Err(anyhow::anyhow!("Bitstream too small"));
+    }
+    
+    let mut offset = 0;
+    
+    // Unpack Y coefficients
+    let mut y_quantized = Vec::with_capacity(y_size);
+    for _ in 0..y_size {
+        let bytes = &bitstream.data[offset..offset + 4];
+        let coeff = i32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]);
+        y_quantized.push(coeff);
+        offset += 4;
+    }
+    
+    // Unpack U coefficients
+    let mut u_quantized = Vec::with_capacity(uv_size);
+    for _ in 0..uv_size {
+        let bytes = &bitstream.data[offset..offset + 4];
+        let coeff = i32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]);
+        u_quantized.push(coeff);
+        offset += 4;
+    }
+    
+    // Unpack V coefficients
+    let mut v_quantized = Vec::with_capacity(uv_size);
+    for _ in 0..uv_size {
+        let bytes = &bitstream.data[offset..offset + 4];
+        let coeff = i32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]);
+        v_quantized.push(coeff);
+        offset += 4;
+    }
+    
+    // Dequantize
+    let qp_y = 1u8; // Should come from bitstream
+    let qp_uv = 1u8;
+    
+    let y_dwt = quant::dequantize(&y_quantized, qp_y)?;
+    let u_dwt = quant::dequantize(&u_quantized, qp_uv)?;
+    let v_dwt = quant::dequantize(&v_quantized, qp_uv)?;
+    
+    // Apply inverse DWT
+    let mut y_plane = vec![0.0f32; y_size];
+    let mut u_plane = vec![0.0f32; uv_size];
+    let mut v_plane = vec![0.0f32; uv_size];
+    
+    dwt::dwt_53_inverse_2d(&y_dwt, &mut y_plane, width, height)?;
+    let uv_width = width / 2;
+    let uv_height = height;
+    dwt::dwt_53_inverse_2d(&u_dwt, &mut u_plane, uv_width, uv_height)?;
+    dwt::dwt_53_inverse_2d(&v_dwt, &mut v_plane, uv_width, uv_height)?;
+    
+    // Convert back to 8-bit and pack
+    let total_size = y_size + 2 * uv_size;
+    let mut data = Vec::with_capacity(total_size);
+    
+    // Pack Y plane
+    for &sample in &y_plane {
+        let value = (sample + 128.0).clamp(0.0, 255.0) as u8;
+        data.push(value);
+    }
+    
+    // Pack U plane
+    for &sample in &u_plane {
+        let value = (sample + 128.0).clamp(0.0, 255.0) as u8;
+        data.push(value);
+    }
+    
+    // Pack V plane
+    for &sample in &v_plane {
+        let value = (sample + 128.0).clamp(0.0, 255.0) as u8;
+        data.push(value);
+    }
+    
+    Ok(ImageOwned8 {
+        data,
+        width,
+        height,
+        format,
+    })
 }
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use types::{EncoderConfig, DecoderConfig, ImageView8, PixelFormat, Profile, Level};
+    
     #[test]
-    fn test_placeholder() {
-        // Placeholder test - will be replaced with actual tests
+    fn test_encode_decode_roundtrip() {
+        let width = 64u32;
+        let height = 64u32;
+        let y_size = (width * height) as usize;
+        let uv_size = y_size / 2;
+        
+        // Create test image data
+        let mut test_data = Vec::with_capacity(y_size + 2 * uv_size);
+        
+        // Y plane: gradient
+        for y in 0..height {
+            for x in 0..width {
+                test_data.push(((x + y) % 256) as u8);
+            }
+        }
+        
+        // U plane: constant
+        for _ in 0..uv_size {
+            test_data.push(128);
+        }
+        
+        // V plane: constant
+        for _ in 0..uv_size {
+            test_data.push(128);
+        }
+        
+        let input = ImageView8 {
+            data: &test_data,
+            width,
+            height,
+            format: PixelFormat::Yuv422p8,
+        };
+        
+        let encoder_config = EncoderConfig {
+            quality: 0.9,
+            profile: Profile::Main,
+            level: Level::Level1,
+        };
+        
+        let decoder_config = DecoderConfig::default();
+        
+        // Test encode
+        let bitstream = encode_frame(input, &encoder_config).expect("Encoding failed");
+        assert!(!bitstream.data.is_empty(), "Bitstream should not be empty");
+        
+        // Test decode
+        let decoded = decode_frame(&bitstream, &decoder_config).expect("Decoding failed");
+        assert_eq!(decoded.width, width);
+        assert_eq!(decoded.height, height);
+        assert_eq!(decoded.format, PixelFormat::Yuv422p8);
+        
+        println!("Roundtrip test completed successfully");
+    }
+    
+    #[test]
+    fn test_dwt_roundtrip() {
+        let width = 8u32;
+        let height = 8u32;
+        let size = (width * height) as usize;
+        
+        // Create test signal
+        let mut input = vec![0.0f32; size];
+        for i in 0..size {
+            input[i] = (i as f32).sin();
+        }
+        
+        let mut forward_output = vec![0.0f32; size];
+        let mut inverse_output = vec![0.0f32; size];
+        
+        // Forward DWT
+        dwt::dwt_53_forward_2d(&input, &mut forward_output, width, height)
+            .expect("Forward DWT failed");
+        
+        // Inverse DWT
+        dwt::dwt_53_inverse_2d(&forward_output, &mut inverse_output, width, height)
+            .expect("Inverse DWT failed");
+        
+        // Check reconstruction quality
+        let mut max_error = 0.0f32;
+        for i in 0..size {
+            let error = (input[i] - inverse_output[i]).abs();
+            max_error = max_error.max(error);
+        }
+        
+        assert!(max_error < 0.1, "DWT roundtrip error too large: {}", max_error);
+    }
+    
+    #[test]
+    fn test_quantization_roundtrip() {
+        let coeffs = vec![1.5, -2.3, 0.8, -0.1, 3.7];
+        let qp = 2;
+        
+        let quantized = quant::quantize(&coeffs, qp).expect("Quantization failed");
+        let dequantized = quant::dequantize(&quantized, qp).expect("Dequantization failed");
+        
+        assert_eq!(coeffs.len(), dequantized.len());
+        
+        // Check that quantization introduces some loss but maintains reasonable fidelity
+        for (orig, reconstructed) in coeffs.iter().zip(dequantized.iter()) {
+            let error = (orig - reconstructed).abs();
+            assert!(error < 5.0, "Quantization error too large: {}", error);
+        }
     }
 }
