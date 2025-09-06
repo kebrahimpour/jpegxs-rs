@@ -15,3 +15,6 @@ description = "I/O utilities for JPEG XS codec"
 anyhow = { workspace = true }
 byteorder = { workspace = true }
 log = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3"
