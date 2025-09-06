@@ -1,60 +1,34 @@
-# Commercial Track - Clean Room Implementation
+# Commercial Track - Clean-Room Implementation
 
-## ⚠️ IMPORTANT: CLEAN ROOM REQUIREMENTS
+## ⚠️ CRITICAL LEGAL NOTICE
 
-This directory contains ONLY clean-room implementations with full commercial rights.
+This directory contains clean-room implementations developed ONLY from:
+- ISO/IEC 21122 specifications 
+- Academic papers and textbooks
+- Mathematical equations and algorithms
 
-### Rules for Contributing to This Directory
+**ABSOLUTELY NO CODE from the reference implementation or evaluation track may be copied, referenced, or studied when working in this commercial track.**
 
-1. **NEVER** copy code from `reference/` directory
-2. **NEVER** look at reference implementation while coding here
-3. **ONLY** use these resources:
-   - ISO/IEC 21122 standard documents
-   - Academic papers and textbooks
-   - Mathematical definitions
-   - Your own original ideas
+## Clean-Room Development Rules
 
-### Current Status
+### ✅ ALLOWED Resources
+- ISO/IEC 21122-1:2019 (Core coding system) 
+- ISO/IEC 21122-2:2019 (Profiles and buffer models)
+- Academic papers on wavelet transforms
+- Mathematical specifications
 
-#### ✅ Ready for Commercial Use
-- Project structure and build system
-- CLI interface design
-- I/O utilities (non-algorithmic)
-- Testing framework
+### ❌ FORBIDDEN Resources  
+- Any code in `reference/jxs/` directory
+- Any code in `crates/` directory (except I/O utilities marked as original)
+- GitHub repositories with JPEG XS implementations
+- AI-generated code suggestions for specific algorithms
 
-#### 🚧 In Development (Clean Room)
-- [ ] DWT 5/3 transform (from ISO spec)
-- [ ] DWT 9/7 transform (from ISO spec)
-- [ ] Entropy coding (from ISO spec)
-- [ ] Packet structure (from ISO spec)
+## Current Status
 
-#### 📋 Planned
-- [ ] Rate control algorithms
-- [ ] Profile implementations
-- [ ] SIMD optimizations
+The commercial track is ready for clean-room development. Next step: obtain ISO specifications and begin DWT implementation from mathematical equations only.
 
-### How This Works
+## Success Criteria
 
-1. **Study Phase**: Read ONLY specifications and papers
-2. **Design Phase**: Create original design documents
-3. **Implement Phase**: Write code from scratch
-4. **Test Phase**: Validate against spec requirements
-5. **Review Phase**: Legal review for clean-room compliance
-
-### Commercial Licensing
-
-Code in this directory can be:
-- Licensed commercially without restrictions
-- Sold as proprietary software
-- Used in closed-source products
-- Distributed under any license terms
-
-### Contact
-
-For commercial licensing of clean-room implementations:
-- Keyvan Ebrahimpour
-- Email: k1.ebrahimpour@gmail.com
-
-### Development Log
-
-All clean-room development is logged in `docs/clean-room-log.md` for legal documentation.
+- [ ] All algorithms implemented from ISO spec only
+- [ ] Zero derivative code in commercial track
+- [ ] Performance within 20% of reference implementation
