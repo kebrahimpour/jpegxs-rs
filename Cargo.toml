@@ -1,0 +1,42 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/jpegxs-core",
+    "crates/jpegxs-io",
+    "crates/jpegxs-cli",
+    "crates/jpegxs-ffi",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+authors = ["Keyvan Ebrahimpour"]
+repository = "https://github.com/kebrahimpour/jpegxs-rs"
+homepage = "https://github.com/kebrahimpour/jpegxs-rs"
+documentation = "https://docs.rs/jpegxs"
+keywords = ["jpeg-xs", "codec", "compression", "image", "video"]
+categories = ["multimedia::encoding", "multimedia::images"]
+
+[workspace.dependencies]
+anyhow = "1"
+thiserror = "1"
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+byteorder = "1"
+log = "0.4"
+env_logger = "0.11"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.bench]
+inherits = "release"
+
+[profile.dev]
+opt-level = 0
+debug = true

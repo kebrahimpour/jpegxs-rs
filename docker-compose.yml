@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/workspace
+      - cargo-cache:/usr/local/cargo/registry
+      - target-cache:/workspace/target
+    environment:
+      - RUST_BACKTRACE=1
+      - CARGO_TERM_COLOR=always
+    command: /bin/bash
+    stdin_open: true
+    tty: true
+
+volumes:
+  cargo-cache:
+  target-cache:
