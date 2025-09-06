@@ -17,6 +17,7 @@ thiserror = { workspace = true }
 serde = { workspace = true }
 byteorder = { workspace = true }
 log = { workspace = true }
+jpegxs-core-clean = { path = "../../commercial/jpegxs-core-clean" }
 
 [dev-dependencies]
 env_logger = { workspace = true }

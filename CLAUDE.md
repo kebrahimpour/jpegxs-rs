@@ -1,0 +1,1 @@
+- no ai generated signatures in comments and commit messages
