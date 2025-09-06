@@ -86,6 +86,14 @@ pub fn encode_frame(input: ImageView8, config: &EncoderConfig) -> Result<Bitstre
     };
     jxs_bitstream.write_pih_marker(input.width as u16, input.height as u16, num_components);
 
+    // Add CDT (Component Table) marker according to ISO A.4.5 specification
+    // Fourth mandatory marker providing component precision and sampling factors
+    jxs_bitstream.write_cdt_marker(num_components);
+
+    // Add WGT (Weights Table) marker according to ISO A.4.12 specification
+    // Fifth mandatory marker providing band gain parameters for quantization
+    jxs_bitstream.write_wgt_marker();
+
     // Add entropy coded data per ISO Annex C specification
     // Combine all quantized coefficients for entropy coding
     let mut all_coefficients = Vec::new();
