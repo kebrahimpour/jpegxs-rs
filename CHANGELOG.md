@@ -45,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cross-platform compatibility (Linux, macOS, Windows)
 
 ### Infrastructure
-- Dual licensing: MIT/Apache-2.0
+- Proprietary license with commercial use restrictions
 - Support for YUV422p 8-bit format (YUV444p implemented)
 - Artifact upload for built binaries (fixed deprecated actions)
 - Branch protection and code review workflows prepared

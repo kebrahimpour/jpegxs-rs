@@ -1,3 +1,10 @@
+// Copyright (c) 2024 Keyvan Ebrahimpour. All rights reserved.
+// 
+// This software is proprietary and confidential. Commercial use is prohibited
+// without a valid license. See LICENSE file for full terms and conditions.
+// 
+// For commercial licensing: k1.ebrahimpour@gmail.com
+
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 use log::info;

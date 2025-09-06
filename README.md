@@ -97,11 +97,33 @@ This will run:
 
 ## License
 
-This project is dual-licensed under:
-- MIT License
-- Apache License 2.0
+**PROPRIETARY SOFTWARE - COMMERCIAL USE PROHIBITED**
 
-You may choose either license for your use.
+This software is licensed under a proprietary license that restricts commercial use.
+
+### Non-Commercial Use
+This software is free for:
+- Personal use
+- Educational purposes  
+- Academic research
+- Open source projects (non-commercial)
+
+### Commercial Use
+**Commercial use requires a paid license.** This includes:
+- Using in products or services that generate revenue
+- Deployment in business environments
+- Integration into proprietary/commercial software
+- Providing services to third parties
+
+### Obtaining a Commercial License
+For commercial licensing options, contact:
+- **Email**: k1.ebrahimpour@gmail.com
+- **Available licenses**: Single Application, Enterprise, OEM, Source Code with redistribution
+
+### License Terms
+See the [LICENSE](LICENSE) file for complete terms and conditions.
+
+⚠️ **WARNING**: Violation of license terms will result in immediate termination of rights and potential legal action.
 
 ## Author
 
