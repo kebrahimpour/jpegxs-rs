@@ -91,7 +91,39 @@ fn main() -> Result<()> {
                 "Resolution: {}x{}, Format: {}, Quality: {}",
                 width, height, format, quality
             );
-            println!("Encoding not yet implemented");
+
+            // Load input image
+            let data = std::fs::read(&input)?;
+            let pixel_format = match format.as_str() {
+                "yuv422p" => jpegxs_core::types::PixelFormat::Yuv422p8,
+                _ => return Err(anyhow::anyhow!("Unsupported format: {}", format)),
+            };
+
+            let image = jpegxs_core::types::ImageView8 {
+                data: &data,
+                width,
+                height,
+                format: pixel_format,
+            };
+
+            // Configure encoder
+            let config = jpegxs_core::types::EncoderConfig {
+                quality,
+                profile: jpegxs_core::types::Profile::Main,
+                level: jpegxs_core::types::Level::Level1,
+            };
+
+            // Encode
+            match jpegxs_core::encode_frame(image, &config) {
+                Ok(bitstream) => {
+                    std::fs::write(&output, &bitstream.data)?;
+                    println!("Encoded successfully: {} bytes", bitstream.data.len());
+                }
+                Err(e) => {
+                    eprintln!("Encoding failed: {}", e);
+                    return Err(e);
+                }
+            }
         }
 
         Commands::Decode { input, output } => {
