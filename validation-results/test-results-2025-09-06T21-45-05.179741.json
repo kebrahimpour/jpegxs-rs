@@ -1,0 +1,30 @@
+{
+  "timestamp": "2025-09-06T21:45:05.179741",
+  "test_input": "test-data/test_256x256.yuv",
+  "reference_output": "test-data/test_256x256_ref.jxs",
+  "rust_output": "test-data/test_256x256_rust.jxs",
+  "build": {
+    "success": true,
+    "stderr": "warning: /Users/keyvan/Work/Projects/sandbox/jpeg-xs/commercial/jpegxs-core-clean/Cargo.toml: only one of `license` or `license-file` is necessary\n`license` should be used if the package license can be expressed with a standard SPDX expression.\n`license-file` should be used if the package uses a non-standard license.\nSee https://doc.rust-lang.org/cargo/reference/manifest.html#the-license-and-license-file-fields for more information.\n   Compiling jpegxs-core-clean v0.1.0 (/Users/keyvan/Work/Projects/sandbox/jpeg-xs/commercial/jpegxs-core-clean)\n    Finished `release` profile [optimized] target(s) in 0.06s\n"
+  },
+  "rust_encode": {
+    "success": true,
+    "stdout": "Encoded successfully: 524288 bytes\n",
+    "stderr": "warning: /Users/keyvan/Work/Projects/sandbox/jpeg-xs/commercial/jpegxs-core-clean/Cargo.toml: only one of `license` or `license-file` is necessary\n`license` should be used if the package license can be expressed with a standard SPDX expression.\n`license-file` should be used if the package uses a non-standard license.\nSee https://doc.rust-lang.org/cargo/reference/manifest.html#the-license-and-license-file-fields for more information.\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.02s\n     Running `target/debug/jpegxs encode --input test-data/test_256x256.yuv --output test-data/test_256x256_rust.jxs --width 256 --height 256 --format yuv422p`\n",
+    "returncode": 0
+  },
+  "validation": {
+    "success": true,
+    "output": "============================================================\nJPEG XS OUTPUT VALIDATION REPORT\n============================================================\n\n1. FILE STRUCTURE ANALYSIS\n------------------------------\nReference (C):    24.0 KB\nRust:             512.0 KB\nSize ratio:       21.3x larger\n\nReference starts: ff10ff500002ff12001a000060000000\nRust starts:      c8ffffffc8ffffffc8ffffffc8ffffff\n\nReference JPEG XS compliant: True\nRust JPEG XS compliant:      False\n\n2. JPEG XS MARKER ANALYSIS\n------------------------------\n\nReference markers found: 5\n  0x0: 0xff10 - SOC (Start of Codestream)\n  0x2: 0xff50 - SIZ (Image and tile size)\n  0x6: 0xff12 - PIH (Packet information header)\n  0x22: 0xff13 - PIV (Packet information variable)\n  0x2c: 0xff14 - EPH (End of packet header)\n\nRust markers found: 0\n  None - Raw data output\n\n3. IMPLEMENTATION GAPS\n------------------------------\n\u274c CRITICAL: No JPEG XS format compliance\n   - Missing SOC (Start of Codestream) marker\n   - Output appears to be raw coefficient data\n\u274c CRITICAL: No bitstream structure\n   - No packet headers\n   - No entropy coding\n   - No compression\n\nCompression Analysis:\nReference compression: 5.3:1\nRust compression:      0.2:1\nMissing compression:   488.0 KB\n\n4. PRIORITY FIXES NEEDED\n------------------------------\n1. Implement JPEG XS bitstream format:\n   - SOC marker (FF 10)\n   - SIZ marker (FF 50) with image parameters\n   - COD marker (FF 52) with coding parameters\n2. Add entropy coding:\n   - VLC tables\n   - Significance propagation passes\n3. Proper packet structure\n\n============================================================\n",
+    "stderr": ""
+  },
+  "metrics": {
+    "ref_size_bytes": 24576,
+    "rust_size_bytes": 524288,
+    "size_ratio": 21.333333333333332,
+    "compression_gap_kb": 488.0,
+    "ref_has_soc_marker": true,
+    "rust_has_soc_marker": false,
+    "format_compliance": false
+  }
+}

@@ -72,23 +72,39 @@ pub fn encode_frame(input: ImageView8, config: &EncoderConfig) -> Result<Bitstre
     let u_quantized = quant::quantize(&u_dwt, qp_uv)?;
     let v_quantized = quant::quantize(&v_dwt, qp_uv)?;
 
-    // Simple entropy coding (just pack as bytes for now)
-    let mut bitstream_data = Vec::new();
-
-    // Pack quantized coefficients
+    // Use clean-room JPEG XS bitstream format from ISO/IEC 21122-1:2024
+    let mut jxs_bitstream = jpegxs_core_clean::JpegXsBitstream::new();
+    
+    // Add Capabilities marker (mandatory second marker per ISO A.4.3)
+    jxs_bitstream.write_cap_marker();
+    
+    // TODO: Add PIH (Picture Header) marker according to ISO specification
+    // TODO: Add proper entropy coding instead of raw coefficient packing
+    
+    // For now, pack quantized coefficients after SOC marker (temporary)
+    let mut coefficient_data = Vec::new();
     for &coeff in &y_quantized {
-        bitstream_data.extend_from_slice(&coeff.to_le_bytes());
+        coefficient_data.extend_from_slice(&coeff.to_le_bytes());
     }
     for &coeff in &u_quantized {
-        bitstream_data.extend_from_slice(&coeff.to_le_bytes());
+        coefficient_data.extend_from_slice(&coeff.to_le_bytes());
     }
     for &coeff in &v_quantized {
-        bitstream_data.extend_from_slice(&coeff.to_le_bytes());
+        coefficient_data.extend_from_slice(&coeff.to_le_bytes());
     }
+    
+    // Add coefficient data to bitstream (after SOC marker)
+    let mut temp_data = jxs_bitstream.data().to_vec();
+    temp_data.extend_from_slice(&coefficient_data);
+    
+    // Finalize with EOC marker
+    jxs_bitstream.finalize();
+    let mut final_data = temp_data;
+    final_data.extend_from_slice(&jxs_bitstream.data()[jxs_bitstream.data().len()-2..]);
 
-    let size_bits = bitstream_data.len() * 8;
+    let size_bits = final_data.len() * 8;
     Ok(Bitstream {
-        data: bitstream_data,
+        data: final_data,
         size_bits,
     })
 }
