@@ -64,4 +64,3 @@ impl Default for EncoderConfig {
         }
     }
 }
-
