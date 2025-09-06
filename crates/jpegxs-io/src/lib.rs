@@ -8,7 +8,6 @@ pub use yuv::{load_yuv422p, load_yuv444p, save_yuv422p, save_yuv444p};
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::Write;
     use tempfile::NamedTempFile;
     
     #[test]
@@ -44,7 +43,7 @@ mod tests {
         let v_plane: Vec<u8> = (0..uv_size).map(|i| ((i * 3) % 256) as u8).collect();
         
         // Create temporary file
-        let mut temp_file = NamedTempFile::new()?;
+        let temp_file = NamedTempFile::new()?;
         let path = temp_file.path();
         
         // Save YUV data
