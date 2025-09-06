@@ -85,10 +85,10 @@ jobs:
         run: cargo build --release --all-features --verbose
       
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: binaries-${{ matrix.os }}
-          path: target/release/jpegxs-cli
+          path: target/release/jpegxs
 
   security:
     name: Security Audit
