@@ -1,0 +1,71 @@
+JPEG XS Rust Implementation - Proprietary License
+
+Copyright (c) 2024 Keyvan Ebrahimpour. All rights reserved.
+
+This software and associated documentation files (the "Software") are the 
+proprietary and confidential property of Keyvan Ebrahimpour.
+
+LICENSE GRANT AND RESTRICTIONS:
+
+1. NON-COMMERCIAL USE ONLY
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this Software to use, copy, and modify the Software for NON-COMMERCIAL,
+   educational, research, and personal purposes only, subject to the following
+   conditions:
+
+2. COMMERCIAL USE PROHIBITION
+   ANY COMMERCIAL USE OF THIS SOFTWARE IS STRICTLY PROHIBITED WITHOUT A SEPARATE
+   COMMERCIAL LICENSE. Commercial use includes, but is not limited to:
+   - Using the Software in any product or service that generates revenue
+   - Using the Software in a business environment
+   - Selling, licensing, or distributing the Software for profit
+   - Using the Software to provide services to third parties for compensation
+   - Incorporating the Software into proprietary products
+
+3. DISTRIBUTION RESTRICTIONS
+   - The Software may only be distributed in source form with this license intact
+   - Any distribution must include this license and all copyright notices
+   - Modified versions must be clearly marked as such
+   - You may not sublicense the Software
+
+4. ATTRIBUTION REQUIREMENT
+   All copies or substantial portions of the Software must include:
+   - This license text
+   - Copyright notice
+   - Clear attribution to Keyvan Ebrahimpour
+   - If modified, a notice stating the modifications made
+
+5. NO WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+
+6. TERMINATION
+   This license automatically terminates if you violate any of its terms.
+   Upon termination, you must destroy all copies of the Software in your possession.
+
+7. COMMERCIAL LICENSING
+   For commercial use rights, please contact:
+   Keyvan Ebrahimpour
+   Email: k1.ebrahimpour@gmail.com
+   
+   Commercial licenses are available with the following options:
+   - Single Application License
+   - Enterprise License
+   - OEM License
+   - Source Code License with redistribution rights
+
+8. GOVERNING LAW
+   This license shall be governed by the laws of the jurisdiction in which
+   the copyright holder resides.
+
+9. ENTIRE AGREEMENT
+   This license constitutes the entire agreement between the parties with
+   respect to the Software licensed here.
+
+For questions about this license or commercial licensing options, contact:
+k1.ebrahimpour@gmail.com

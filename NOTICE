@@ -1,0 +1,39 @@
+LEGAL NOTICE
+============
+
+JPEG XS Rust Implementation
+Copyright (c) 2024 Keyvan Ebrahimpour
+All Rights Reserved
+
+IMPORTANT: READ BEFORE USING
+-----------------------------
+
+This software is PROPRIETARY and CONFIDENTIAL.
+
+1. COMMERCIAL USE IS STRICTLY PROHIBITED without a valid commercial license.
+
+2. This software is provided for NON-COMMERCIAL USE ONLY, including:
+   - Personal projects
+   - Educational purposes
+   - Academic research
+   - Non-profit open source projects
+
+3. ANY use in a commercial context requires purchasing a license from:
+   Keyvan Ebrahimpour <k1.ebrahimpour@gmail.com>
+
+4. Commercial context includes but is not limited to:
+   - Any for-profit business use
+   - Products or services sold to customers
+   - Internal business tools in commercial organizations
+   - Consulting or contracting work
+   - SaaS, PaaS, or IaaS offerings
+
+5. Violation of these terms will result in:
+   - Immediate termination of all rights
+   - Potential legal action for damages
+   - Requirement to cease all use and destroy all copies
+
+For licensing inquiries: k1.ebrahimpour@gmail.com
+
+By using this software, you acknowledge that you have read, understood,
+and agree to be bound by the terms of the license.
