@@ -1,0 +1,108 @@
+JPEG XS Rust Implementation - Hybrid License Model
+
+================================================================================
+DUAL-TRACK LICENSING STRUCTURE
+================================================================================
+
+This project contains two distinct tracks with different licensing:
+
+1. EVALUATION TRACK (`crates/` directory)
+   - Contains derivative work from reference implementation
+   - Copyright: intoPIX SA, Fraunhofer IIS, Canon Inc (derivative portions)
+   - Copyright: Keyvan Ebrahimpour (original Rust portions)
+   - License: Evaluation and testing only
+   - Commercial use: Requires RAND license from original copyright holders
+
+2. COMMERCIAL TRACK (`commercial/` directory)
+   - Contains ONLY clean-room implementations
+   - Copyright: Keyvan Ebrahimpour (2024)
+   - License: Proprietary with commercial licensing available
+   - Commercial use: Available under separate agreement
+
+================================================================================
+TRACK 1: EVALUATION LICENSE (crates/ directory)
+================================================================================
+
+For code in the `crates/` directory:
+
+This software contains derivative works based on the JPEG XS reference 
+implementation. Use is restricted to:
+- Evaluation of JPEG XS standard
+- Testing for ISO standard conformance
+- Academic research
+- Personal learning
+
+Commercial use requires licensing from:
+- intoPIX SA
+- Fraunhofer IIS
+- Canon Inc
+
+================================================================================
+TRACK 2: COMMERCIAL LICENSE (commercial/ directory)
+================================================================================
+
+For code in the `commercial/` directory:
+
+Copyright (c) 2024 Keyvan Ebrahimpour. All rights reserved.
+
+This is proprietary software with the following terms:
+
+NON-COMMERCIAL USE:
+Permission granted for personal, educational, and research use.
+
+COMMERCIAL USE:
+Requires a paid license. Options include:
+- Single Application License
+- Enterprise License
+- OEM License
+- Source Code License
+
+Contact: k1.ebrahimpour@gmail.com
+
+================================================================================
+COMPONENT CLASSIFICATION
+================================================================================
+
+See DERIVATIVE-TRACKING.md for detailed classification of each component.
+
+IMMEDIATELY COMMERCIALIZABLE (Original Work):
+✅ CLI interface and tools
+✅ I/O utilities and file handling
+✅ Bit-level operations
+✅ Test framework
+✅ Build system and project structure
+✅ Basic quantization
+✅ YUV format handling
+
+REQUIRES CLEAN-ROOM REPLACEMENT:
+⚠️ DWT transforms (currently derivative)
+⚠️ Some codec pipeline elements
+
+IN PROGRESS (Clean Room):
+🚧 New DWT implementation from ISO spec
+🚧 Entropy coding from ISO spec
+🚧 Packet structure from ISO spec
+
+================================================================================
+WARRANTY DISCLAIMER
+================================================================================
+
+THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================================================================================
+SELECTION OF LICENSE TRACK
+================================================================================
+
+By using this software, you agree to:
+1. Use evaluation track (`crates/`) only for non-commercial purposes
+2. Use commercial track (`commercial/`) under appropriate license
+3. Not mix code between tracks without proper licensing
+4. Respect all copyright holders' rights
+
+For questions: k1.ebrahimpour@gmail.com
