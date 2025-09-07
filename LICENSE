@@ -1,77 +1,53 @@
-JPEG XS Rust Implementation - Mixed License
+JPEG XS Codec - Proprietary License with Non-Commercial Exception
 
-Original Rust Code: Copyright (c) 2024 Keyvan Ebrahimpour
-Derivative Portions: Copyright intoPIX SA, Fraunhofer IIS, Canon Inc
+Copyright (c) 2024 Keyvan Ebrahimpour. All rights reserved.
 
-IMPORTANT: This software contains both original and derivative works.
-See LEGAL-NOTICE.md for critical information about license limitations.
+This software is dual-licensed:
 
-This software and associated documentation files (the "Software") are the 
-proprietary and confidential property of Keyvan Ebrahimpour.
+1. NON-COMMERCIAL USE (this license)
+   - Free for personal, educational, and research use
+   - Modifications must include this license
+   - No commercial use permitted
 
-LICENSE GRANT AND RESTRICTIONS:
+2. COMMERCIAL USE
+   - Requires paid license
+   - See LICENSE-COMMERCIAL.md for details
+   - Contact: k1.ebrahimpour@gmail.com
 
-1. NON-COMMERCIAL USE ONLY
-   Permission is hereby granted, free of charge, to any person obtaining a copy
-   of this Software to use, copy, and modify the Software for NON-COMMERCIAL,
-   educational, research, and personal purposes only, subject to the following
-   conditions:
+--------------------------------------------------------------------------------
+NON-COMMERCIAL LICENSE TERMS
+--------------------------------------------------------------------------------
 
-2. COMMERCIAL USE PROHIBITION
-   ANY COMMERCIAL USE OF THIS SOFTWARE IS STRICTLY PROHIBITED WITHOUT A SEPARATE
-   COMMERCIAL LICENSE. Commercial use includes, but is not limited to:
-   - Using the Software in any product or service that generates revenue
-   - Using the Software in a business environment
-   - Selling, licensing, or distributing the Software for profit
-   - Using the Software to provide services to third parties for compensation
-   - Incorporating the Software into proprietary products
+Permission is granted, free of charge, to use, copy, modify, and distribute
+this software for NON-COMMERCIAL purposes only, provided that:
 
-3. DISTRIBUTION RESTRICTIONS
-   - The Software may only be distributed in source form with this license intact
-   - Any distribution must include this license and all copyright notices
-   - Modified versions must be clearly marked as such
-   - You may not sublicense the Software
+1. This license notice and copyright notice appear in all copies
+2. Modified versions are clearly marked as modified
+3. No fee is charged for the software or its distribution
+4. The software is not used for commercial purposes
 
-4. ATTRIBUTION REQUIREMENT
-   All copies or substantial portions of the Software must include:
-   - This license text
-   - Copyright notice
-   - Clear attribution to Keyvan Ebrahimpour
-   - If modified, a notice stating the modifications made
+COMMERCIAL USE IS STRICTLY PROHIBITED without a separate commercial license.
 
-5. NO WARRANTY
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-   SOFTWARE.
+Commercial use includes:
+- Use in any business or for-profit organization
+- Use in products or services that generate revenue
+- Use in proprietary or closed-source software
+- Providing paid services using this software
 
-6. TERMINATION
-   This license automatically terminates if you violate any of its terms.
-   Upon termination, you must destroy all copies of the Software in your possession.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 
-7. COMMERCIAL LICENSING - LIMITED BY DERIVATIVE WORKS
-   
-   IMPORTANT: Due to derivative work from reference implementation:
-   - Some portions require licensing from intoPIX SA, Fraunhofer IIS, Canon Inc
-   - Full commercial rights cannot be granted for derivative portions
-   - Contact original copyright holders for commercial use of derivative code
-   
-   For original Rust implementation portions only:
-   Keyvan Ebrahimpour
-   Email: k1.ebrahimpour@gmail.com
-   
-   Clean-room implementation in progress for full commercial licensing
+For commercial licensing: k1.ebrahimpour@gmail.com
 
-8. GOVERNING LAW
-   This license shall be governed by the laws of the jurisdiction in which
-   the copyright holder resides.
+--------------------------------------------------------------------------------
+IMPORTANT NOTICES
+--------------------------------------------------------------------------------
 
-9. ENTIRE AGREEMENT
-   This license constitutes the entire agreement between the parties with
-   respect to the Software licensed here.
+REFERENCE IMPLEMENTATION (reference/ directory):
+The reference implementation has its own license from intoPIX SA, Fraunhofer IIS,
+and Canon Inc. See reference/jxs/LICENSE.md for details.
 
-For questions about this license or commercial licensing options, contact:
-k1.ebrahimpour@gmail.com
+CLEAN-ROOM IMPLEMENTATION (commercial/jpegxs-core-clean/):
+100% original implementation from ISO specification, fully licensable for
+commercial use under our commercial license terms.
