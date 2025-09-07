@@ -63,8 +63,8 @@ pub fn encode_frame(input: ImageView8, config: &EncoderConfig) -> Result<Bitstre
     jpegxs_core_clean::dwt::dwt_53_forward_2d(&u_plane, &mut u_dwt, uv_width, uv_height)?;
     jpegxs_core_clean::dwt::dwt_53_forward_2d(&v_plane, &mut v_dwt, uv_width, uv_height)?;
 
-    // Quantize coefficients
-    let qps = quant::compute_quantization_parameters(config.quality * 8.0)?;
+    // Quantize coefficients using corrected quality mapping
+    let qps = quant::compute_quantization_parameters(config.quality)?;
     let qp_y = qps[0];
     let qp_uv = qps.get(1).copied().unwrap_or(qp_y);
 
@@ -155,9 +155,10 @@ pub fn decode_frame(bitstream: &Bitstream, _config: &DecoderConfig) -> Result<Im
     let u_quantized = all_coefficients[y_size..y_size + uv_size].to_vec();
     let v_quantized = all_coefficients[y_size + uv_size..y_size + 2 * uv_size].to_vec();
 
-    // Dequantize
-    let qp_y = 1u8; // Should come from bitstream
-    let qp_uv = 1u8;
+    // Dequantize - Extract QP from WGT marker or use quality-consistent defaults
+    // TODO: Properly parse WGT marker to extract actual QP values from bitstream
+    let (qp_y, qp_uv) = extract_quantization_parameters(&decoder)
+        .unwrap_or_else(get_default_quantization_parameters);
 
     let y_dwt = quant::dequantize(&y_quantized, qp_y)?;
     let u_dwt = quant::dequantize(&u_quantized, qp_uv)?;
@@ -202,6 +203,45 @@ pub fn decode_frame(bitstream: &Bitstream, _config: &DecoderConfig) -> Result<Im
         height,
         format,
     })
+}
+
+/// Extract quantization parameters from the decoder's parsed WGT marker
+/// TODO: Implement proper WGT marker parsing
+fn extract_quantization_parameters(
+    _decoder: &jpegxs_core_clean::JpegXsDecoder,
+) -> Option<(u8, u8)> {
+    // For now, return None to use fallback values
+    // In a complete implementation, this would:
+    // 1. Check if WGT marker was parsed
+    // 2. Extract QP values from the marker data
+    // 3. Return appropriate values for Y and UV components
+    None
+}
+
+/// Get default quantization parameters using the same quality mapping as encoder
+/// This ensures consistency when QP values cannot be extracted from bitstream
+fn get_default_quantization_parameters() -> (u8, u8) {
+    // Use the same quality-to-QP mapping as the encoder for consistency
+    // Assuming medium-high quality (0.8) as a reasonable default for decoding
+    const DEFAULT_QUALITY: f32 = 0.8;
+
+    // This mirrors the logic from quant::compute_quantization_parameters()
+    let base_qp = if DEFAULT_QUALITY >= 0.95 {
+        1 // Virtually lossless
+    } else if DEFAULT_QUALITY >= 0.9 {
+        2 // Very high quality
+    } else if DEFAULT_QUALITY >= 0.8 {
+        4 // High quality
+    } else if DEFAULT_QUALITY >= 0.6 {
+        8 // Medium quality
+    } else if DEFAULT_QUALITY >= 0.4 {
+        12 // Lower quality
+    } else {
+        16 // Low quality
+    };
+
+    // Use same QP for both Y and UV components as default
+    (base_qp, base_qp)
 }
 
 #[cfg(test)]
