@@ -1,5 +1,17 @@
 # JPEG XS Codec Implementation in Rust
 
+[![CI/CD Pipeline](https://github.com/kebrahimpour/jpegxs-rs/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/kebrahimpour/jpegxs-rs/actions/workflows/ci.yml)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/kebrahimpour/jpegxs-rs/ci.yml?branch=main&label=build&logo=github)](https://github.com/kebrahimpour/jpegxs-rs/actions)
+[![Clean-Room DWT](https://img.shields.io/badge/Clean--Room%20DWT-✅%20Commercial%20Ready-brightgreen)](https://github.com/kebrahimpour/jpegxs-rs/tree/main/commercial/jpegxs-core-clean)
+[![License](https://img.shields.io/badge/license-Dual%20(Non--Commercial%2FCommercial)-blue)](LICENSE)
+[![Security](https://img.shields.io/badge/security-audited-green)](https://github.com/kebrahimpour/jpegxs-rs/actions/workflows/ci.yml)
+
+**Platform Support:**
+[![Linux](https://img.shields.io/badge/Linux-✅-success?logo=linux&logoColor=white)](https://github.com/kebrahimpour/jpegxs-rs/actions)
+[![macOS Intel](https://img.shields.io/badge/macOS%20Intel-✅-success?logo=apple&logoColor=white)](https://github.com/kebrahimpour/jpegxs-rs/actions)
+[![macOS ARM64](https://img.shields.io/badge/macOS%20ARM64-✅-success?logo=apple&logoColor=white)](https://github.com/kebrahimpour/jpegxs-rs/actions)
+[![Windows](https://img.shields.io/badge/Windows-✅-success?logo=windows&logoColor=white)](https://github.com/kebrahimpour/jpegxs-rs/actions)
+
 A high-performance, clean-room implementation of the JPEG XS (ISO/IEC 21122-1:2024) codec in Rust, achieving superior compression ratios compared to reference implementations.
 
 ## 🎯 Key Achievements
