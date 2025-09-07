@@ -167,7 +167,8 @@ jobs:
           echo "🔍 Checking release artifacts for reference/ code contamination"
           
           # Check if reference/ files are accidentally included
-          CONTAMINATION=$(find target/release -name "*reference*" -o -name "*intopix*" -o -name "*fraunhofer*" 2>/dev/null | grep -v ".fingerprint" || true)
+          # Exclude legitimate WebP library files that contain 'reference' in their names
+          CONTAMINATION=$(find target/release -name "*reference*" -o -name "*intopix*" -o -name "*fraunhofer*" 2>/dev/null | grep -v ".fingerprint" | grep -v "libwebp-sys" | grep -v "backward_references" || true)
           
           # Also check for known function signatures or copyright headers in binaries
           # (Add more patterns as needed for your project)
