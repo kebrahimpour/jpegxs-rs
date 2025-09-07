@@ -2,9 +2,8 @@
 
 use anyhow::Result;
 use clap::{Parser, ValueEnum};
-use image::{DynamicImage, ImageFormat};
+use image::{DynamicImage, ImageBuffer, ImageFormat, Rgb};
 use indicatif::{ProgressBar, ProgressStyle};
-use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
@@ -203,16 +202,15 @@ fn load_test_images(input_dir: &Path) -> Result<Vec<PathBuf>> {
 }
 
 fn create_test_images(dir: &Path) -> Result<()> {
-    use image::{ImageBuffer, Rgb};
 
     println!("🎨 Creating synthetic test images...");
 
     // Create various test patterns
     let test_cases = [
-        ("gradient_256x256.png", 256, 256, generate_gradient),
-        ("noise_512x512.png", 512, 512, generate_noise),
-        ("pattern_1024x768.png", 1024, 768, generate_pattern),
-        ("photo_realistic_640x480.png", 640, 480, generate_photo_realistic),
+        ("gradient_256x256.png", 256, 256, generate_gradient as fn(u32, u32) -> DynamicImage),
+        ("noise_512x512.png", 512, 512, generate_noise as fn(u32, u32) -> DynamicImage),
+        ("pattern_1024x768.png", 1024, 768, generate_pattern as fn(u32, u32) -> DynamicImage),
+        ("photo_realistic_640x480.png", 640, 480, generate_photo_realistic as fn(u32, u32) -> DynamicImage),
     ];
 
     for (name, width, height, generator) in test_cases {
@@ -412,7 +410,7 @@ fn decode_jpegxs(data: &[u8]) -> Result<DynamicImage> {
 
 fn encode_jpeg(img: &DynamicImage, quality: f32) -> Result<Vec<u8>> {
     let mut output = Vec::new();
-    let quality_u8 = (quality * 100.0) as u8;
+    let _quality_u8 = (quality * 100.0) as u8;
     img.write_to(&mut std::io::Cursor::new(&mut output), ImageFormat::Jpeg)?;
     Ok(output)
 }
@@ -585,7 +583,7 @@ fn generate_report(
             os: std::env::consts::OS.to_string(),
             cpu: "Unknown".to_string(), // Would need additional crate for CPU detection
             memory_gb: 8.0, // Placeholder
-            rust_version: env!("RUSTC_VERSION").to_string(),
+            rust_version: std::env::var("RUSTC_VERSION").unwrap_or_else(|_| "unknown".to_string()),
         },
     };
 
