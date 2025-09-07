@@ -25,7 +25,7 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Display licensing and patent information
+    /// Display software licensing terms AND critical patent requirements (both are essential for commercial use)
     About,
     /// Encode an image file (PNG, JPEG, or raw YUV) to JPEG XS format
     Encode {
