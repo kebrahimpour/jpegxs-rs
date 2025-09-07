@@ -401,14 +401,14 @@ fn print_licensing_info() {
     println!("# JPEG XS Codec - Licensing and Patent Information");
     println!("==================================================");
     println!();
-    
+
     println!("## Software License");
     println!("- **Copyright**: © 2024 Keyvan Ebrahimpour. All rights reserved.");
     println!("- **Non-Commercial Use**: Free for research, education, and personal use");
     println!("- **Commercial Use**: Requires paid commercial license");
     println!("- **License Details**: See LICENSE and COMMERCIAL_LICENSE.md files");
     println!();
-    
+
     println!("## Commercial Licensing");
     println!("Available license tiers:");
     println!("- **Single Application License**: $5,000 (one app, 100K deployments)");
@@ -417,9 +417,11 @@ fn print_licensing_info() {
     println!("- **Source License**: $100,000 (full source with modification rights)");
     println!();
     println!("📧 Contact: k1.ebrahimpour@gmail.com");
-    println!("📄 Details: https://github.com/kebrahimpour/jpegxs-rs/blob/main/COMMERCIAL_LICENSE.md");
+    println!(
+        "📄 Details: https://github.com/kebrahimpour/jpegxs-rs/blob/main/COMMERCIAL_LICENSE.md"
+    );
     println!();
-    
+
     println!("## ⚠️  CRITICAL: PATENT LICENSING REQUIRED");
     println!("==========================================");
     println!("🚨 **This software license does NOT include JPEG XS patent rights!**");
@@ -429,7 +431,7 @@ fn print_licensing_info() {
     println!();
     println!("**Patent Holders Include**:");
     println!("- intoPIX S.A. (Belgium)");
-    println!("- Fraunhofer-Gesellschaft (Germany)");  
+    println!("- Fraunhofer-Gesellschaft (Germany)");
     println!("- Canon Kabushiki Kaisha (Japan)");
     println!("- Additional patent pool members");
     println!();
@@ -440,10 +442,10 @@ fn print_licensing_info() {
     println!();
     println!("📋 **Before Commercial Deployment**:");
     println!("1. Contact Vectis for patent licensing");
-    println!("2. Obtain our commercial software license"); 
+    println!("2. Obtain our commercial software license");
     println!("3. Both licenses are required for legal commercial use");
     println!();
-    
+
     println!("## Technical Information");
     println!("- **Codec**: JPEG XS (ISO/IEC 21122-1:2024)");
     println!("- **Implementation**: Clean-room Rust implementation");
@@ -451,7 +453,7 @@ fn print_licensing_info() {
     println!("- **Platforms**: Linux, macOS (Intel/ARM64), Windows");
     println!("- **Components**: Encoder, Decoder, CLI tools");
     println!();
-    
+
     println!("## Legal Disclaimer");
     println!("================");
     println!("This software is provided 'as-is' without warranty. Patent licensing");

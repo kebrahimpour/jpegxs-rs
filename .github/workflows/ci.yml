@@ -167,8 +167,11 @@ jobs:
           echo "🔍 Checking release artifacts for reference/ code contamination"
           
           # Check if reference/ files are accidentally included
-          if find target/release -name "*reference*" -o -name "*intopix*" -o -name "*fraunhofer*" | grep -v ".fingerprint" | head -1; then
+          CONTAMINATION=$(find target/release -name "*reference*" -o -name "*intopix*" -o -name "*fraunhofer*" 2>/dev/null | grep -v ".fingerprint" || true)
+          
+          if [ -n "$CONTAMINATION" ]; then
             echo "❌ CRITICAL: Reference code detected in release artifacts!"
+            echo "Files found: $CONTAMINATION"
             echo "Commercial licensing BLOCKED - reference/ code cannot be distributed"
             exit 1
           fi
@@ -186,8 +189,10 @@ jobs:
           fi
           
           # Verify no cross-references between commercial and reference code
-          if grep -r "reference/" commercial/ 2>/dev/null; then
+          CROSS_REFS=$(grep -r "reference/" commercial/ 2>/dev/null || true)
+          if [ -n "$CROSS_REFS" ]; then
             echo "❌ CRITICAL: Commercial code references derivative implementation!"
+            echo "References found: $CROSS_REFS"
             exit 1
           fi
           
