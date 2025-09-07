@@ -445,7 +445,7 @@ impl JpegXsDecoder {
         self.offset += 2;
 
         // Skip capabilities data (length includes the 2-byte length field itself)
-        let payload_size = if length >= 2 { length - 2 } else { 0 };
+        let payload_size = length.saturating_sub(2);
         if self.offset + payload_size as usize > self.data.len() {
             return Err("Insufficient data for CAP payload");
         }
@@ -490,7 +490,7 @@ impl JpegXsDecoder {
         self.offset += 1;
 
         // Skip remaining PIH data
-        self.offset += (length as usize - 19);
+        self.offset += length as usize - 19;
 
         Ok(true)
     }
@@ -514,7 +514,7 @@ impl JpegXsDecoder {
         if self.offset + (length as usize - 2) > self.data.len() {
             return Err("Insufficient data for CDT payload");
         }
-        self.offset += (length as usize - 2);
+        self.offset += length as usize - 2;
 
         Ok(true)
     }
@@ -538,7 +538,7 @@ impl JpegXsDecoder {
         if self.offset + (length as usize - 2) > self.data.len() {
             return Err("Insufficient data for WGT payload");
         }
-        self.offset += (length as usize - 2);
+        self.offset += length as usize - 2;
 
         Ok(true)
     }
@@ -547,7 +547,7 @@ impl JpegXsDecoder {
     pub fn decode_entropy_data(&mut self) -> Result<Vec<i32>, &'static str> {
         let mut coefficients = Vec::new();
         let remaining_data = &self.data[self.offset..];
-        
+
         // Find EOC marker to determine entropy data end
         let mut entropy_end = remaining_data.len();
         for i in 0..remaining_data.len().saturating_sub(1) {
@@ -632,7 +632,11 @@ impl JpegXsDecoder {
             } else {
                 // Direct encoded small coefficient (1-3)
                 let abs_coeff = (byte & 0x7F) as i32;
-                coefficients.push(if (byte & 0x80) != 0 { -abs_coeff } else { abs_coeff });
+                coefficients.push(if (byte & 0x80) != 0 {
+                    -abs_coeff
+                } else {
+                    abs_coeff
+                });
                 i += 1;
             }
         }
@@ -749,7 +753,7 @@ mod tests {
         assert_eq!(data[33], 0xff);
         assert_eq!(data[34], 0x13);
 
-        // Lcdt (2 + 3*2 = 8 bytes) 
+        // Lcdt (2 + 3*2 = 8 bytes)
         assert_eq!(data[35], 0x00);
         assert_eq!(data[36], 0x08);
 
@@ -848,22 +852,22 @@ mod tests {
         bitstream.write_pih_marker(256, 256, 3);
         bitstream.write_cdt_marker(3);
         bitstream.write_wgt_marker();
-        
+
         let test_coefficients = vec![0, 0, 15, -7, 0, 23, -12];
         bitstream.add_entropy_coded_data(&test_coefficients);
-        
+
         bitstream.finalize();
         let data = bitstream.into_bytes();
 
         // Test decoder
         let mut decoder = JpegXsDecoder::new(data).unwrap();
         assert!(decoder.parse_headers().is_ok());
-        
+
         let (width, height, components) = decoder.dimensions();
         assert_eq!(width, 256);
         assert_eq!(height, 256);
         assert_eq!(components, 3);
-        
+
         let decoded_coeffs = decoder.decode_entropy_data().unwrap();
         assert!(!decoded_coeffs.is_empty());
     }

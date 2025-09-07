@@ -121,17 +121,24 @@ pub fn decode_frame(bitstream: &Bitstream, _config: &DecoderConfig) -> Result<Im
         .map_err(|e| anyhow::anyhow!("Decoder creation failed: {}", e))?;
 
     // Parse JPEG XS markers to extract image parameters
-    decoder.parse_headers()
+    decoder
+        .parse_headers()
         .map_err(|e| anyhow::anyhow!("Header parsing failed: {}", e))?;
 
     let (width, height, num_components) = decoder.dimensions();
     let format = match num_components {
         3 => PixelFormat::Yuv422p8,
-        _ => return Err(anyhow::anyhow!("Unsupported number of components: {}", num_components)),
+        _ => {
+            return Err(anyhow::anyhow!(
+                "Unsupported number of components: {}",
+                num_components
+            ))
+        }
     };
 
     // Decode entropy coded data
-    let all_coefficients = decoder.decode_entropy_data()
+    let all_coefficients = decoder
+        .decode_entropy_data()
         .map_err(|e| anyhow::anyhow!("Entropy decoding failed: {}", e))?;
 
     // Split coefficients back into Y, U, V components
