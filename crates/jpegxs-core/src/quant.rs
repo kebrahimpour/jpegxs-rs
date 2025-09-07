@@ -28,27 +28,48 @@ pub fn dequantize(coeffs: &[i32], qp: u8) -> Result<Vec<f32>> {
     Ok(result)
 }
 
-pub fn compute_quantization_parameters(target_bpp: f32) -> Result<Vec<u8>> {
-    if target_bpp <= 0.0 || target_bpp > 32.0 {
+pub fn compute_quantization_parameters(quality: f32) -> Result<Vec<u8>> {
+    if quality <= 0.0 || quality > 1.0 {
         return Err(anyhow::anyhow!(
-            "Invalid target bits per pixel: {}",
-            target_bpp
+            "Invalid quality parameter: {} (must be greater than 0.0 and at most 1.0)",
+            quality
         ));
     }
 
-    // Simple quantization parameter computation
-    // In practice, this would be much more sophisticated
-    let base_qp = if target_bpp >= 8.0 {
-        1 // High quality
-    } else if target_bpp >= 4.0 {
-        2 // Medium quality
-    } else if target_bpp >= 2.0 {
-        4 // Low quality
+    // Proper quality-to-quantization parameter mapping
+    // Higher quality -> Lower QP -> Less compression loss
+    // Lower quality -> Higher QP -> More compression gain
+    let base_qp = if quality >= 0.95 {
+        1 // Virtually lossless (minimal compression)
+    } else if quality >= 0.9 {
+        2 // Very high quality (moderate compression ~2:1)
+    } else if quality >= 0.8 {
+        3 // High quality (good compression ~3:1)
+    } else if quality >= 0.7 {
+        4 // Good quality (significant compression ~4:1)
+    } else if quality >= 0.6 {
+        6 // Medium-high quality (~5:1)
+    } else if quality >= 0.5 {
+        8 // Medium quality (strong compression ~6:1)
+    } else if quality >= 0.4 {
+        12 // Medium-low quality (~8:1)
+    } else if quality >= 0.3 {
+        16 // Low quality (high compression ~10:1)
+    } else if quality >= 0.2 {
+        24 // Very low quality (~12:1)
     } else {
-        8 // Very low quality
+        32 // Minimum quality (maximum compression ~15:1)
     };
 
-    // For now, return uniform quantization parameters
-    // Real JPEG XS would have different QPs for different subbands
-    Ok(vec![base_qp; 16]) // Assume 4-level DWT = 16 subbands
+    // Return quantization parameters for DWT subbands
+    // Real JPEG XS would have different QPs for different subbands:
+    // - Lower QPs for low-frequency (visually important) subbands
+    // - Higher QPs for high-frequency (less visually important) subbands
+
+    // TODO: Make DWT levels configurable via encoder config
+    // For now, assume 4-level DWT which produces 13 subbands (4*3 + 1 = 13)
+    const DWT_LEVELS: usize = 4;
+    const NUM_SUBBANDS: usize = 3 * DWT_LEVELS + 1; // 3 detail bands per level + 1 final LL subband
+
+    Ok(vec![base_qp; NUM_SUBBANDS])
 }
