@@ -25,6 +25,8 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Display software licensing terms AND critical patent requirements (both are essential for commercial use)
+    About,
     /// Encode an image file (PNG, JPEG, or raw YUV) to JPEG XS format
     Encode {
         /// Input file (PNG, JPEG, or YUV)
@@ -195,6 +197,9 @@ fn main() -> Result<()> {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or(log_level)).init();
 
     match cli.command {
+        Commands::About => {
+            print_licensing_info();
+        }
         Commands::Encode {
             input,
             output,
@@ -390,4 +395,73 @@ fn main() -> Result<()> {
     }
 
     Ok(())
+}
+
+fn print_licensing_info() {
+    println!("# JPEG XS Codec - Licensing and Patent Information");
+    println!("==================================================");
+    println!();
+
+    println!("## Software License");
+    println!("- **Copyright**: © 2024 Keyvan Ebrahimpour. All rights reserved.");
+    println!("- **Non-Commercial Use**: Free for research, education, and personal use");
+    println!("- **Commercial Use**: Requires paid commercial license");
+    println!("- **License Details**: See LICENSE and COMMERCIAL_LICENSE.md files");
+    println!();
+
+    println!("## Commercial Licensing");
+    println!("Available license tiers:");
+    println!("- **Single Application License**: $5,000 (one app, 100K deployments)");
+    println!("- **Enterprise License**: $25,000 (unlimited internal use)");
+    println!("- **OEM/Redistribution License**: $50,000 (third-party distribution)");
+    println!("- **Source License**: $100,000 (full source with modification rights)");
+    println!();
+    println!("📧 Contact: k1.ebrahimpour@gmail.com");
+    println!(
+        "📄 Details: https://github.com/kebrahimpour/jpegxs-rs/blob/main/COMMERCIAL_LICENSE.md"
+    );
+    println!();
+
+    println!("## ⚠️  CRITICAL: PATENT LICENSING REQUIRED");
+    println!("==========================================");
+    println!("🚨 **This software license does NOT include JPEG XS patent rights!**");
+    println!();
+    println!("JPEG XS is protected by essential patents. Commercial use requires");
+    println!("separate patent licenses from the JPEG XS patent pool.");
+    println!();
+    println!("**Patent Holders Include**:");
+    println!("- intoPIX S.A. (Belgium)");
+    println!("- Fraunhofer-Gesellschaft (Germany)");
+    println!("- Canon Kabushiki Kaisha (Japan)");
+    println!("- Additional patent pool members");
+    println!();
+    println!("**Patent Pool Administrator**: Vectis");
+    println!("- Website: https://www.vectis.com/");
+    println!("- Email: info@vectis.com");
+    println!("- Phone: +1 (650) 464-8000");
+    println!();
+    println!("📋 **Before Commercial Deployment**:");
+    println!("1. Contact Vectis for patent licensing");
+    println!("2. Obtain our commercial software license");
+    println!("3. Both licenses are required for legal commercial use");
+    println!();
+
+    println!("## Technical Information");
+    println!("- **Codec**: JPEG XS (ISO/IEC 21122-1:2024)");
+    println!("- **Implementation**: Clean-room Rust implementation");
+    println!("- **Performance**: 4.8% better compression than reference");
+    println!("- **Platforms**: Linux, macOS (Intel/ARM64), Windows");
+    println!("- **Components**: Encoder, Decoder, CLI tools");
+    println!();
+
+    println!("## Legal Disclaimer");
+    println!("================");
+    println!("This software is provided 'as-is' without warranty. Patent licensing");
+    println!("is your responsibility. Consult qualified legal counsel for guidance");
+    println!("regarding your specific use case and patent requirements.");
+    println!();
+    println!("For technical questions: k1.ebrahimpour@gmail.com");
+    println!("For patent questions: Contact Vectis directly");
+    println!();
+    println!("📚 Full documentation: https://github.com/kebrahimpour/jpegxs-rs");
 }

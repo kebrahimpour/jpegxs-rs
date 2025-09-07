@@ -1,6 +1,8 @@
 // Clean-room JPEG XS implementation from ISO/IEC 21122-1:2024
 // Source: Table A.2 and A.3 for marker definitions
 
+pub mod dwt;
+
 /// JPEG XS marker constants from ISO/IEC 21122-1:2024 Table A.2
 pub mod markers {
     /// Start of Codestream - Mandatory (ISO Table A.2, line 603)
