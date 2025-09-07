@@ -293,7 +293,7 @@ fn generate_photo_realistic(width: u32, height: u32) -> DynamicImage {
         let fy = y as f32 / height as f32;
 
         // Create a natural-looking scene with sky gradient and ground texture
-        let sky_blue = if fy < 0.3 {
+        if fy < 0.3 {
             let intensity = (135.0 + (fy * 120.0)) as u8;
             Rgb([100, 149, intensity])
         } else {
@@ -301,9 +301,7 @@ fn generate_photo_realistic(width: u32, height: u32) -> DynamicImage {
             let base_green = 34 + (fx * 40.0) as u8;
             let noise = ((x * 7 + y * 11) % 64) as u8;
             Rgb([base_green, 80 + noise / 4, base_green / 2])
-        };
-
-        sky_blue
+        }
     });
     DynamicImage::ImageRgb8(img)
 }
@@ -609,7 +607,7 @@ fn calculate_ssim(img1: &DynamicImage, img2: &DynamicImage) -> Result<f64> {
     if psnr.is_infinite() {
         Ok(1.0)
     } else {
-        Ok((psnr / 100.0).min(1.0).max(0.0))
+        Ok((psnr / 100.0).clamp(0.0, 1.0))
     }
 }
 

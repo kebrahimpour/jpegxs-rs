@@ -70,11 +70,13 @@ fn main() -> Result<()> {
     let test_images = load_test_images(&args.input_dir)?;
     println!("📁 Found {} test images", test_images.len());
 
-    if test_images.is_empty() {
+    let test_images = if test_images.is_empty() {
         println!("❌ No test images found. Creating sample images...");
         create_sample_images(&args.input_dir)?;
-        return main(); // Restart after creating images
-    }
+        load_test_images(&args.input_dir)? // Load again after creating
+    } else {
+        test_images
+    };
 
     let mut results = Vec::new();
 
