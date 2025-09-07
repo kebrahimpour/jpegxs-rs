@@ -148,11 +148,86 @@ jobs:
           cargo test dwt_roundtrip --verbose
           echo "✅ Mathematical Properties: Verified"
 
+  # License compliance and artifact validation
+  license-compliance:
+    name: License Compliance Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Build release artifacts
+        run: cargo build --release --all-features
+      
+      - name: Check for reference/ contamination in artifacts
+        run: |
+          echo "🔍 Checking release artifacts for reference/ code contamination"
+          
+          # Check if reference/ files are accidentally included
+          if find target/release -name "*reference*" -o -name "*intopix*" -o -name "*fraunhofer*" | grep -v ".fingerprint" | head -1; then
+            echo "❌ CRITICAL: Reference code detected in release artifacts!"
+            echo "Commercial licensing BLOCKED - reference/ code cannot be distributed"
+            exit 1
+          fi
+          
+          echo "✅ License compliance: Clean artifacts verified"
+      
+      - name: Validate clean-room code separation
+        run: |
+          echo "🔒 Validating clean-room code separation"
+          
+          # Check that commercial/ directory exists and has clean-room implementation
+          if [[ ! -d "commercial/jpegxs-core-clean" ]]; then
+            echo "❌ CRITICAL: Clean-room implementation directory missing!"
+            exit 1
+          fi
+          
+          # Verify no cross-references between commercial and reference code
+          if grep -r "reference/" commercial/ 2>/dev/null; then
+            echo "❌ CRITICAL: Commercial code references derivative implementation!"
+            exit 1
+          fi
+          
+          echo "✅ Clean-room separation: Verified"
+      
+      - name: Generate artifact manifest
+        run: |
+          echo "📋 Generating commercial artifact manifest"
+          
+          # Create manifest of all files included in commercial distribution
+          cat > ARTIFACT_MANIFEST.txt << EOF
+          # JPEG XS Codec - Commercial Distribution Manifest
+          # Generated: $(date)
+          # License: Commercial License Agreement
+          
+          ## Included Files (Commercial Use Authorized):
+          EOF
+          
+          # List all files in commercial distribution
+          find commercial/ -type f -name "*.rs" -o -name "*.toml" -o -name "*.md" | sort >> ARTIFACT_MANIFEST.txt
+          find crates/ -type f -name "*.rs" -o -name "*.toml" | grep -v "dwt.rs" | sort >> ARTIFACT_MANIFEST.txt
+          find . -maxdepth 1 -name "*.md" -o -name "LICENSE*" -o -name "Cargo.*" | sort >> ARTIFACT_MANIFEST.txt
+          
+          echo "" >> ARTIFACT_MANIFEST.txt
+          echo "## EXCLUDED Files (Third-Party Licensed - DO NOT DISTRIBUTE):" >> ARTIFACT_MANIFEST.txt
+          find reference/ -type f 2>/dev/null | sort >> ARTIFACT_MANIFEST.txt || echo "reference/ directory not present" >> ARTIFACT_MANIFEST.txt
+          
+          echo "✅ Artifact manifest generated"
+      
+      - name: Upload commercial artifact manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: commercial-manifest
+          path: ARTIFACT_MANIFEST.txt
+
   # Build status summary with visual matrix
   build-summary:
     name: Build Status Summary
     runs-on: ubuntu-latest
-    needs: [lint, test, build, security, clean-room-validation]
+    needs: [lint, test, build, security, clean-room-validation, license-compliance]
     if: always()
     
     steps:
@@ -177,6 +252,7 @@ jobs:
           echo "| Component | Status | Commercial Use | Details |" >> $GITHUB_STEP_SUMMARY
           echo "|-----------|--------|----------------|---------|" >> $GITHUB_STEP_SUMMARY
           echo "| **Clean-Room DWT** | ${{ needs.clean-room-validation.result == 'success' && '✅ Ready' || '❌ Issues' }} | ${{ needs.clean-room-validation.result == 'success' && '✅ Licensable' || '❌ Blocked' }} | ISO/IEC 21122-1:2024 compliant |" >> $GITHUB_STEP_SUMMARY
+          echo "| **License Compliance** | ${{ needs.license-compliance.result == 'success' && '✅ Clean' || '❌ Contaminated' }} | ${{ needs.license-compliance.result == 'success' && '✅ Commercial Safe' || '❌ BLOCKED' }} | Reference code excluded from builds |" >> $GITHUB_STEP_SUMMARY
           echo "| **Security Audit** | ${{ needs.security.result == 'success' && '✅ Clean' || '⚠️ Issues' }} | ${{ needs.security.result == 'success' && '✅ Safe' || '⚠️ Review' }} | Vulnerability-free dependencies |" >> $GITHUB_STEP_SUMMARY
           echo "| **Code Quality** | ${{ needs.lint.result == 'success' && '✅ Pass' || '❌ Issues' }} | ${{ needs.lint.result == 'success' && '✅ Production' || '❌ Blocked' }} | Clippy + Rustfmt enforced |" >> $GITHUB_STEP_SUMMARY
           echo "| **Build Artifacts** | ${{ needs.build.result == 'success' && '✅ Ready' || '❌ Failed' }} | ${{ needs.build.result == 'success' && '✅ Deployable' || '❌ Blocked' }} | Multi-platform binaries |" >> $GITHUB_STEP_SUMMARY
@@ -192,7 +268,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Overall status determination
-          if [[ "${{ needs.test.result }}" == "success" && "${{ needs.clean-room-validation.result }}" == "success" && "${{ needs.security.result }}" == "success" && "${{ needs.lint.result }}" == "success" && "${{ needs.build.result }}" == "success" ]]; then
+          if [[ "${{ needs.test.result }}" == "success" && "${{ needs.clean-room-validation.result }}" == "success" && "${{ needs.security.result }}" == "success" && "${{ needs.lint.result }}" == "success" && "${{ needs.build.result }}" == "success" && "${{ needs.license-compliance.result }}" == "success" ]]; then
             echo "## 🎉 **STATUS: ALL SYSTEMS GO**" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "✅ **Ready for Production Deployment**" >> $GITHUB_STEP_SUMMARY
