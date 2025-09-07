@@ -280,8 +280,13 @@ mod tests {
             .expect("Forward DWT failed");
 
         // Inverse DWT
-        jpegxs_core_clean::dwt::dwt_53_inverse_2d(&forward_output, &mut inverse_output, width, height)
-            .expect("Inverse DWT failed");
+        jpegxs_core_clean::dwt::dwt_53_inverse_2d(
+            &forward_output,
+            &mut inverse_output,
+            width,
+            height,
+        )
+        .expect("Inverse DWT failed");
 
         // Check reconstruction quality
         let mut max_error = 0.0f32;
