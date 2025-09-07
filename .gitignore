@@ -47,3 +47,10 @@ ENV/
 
 # Benchmarks
 /target/criterion/
+
+# Internal documentation (session summaries, todos, etc.)
+/internal_docs/
+SESSION-*.md
+NEXT-SESSION-*.md
+*-TODO*.md
+validation-results/
