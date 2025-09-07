@@ -284,7 +284,7 @@ fn roundtrip_preserves_dimensions(img: Image) -> bool {
 
 ### Phase 1: Core Improvements (Week 1-2)
 1. ✅ Basic CLI tool
-2. ⬜ Image format support (PNG/JPEG)
+2. ✅ Image format support (PNG/JPEG)
 3. ⬜ SIMD optimization
 4. ⬜ Basic benchmarking
 
