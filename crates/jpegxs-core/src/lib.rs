@@ -55,13 +55,13 @@ pub fn encode_frame(input: ImageView8, config: &EncoderConfig) -> Result<Bitstre
     let mut u_dwt = vec![0.0f32; u_plane.len()];
     let mut v_dwt = vec![0.0f32; v_plane.len()];
 
-    dwt::dwt_53_forward_2d(&y_plane, &mut y_dwt, input.width, input.height)?;
+    jpegxs_core_clean::dwt::dwt_53_forward_2d(&y_plane, &mut y_dwt, input.width, input.height)?;
 
     // For 422, U/V have half width
     let uv_width = input.width / 2;
     let uv_height = input.height;
-    dwt::dwt_53_forward_2d(&u_plane, &mut u_dwt, uv_width, uv_height)?;
-    dwt::dwt_53_forward_2d(&v_plane, &mut v_dwt, uv_width, uv_height)?;
+    jpegxs_core_clean::dwt::dwt_53_forward_2d(&u_plane, &mut u_dwt, uv_width, uv_height)?;
+    jpegxs_core_clean::dwt::dwt_53_forward_2d(&v_plane, &mut v_dwt, uv_width, uv_height)?;
 
     // Quantize coefficients
     let qps = quant::compute_quantization_parameters(config.quality * 8.0)?;
@@ -168,11 +168,11 @@ pub fn decode_frame(bitstream: &Bitstream, _config: &DecoderConfig) -> Result<Im
     let mut u_plane = vec![0.0f32; uv_size];
     let mut v_plane = vec![0.0f32; uv_size];
 
-    dwt::dwt_53_inverse_2d(&y_dwt, &mut y_plane, width, height)?;
+    jpegxs_core_clean::dwt::dwt_53_inverse_2d(&y_dwt, &mut y_plane, width, height)?;
     let uv_width = width / 2;
     let uv_height = height;
-    dwt::dwt_53_inverse_2d(&u_dwt, &mut u_plane, uv_width, uv_height)?;
-    dwt::dwt_53_inverse_2d(&v_dwt, &mut v_plane, uv_width, uv_height)?;
+    jpegxs_core_clean::dwt::dwt_53_inverse_2d(&u_dwt, &mut u_plane, uv_width, uv_height)?;
+    jpegxs_core_clean::dwt::dwt_53_inverse_2d(&v_dwt, &mut v_plane, uv_width, uv_height)?;
 
     // Convert back to 8-bit and pack
     let total_size = y_size + 2 * uv_size;
@@ -276,11 +276,11 @@ mod tests {
         let mut inverse_output = vec![0.0f32; size];
 
         // Forward DWT
-        dwt::dwt_53_forward_2d(&input, &mut forward_output, width, height)
+        jpegxs_core_clean::dwt::dwt_53_forward_2d(&input, &mut forward_output, width, height)
             .expect("Forward DWT failed");
 
         // Inverse DWT
-        dwt::dwt_53_inverse_2d(&forward_output, &mut inverse_output, width, height)
+        jpegxs_core_clean::dwt::dwt_53_inverse_2d(&forward_output, &mut inverse_output, width, height)
             .expect("Inverse DWT failed");
 
         // Check reconstruction quality
