@@ -63,8 +63,8 @@ pub fn encode_frame(input: ImageView8, config: &EncoderConfig) -> Result<Bitstre
     jpegxs_core_clean::dwt::dwt_53_forward_2d(&u_plane, &mut u_dwt, uv_width, uv_height)?;
     jpegxs_core_clean::dwt::dwt_53_forward_2d(&v_plane, &mut v_dwt, uv_width, uv_height)?;
 
-    // Quantize coefficients
-    let qps = quant::compute_quantization_parameters(config.quality * 8.0)?;
+    // Quantize coefficients using corrected quality mapping
+    let qps = quant::compute_quantization_parameters(config.quality)?;
     let qp_y = qps[0];
     let qp_uv = qps.get(1).copied().unwrap_or(qp_y);
 
@@ -155,9 +155,10 @@ pub fn decode_frame(bitstream: &Bitstream, _config: &DecoderConfig) -> Result<Im
     let u_quantized = all_coefficients[y_size..y_size + uv_size].to_vec();
     let v_quantized = all_coefficients[y_size + uv_size..y_size + 2 * uv_size].to_vec();
 
-    // Dequantize
-    let qp_y = 1u8; // Should come from bitstream
-    let qp_uv = 1u8;
+    // Dequantize - For now use medium quality QP values
+    // TODO: Extract QP values from WGT marker in bitstream
+    let qp_y = 8u8; // Medium quality quantization parameter
+    let qp_uv = 8u8;
 
     let y_dwt = quant::dequantize(&y_quantized, qp_y)?;
     let u_dwt = quant::dequantize(&u_quantized, qp_uv)?;

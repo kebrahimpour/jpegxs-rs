@@ -11,6 +11,10 @@ path = "src/simple_benchmark.rs"
 name = "codec_comparison"
 path = "src/codec_comparison.rs"
 
+[[bin]]
+name = "quality_test"
+path = "src/quality_test.rs"
+
 [dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }
 serde = { version = "1.0", features = ["derive"] }
