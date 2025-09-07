@@ -33,4 +33,4 @@ jpegxs-core = { path = "../crates/jpegxs-core" }
 jpegxs-core-clean = { path = "../commercial/jpegxs-core-clean" }
 
 # For comparison codecs (optional - will gracefully handle if not available)
-webp = "0.2"
+webp = "0.3.1"
