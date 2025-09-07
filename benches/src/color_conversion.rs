@@ -123,8 +123,8 @@ mod tests {
         let width = 2u32;
         let height = 2u32;
         let rgb_data = vec![
-            128, 128, 128, 192, 192, 192, // First row: mid gray, light gray  
-            64, 64, 64, 160, 160, 160,    // Second row: dark gray, lighter gray
+            128, 128, 128, 192, 192, 192, // First row: mid gray, light gray
+            64, 64, 64, 160, 160, 160, // Second row: dark gray, lighter gray
         ];
 
         // Convert to YUV and back
@@ -139,7 +139,10 @@ mod tests {
         for (i, (original, result)) in rgb_data.iter().zip(rgb_result.iter()).enumerate() {
             let diff = (*original as i16 - *result as i16).abs();
             if diff > 50 {
-                println!("Large diff at index {}: {} vs {} (diff: {})", i, original, result, diff);
+                println!(
+                    "Large diff at index {}: {} vs {} (diff: {})",
+                    i, original, result, diff
+                );
             }
             assert!(
                 diff <= 50,

@@ -63,13 +63,13 @@ pub fn compute_quantization_parameters(quality: f32) -> Result<Vec<u8>> {
 
     // Return quantization parameters for DWT subbands
     // Real JPEG XS would have different QPs for different subbands:
-    // - Lower QPs for low-frequency (visually important) subbands  
+    // - Lower QPs for low-frequency (visually important) subbands
     // - Higher QPs for high-frequency (less visually important) subbands
-    
+
     // TODO: Make DWT levels configurable via encoder config
     // For now, assume 4-level DWT which produces 13 subbands (4*3 + 1 = 13)
     const DWT_LEVELS: usize = 4;
     const NUM_SUBBANDS: usize = 3 * DWT_LEVELS + 1; // 3 detail bands per level + 1 final LL subband
-    
+
     Ok(vec![base_qp; NUM_SUBBANDS])
 }
