@@ -158,7 +158,7 @@ pub fn decode_frame(bitstream: &Bitstream, _config: &DecoderConfig) -> Result<Im
     // Dequantize - Extract QP from WGT marker or use quality-consistent defaults
     // TODO: Properly parse WGT marker to extract actual QP values from bitstream
     let (qp_y, qp_uv) = extract_quantization_parameters(&decoder)
-        .unwrap_or_else(|| get_default_quantization_parameters());
+        .unwrap_or_else(get_default_quantization_parameters);
 
     let y_dwt = quant::dequantize(&y_quantized, qp_y)?;
     let u_dwt = quant::dequantize(&u_quantized, qp_uv)?;
@@ -224,12 +224,12 @@ fn get_default_quantization_parameters() -> (u8, u8) {
     // Use the same quality-to-QP mapping as the encoder for consistency
     // Assuming medium-high quality (0.8) as a reasonable default for decoding
     const DEFAULT_QUALITY: f32 = 0.8;
-    
+
     // This mirrors the logic from quant::compute_quantization_parameters()
     let base_qp = if DEFAULT_QUALITY >= 0.95 {
         1 // Virtually lossless
     } else if DEFAULT_QUALITY >= 0.9 {
-        2 // Very high quality  
+        2 // Very high quality
     } else if DEFAULT_QUALITY >= 0.8 {
         4 // High quality
     } else if DEFAULT_QUALITY >= 0.6 {
@@ -239,7 +239,7 @@ fn get_default_quantization_parameters() -> (u8, u8) {
     } else {
         16 // Low quality
     };
-    
+
     // Use same QP for both Y and UV components as default
     (base_qp, base_qp)
 }

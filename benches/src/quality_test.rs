@@ -177,7 +177,6 @@ fn decode_jpegxs(data: &[u8]) -> Result<DynamicImage> {
     Ok(DynamicImage::ImageRgb8(img_buffer))
 }
 
-
 fn save_results(results: &[QualityTestResult], output_dir: &Path) -> Result<()> {
     // Save JSON results
     let json_path = output_dir.join("quality_test_results.json");
