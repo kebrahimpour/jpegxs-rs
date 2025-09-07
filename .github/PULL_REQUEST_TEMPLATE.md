@@ -1,27 +1,32 @@
-## Description
-Brief description of changes
+## Purpose
 
-## Type of Change
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Breaking change
-- [ ] Documentation update
-- [ ] Performance improvement
-- [ ] Refactoring
+Briefly describe what this PR accomplishes and why it's needed.
 
-## Testing
-- [ ] Unit tests pass
-- [ ] Integration tests pass
-- [ ] Manual testing completed
+## Approach
+
+Describe the technical approach taken to implement the changes.
+
+## Tests
+
+Describe the testing approach and any new tests added.
+
+## Risks
+
+Highlight any potential risks or breaking changes introduced.
+
+## Migration/Docs
+
+Note any migration steps needed or documentation updates required.
 
 ## Checklist
-- [ ] Code follows project style guidelines
+
+- [ ] Code follows project lint/format guidelines
+- [ ] All tests are passing
+- [ ] CHANGELOG.md updated (if applicable)
+- [ ] Documentation updated (if applicable)
 - [ ] Self-review completed
-- [ ] Comments added for complex code
-- [ ] Documentation updated
-- [ ] No new warnings
-- [ ] Tests added/updated
-- [ ] CHANGELOG.md updated
+- [ ] No new warnings introduced
 
 ## Related Issues
-Closes #
+
+Closes #<!-- Link to related issue -->
