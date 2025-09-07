@@ -55,3 +55,8 @@ NEXT-SESSION-*.md
 *-TODO*.md
 validation-results/
 CLAUDE.md
+
+# ISO standard documents (copyrighted material - local use only)
+/docs/
+# Keep docs folder locally but exclude from public repo
+# Contains extracted ISO/IEC 21122-1:2024 standard documentation
