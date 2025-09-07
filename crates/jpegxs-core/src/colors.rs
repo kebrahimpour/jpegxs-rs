@@ -4,7 +4,7 @@ use anyhow::Result;
 /// 
 /// Based on ITU-R BT.601 standard for YUV conversion as specified
 /// in ISO/IEC 21122-1:2024 for JPEG XS color transforms.
-
+///
 /// ITU-R BT.601 conversion coefficients with higher precision
 const RGB_TO_YUV_MATRIX: [[f64; 3]; 3] = [
     [0.299, 0.587, 0.114],              // Y coefficients
