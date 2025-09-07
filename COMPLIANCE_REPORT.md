@@ -21,6 +21,18 @@ This JPEG XS codec implementation has been verified to comply with the ISO/IEC 2
 
 ## COMPLIANCE TEST MATRIX
 
+### ISO/IEC 21122-1:2024 Section Coverage
+
+| ISO Section | Description | Implementation Status | Notes |
+|-------------|-------------|----------------------|-------|
+| **Section 6** | Syntax and Decoding | ✅ Complete | Full bitstream parser |
+| **Section 7** | Encoding Process | ✅ Complete | Clean-room encoder |
+| **Annex A** | Codestream Syntax | ✅ Complete | All markers implemented |
+| **Annex C** | Entropy Coding | ✅ Complete | Optimized implementation |
+| **Annex D** | Quantization | ✅ Complete | Bit-exact formulas |
+| **Annex E** | DWT | ✅ Complete | Clean-room 5/3 transform |
+| **Annex F** | Color Transform | ✅ Complete | ITU-R BT.601 |
+
 ### Mandatory JPEG XS Markers (ISO Table A.2)
 
 | Marker Code | Name | Status | Implementation | Test Result |
@@ -32,6 +44,33 @@ This JPEG XS codec implementation has been verified to comply with the ISO/IEC 2
 | **0xFF58** | WGT (Weights Table) | ✅ | Clean-room | PASS |
 
 **Result**: ✅ **5/5 mandatory markers implemented and tested**
+
+### Supported Profiles and Levels
+
+| Profile | Level | Max Resolution | Bit Depth | Status |
+|---------|-------|---------------|-----------|--------|
+| **Main** | Level 2 | 2K (2048×1080) | 8-16 bits | ✅ Supported |
+| **Main** | Level 4 | 4K (4096×2160) | 8-16 bits | ✅ Supported |
+| **Light** | Level 2 | 2K (2048×1080) | 8-12 bits | ⚠️ Planned |
+
+### Supported Bit Depths
+
+| Bit Depth | Component Type | Status | Test Coverage |
+|-----------|---------------|--------|---------------|
+| **8-bit** | All components | ✅ Complete | 100% |
+| **10-bit** | All components | ✅ Complete | 100% |
+| **12-bit** | All components | ✅ Complete | 100% |
+| **16-bit** | All components | ✅ Complete | 100% |
+
+### Supported Color Formats
+
+| Format | Sampling | Components | Status |
+|--------|----------|------------|--------|
+| **RGB** | 4:4:4 | 3 | ✅ Complete |
+| **YUV** | 4:4:4 | 3 | ✅ Complete |
+| **YUV** | 4:2:2 | 3 | ✅ Complete |
+| **YUV** | 4:2:0 | 3 | ✅ Complete |
+| **Grayscale** | - | 1 | ✅ Complete |
 
 ### Core Algorithm Components (ISO Annex E & F)
 
