@@ -3,6 +3,7 @@
 use anyhow::Result;
 use clap::Parser;
 use image::DynamicImage;
+use jpegxs_benchmarks::{rgb_to_yuv422p, yuv422p_to_rgb};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};

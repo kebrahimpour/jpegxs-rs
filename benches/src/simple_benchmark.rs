@@ -3,6 +3,7 @@
 use anyhow::Result;
 use clap::Parser;
 use image::{DynamicImage, ImageFormat};
+use jpegxs_benchmarks::{rgb_to_yuv422p, yuv422p_to_rgb};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -381,99 +382,6 @@ fn encode_png(img: &DynamicImage) -> Result<Vec<u8>> {
 
 fn decode_png(data: &[u8]) -> Result<DynamicImage> {
     Ok(image::load_from_memory_with_format(data, ImageFormat::Png)?)
-}
-
-// RGB to YUV422p conversion
-fn rgb_to_yuv422p(rgb_data: &[u8], width: u32, height: u32) -> Vec<u8> {
-    let pixels = width as usize * height as usize;
-    let mut yuv_data = Vec::with_capacity(pixels * 2);
-
-    // Y plane
-    let mut y_plane = Vec::with_capacity(pixels);
-    let mut u_plane = Vec::with_capacity(pixels / 2);
-    let mut v_plane = Vec::with_capacity(pixels / 2);
-
-    for y in 0..height as usize {
-        for x in (0..width as usize).step_by(2) {
-            let idx1 = (y * width as usize + x) * 3;
-            let idx2 = if x + 1 < width as usize {
-                (y * width as usize + x + 1) * 3
-            } else {
-                idx1
-            };
-
-            // RGB to YUV conversion (ITU-R BT.601)
-            let r1 = rgb_data[idx1] as f32;
-            let g1 = rgb_data[idx1 + 1] as f32;
-            let b1 = rgb_data[idx1 + 2] as f32;
-
-            let r2 = rgb_data[idx2] as f32;
-            let g2 = rgb_data[idx2 + 1] as f32;
-            let b2 = rgb_data[idx2 + 2] as f32;
-
-            let y1 = (0.299 * r1 + 0.587 * g1 + 0.114 * b1)
-                .round()
-                .clamp(0.0, 255.0) as u8;
-            let y2 = (0.299 * r2 + 0.587 * g2 + 0.114 * b2)
-                .round()
-                .clamp(0.0, 255.0) as u8;
-
-            y_plane.push(y1);
-            if x + 1 < width as usize {
-                y_plane.push(y2);
-            }
-
-            let avg_r = (r1 + r2) / 2.0;
-            let avg_g = (g1 + g2) / 2.0;
-            let avg_b = (b1 + b2) / 2.0;
-
-            let u = (-0.14713 * avg_r - 0.28886 * avg_g + 0.436 * avg_b + 128.0)
-                .round()
-                .clamp(0.0, 255.0) as u8;
-            let v = (0.615 * avg_r - 0.51499 * avg_g - 0.10001 * avg_b + 128.0)
-                .round()
-                .clamp(0.0, 255.0) as u8;
-
-            u_plane.push(u);
-            v_plane.push(v);
-        }
-    }
-
-    yuv_data.extend_from_slice(&y_plane);
-    yuv_data.extend_from_slice(&u_plane);
-    yuv_data.extend_from_slice(&v_plane);
-
-    yuv_data
-}
-
-// YUV422p to RGB conversion
-fn yuv422p_to_rgb(yuv_data: &[u8], width: u32, height: u32) -> Vec<u8> {
-    let pixels = width as usize * height as usize;
-    let mut rgb_data = Vec::with_capacity(pixels * 3);
-
-    let y_plane = &yuv_data[0..pixels];
-    let u_plane = &yuv_data[pixels..pixels + pixels / 2];
-    let v_plane = &yuv_data[pixels + pixels / 2..pixels + pixels];
-
-    for y in 0..height as usize {
-        for x in 0..width as usize {
-            let y_val = y_plane[y * width as usize + x] as f32;
-            let u_val = u_plane[y * (width as usize / 2) + x / 2] as f32 - 128.0;
-            let v_val = v_plane[y * (width as usize / 2) + x / 2] as f32 - 128.0;
-
-            let r = (y_val + 1.402 * v_val).round().clamp(0.0, 255.0) as u8;
-            let g = (y_val - 0.34414 * u_val - 0.71414 * v_val)
-                .round()
-                .clamp(0.0, 255.0) as u8;
-            let b = (y_val + 1.772 * u_val).round().clamp(0.0, 255.0) as u8;
-
-            rgb_data.push(r);
-            rgb_data.push(g);
-            rgb_data.push(b);
-        }
-    }
-
-    rgb_data
 }
 
 fn print_summary(results: &[BenchmarkResult]) {
