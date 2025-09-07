@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Keyvan Ebrahimpour. All rights reserved.
+// Copyright (c) 2025 Keyvan Ebrahimpour. All rights reserved.
 
 //! JPEG XS Benchmarking Suite
 //!

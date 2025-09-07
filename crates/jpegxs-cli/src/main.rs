@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Keyvan Ebrahimpour. All rights reserved.
+// Copyright (c) 2025 Keyvan Ebrahimpour. All rights reserved.
 //
 // This software is proprietary and confidential. Commercial use is prohibited
 // without a valid license. See LICENSE file for full terms and conditions.
@@ -403,7 +403,7 @@ fn print_licensing_info() {
     println!();
 
     println!("## Software License");
-    println!("- **Copyright**: © 2024 Keyvan Ebrahimpour. All rights reserved.");
+    println!("- **Copyright**: © 2025 Keyvan Ebrahimpour. All rights reserved.");
     println!("- **Non-Commercial Use**: Free for research, education, and personal use");
     println!("- **Commercial Use**: Requires paid commercial license");
     println!("- **License Details**: See LICENSE and COMMERCIAL_LICENSE.md files");

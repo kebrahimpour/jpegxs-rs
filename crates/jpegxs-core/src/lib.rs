@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Keyvan Ebrahimpour. All rights reserved.
+// Copyright (c) 2025 Keyvan Ebrahimpour. All rights reserved.
 //
 // This software is proprietary and confidential. Commercial use is prohibited
 // without a valid license. See LICENSE file for full terms and conditions.
