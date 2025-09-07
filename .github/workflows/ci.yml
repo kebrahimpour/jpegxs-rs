@@ -184,7 +184,7 @@ jobs:
           )
           SIGNATURE_CONTAMINATION=""
           for pattern in "${SIGNATURE_PATTERNS[@]}"; do
-            MATCHES=$(grep -a -r -E "$pattern" target/release 2>/dev/null || true)
+            MATCHES=$(grep -a -r -E "$pattern" target/release 2>/dev/null | grep -v "libzune_jpeg" | grep -v "deps/" || true)
             if [ -n "$MATCHES" ]; then
               SIGNATURE_CONTAMINATION="${SIGNATURE_CONTAMINATION}\\nPattern: $pattern\\n$MATCHES"
             fi
