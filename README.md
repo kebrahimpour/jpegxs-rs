@@ -223,10 +223,13 @@ This software is free for:
 - Integration into proprietary/commercial software
 - Providing services to third parties
 
+⚠️ **IMPORTANT PATENT NOTICE**: This license does not include any patent rights. For JPEG XS patent coverage, obtain a separate license from the JPEG XS patent pool administered by Vectis IP. See [PATENT_NOTICE.md](PATENT_NOTICE.md) for details.
+
 ### Obtaining a Commercial License
 For commercial licensing options, contact:
 - **Email**: k1.ebrahimpour@gmail.com
 - **Available licenses**: Single Application, Enterprise, OEM, Source Code with redistribution
+- **Patent Licensing**: Contact Vectis IP separately for JPEG XS essential patents
 
 ### License Terms
 See the [LICENSE](LICENSE) file for complete terms and conditions.
