@@ -129,19 +129,24 @@ fn main() -> Result<()> {
     // Initialize progress bar
     let total_tests = test_images.len() * args.codecs.len() * args.quality_levels.len();
     let pb = ProgressBar::new(total_tests as u64);
-    pb.set_style(ProgressStyle::default_bar()
-        .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} {msg}")
-        .unwrap()
-        .progress_chars("#>-"));
+    pb.set_style(
+        ProgressStyle::default_bar()
+            .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} {msg}")
+            .unwrap()
+            .progress_chars("#>-"),
+    );
 
     // Run benchmarks
     let mut results = Vec::new();
     for image_path in &test_images {
         for &codec in &args.codecs {
             for &quality in &args.quality_levels {
-                pb.set_message(format!("Testing {} with {:?} @ {:.1}", 
-                    image_path.file_stem().unwrap().to_str().unwrap(), 
-                    codec, quality));
+                pb.set_message(format!(
+                    "Testing {} with {:?} @ {:.1}",
+                    image_path.file_stem().unwrap().to_str().unwrap(),
+                    codec,
+                    quality
+                ));
 
                 let result = benchmark_codec(image_path, codec, quality, args.iterations)?;
                 results.push(result);
@@ -167,11 +172,11 @@ fn main() -> Result<()> {
 
 fn load_test_images(input_dir: &Path) -> Result<Vec<PathBuf>> {
     let mut images = Vec::new();
-    
+
     if !input_dir.exists() {
         println!("📁 Creating test image directory: {}", input_dir.display());
         fs::create_dir_all(input_dir)?;
-        
+
         // Create some test images if none exist
         create_test_images(input_dir)?;
     }
@@ -202,15 +207,34 @@ fn load_test_images(input_dir: &Path) -> Result<Vec<PathBuf>> {
 }
 
 fn create_test_images(dir: &Path) -> Result<()> {
-
     println!("🎨 Creating synthetic test images...");
 
     // Create various test patterns
     let test_cases = [
-        ("gradient_256x256.png", 256, 256, generate_gradient as fn(u32, u32) -> DynamicImage),
-        ("noise_512x512.png", 512, 512, generate_noise as fn(u32, u32) -> DynamicImage),
-        ("pattern_1024x768.png", 1024, 768, generate_pattern as fn(u32, u32) -> DynamicImage),
-        ("photo_realistic_640x480.png", 640, 480, generate_photo_realistic as fn(u32, u32) -> DynamicImage),
+        (
+            "gradient_256x256.png",
+            256,
+            256,
+            generate_gradient as fn(u32, u32) -> DynamicImage,
+        ),
+        (
+            "noise_512x512.png",
+            512,
+            512,
+            generate_noise as fn(u32, u32) -> DynamicImage,
+        ),
+        (
+            "pattern_1024x768.png",
+            1024,
+            768,
+            generate_pattern as fn(u32, u32) -> DynamicImage,
+        ),
+        (
+            "photo_realistic_640x480.png",
+            640,
+            480,
+            generate_photo_realistic as fn(u32, u32) -> DynamicImage,
+        ),
     ];
 
     for (name, width, height, generator) in test_cases {
@@ -236,7 +260,7 @@ fn generate_gradient(width: u32, height: u32) -> DynamicImage {
 fn generate_noise(width: u32, height: u32) -> DynamicImage {
     use std::collections::hash_map::DefaultHasher;
     use std::hash::{Hash, Hasher};
-    
+
     let img = ImageBuffer::from_fn(width, height, |x, y| {
         let mut hasher = DefaultHasher::new();
         (x, y).hash(&mut hasher);
@@ -253,11 +277,11 @@ fn generate_pattern(width: u32, height: u32) -> DynamicImage {
     let img = ImageBuffer::from_fn(width, height, |x, y| {
         let checker = ((x / 32) + (y / 32)) % 2;
         let intensity = if checker == 0 { 64 } else { 192 };
-        
+
         let r = intensity + (x % 32) as u8 * 2;
         let g = intensity + (y % 32) as u8 * 2;
         let b = intensity + ((x + y) % 32) as u8 * 2;
-        
+
         Rgb([r, g, b])
     });
     DynamicImage::ImageRgb8(img)
@@ -267,7 +291,7 @@ fn generate_photo_realistic(width: u32, height: u32) -> DynamicImage {
     let img = ImageBuffer::from_fn(width, height, |x, y| {
         let fx = x as f32 / width as f32;
         let fy = y as f32 / height as f32;
-        
+
         // Create a natural-looking scene with sky gradient and ground texture
         let sky_blue = if fy < 0.3 {
             let intensity = (135.0 + (fy * 120.0)) as u8;
@@ -278,7 +302,7 @@ fn generate_photo_realistic(width: u32, height: u32) -> DynamicImage {
             let noise = ((x * 7 + y * 11) % 64) as u8;
             Rgb([base_green, 80 + noise / 4, base_green / 2])
         };
-        
+
         sky_blue
     });
     DynamicImage::ImageRgb8(img)
@@ -309,8 +333,10 @@ fn benchmark_codec(
     }
 
     // Calculate averages
-    let avg_encode_time = encode_times.iter().sum::<Duration>().as_secs_f64() / iterations as f64 * 1000.0;
-    let avg_decode_time = decode_times.iter().sum::<Duration>().as_secs_f64() / iterations as f64 * 1000.0;
+    let avg_encode_time =
+        encode_times.iter().sum::<Duration>().as_secs_f64() / iterations as f64 * 1000.0;
+    let avg_decode_time =
+        decode_times.iter().sum::<Duration>().as_secs_f64() / iterations as f64 * 1000.0;
 
     let compressed_size = compressed_data.len() as u64;
     let compression_ratio = original_size as f32 / compressed_size as f32;
@@ -325,7 +351,11 @@ fn benchmark_codec(
     let decode_throughput = original_mb / (avg_decode_time / 1000.0);
 
     Ok(BenchmarkResult {
-        image_name: image_path.file_stem().unwrap().to_string_lossy().to_string(),
+        image_name: image_path
+            .file_stem()
+            .unwrap()
+            .to_string_lossy()
+            .to_string(),
         codec: format!("{:?}", codec),
         quality,
         original_size,
@@ -369,10 +399,10 @@ fn encode_jpegxs(img: &DynamicImage, quality: f32) -> Result<Vec<u8>> {
     // Convert to RGB and then to YUV422p
     let rgb_img = img.to_rgb8();
     let (width, height) = rgb_img.dimensions();
-    
+
     // Convert RGB to YUV422p (simplified)
     let yuv_data = rgb_to_yuv422p(rgb_img.as_raw(), width, height);
-    
+
     let image_view = jpegxs_core::types::ImageView8 {
         data: &yuv_data,
         width,
@@ -401,10 +431,10 @@ fn decode_jpegxs(data: &[u8]) -> Result<DynamicImage> {
 
     // Convert YUV back to RGB
     let rgb_data = yuv422p_to_rgb(&decoded.data, decoded.width, decoded.height);
-    
+
     let img_buffer = image::ImageBuffer::from_raw(decoded.width, decoded.height, rgb_data)
         .ok_or_else(|| anyhow::anyhow!("Failed to create image buffer"))?;
-    
+
     Ok(DynamicImage::ImageRgb8(img_buffer))
 }
 
@@ -416,7 +446,10 @@ fn encode_jpeg(img: &DynamicImage, quality: f32) -> Result<Vec<u8>> {
 }
 
 fn decode_jpeg(data: &[u8]) -> Result<DynamicImage> {
-    Ok(image::load_from_memory_with_format(data, ImageFormat::Jpeg)?)
+    Ok(image::load_from_memory_with_format(
+        data,
+        ImageFormat::Jpeg,
+    )?)
 }
 
 fn encode_png(img: &DynamicImage) -> Result<Vec<u8>> {
@@ -432,7 +465,7 @@ fn decode_png(data: &[u8]) -> Result<DynamicImage> {
 fn encode_webp(img: &DynamicImage, quality: f32) -> Result<Vec<u8>> {
     let rgb_img = img.to_rgb8();
     let (width, height) = rgb_img.dimensions();
-    
+
     let encoder = webp::Encoder::from_rgb(rgb_img.as_raw(), width, height);
     let encoded = encoder.encode(quality * 100.0);
     Ok(encoded.to_vec())
@@ -440,11 +473,14 @@ fn encode_webp(img: &DynamicImage, quality: f32) -> Result<Vec<u8>> {
 
 fn decode_webp(data: &[u8]) -> Result<DynamicImage> {
     let decoder = webp::Decoder::new(data);
-    let decoded = decoder.decode().ok_or_else(|| anyhow::anyhow!("WebP decode failed"))?;
-    
-    let img_buffer = image::ImageBuffer::from_raw(decoded.width(), decoded.height(), decoded.to_vec())
-        .ok_or_else(|| anyhow::anyhow!("Failed to create image buffer"))?;
-    
+    let decoded = decoder
+        .decode()
+        .ok_or_else(|| anyhow::anyhow!("WebP decode failed"))?;
+
+    let img_buffer =
+        image::ImageBuffer::from_raw(decoded.width(), decoded.height(), decoded.to_vec())
+            .ok_or_else(|| anyhow::anyhow!("Failed to create image buffer"))?;
+
     Ok(DynamicImage::ImageRgb8(img_buffer))
 }
 
@@ -463,7 +499,9 @@ fn rgb_to_yuv422p(rgb_data: &[u8], width: u32, height: u32) -> Vec<u8> {
             let idx1 = (y * width as usize + x) * 3;
             let idx2 = if x + 1 < width as usize {
                 (y * width as usize + x + 1) * 3
-            } else { idx1 };
+            } else {
+                idx1
+            };
 
             // RGB to YUV conversion (ITU-R BT.601)
             let r1 = rgb_data[idx1] as f32;
@@ -474,8 +512,12 @@ fn rgb_to_yuv422p(rgb_data: &[u8], width: u32, height: u32) -> Vec<u8> {
             let g2 = rgb_data[idx2 + 1] as f32;
             let b2 = rgb_data[idx2 + 2] as f32;
 
-            let y1 = (0.299 * r1 + 0.587 * g1 + 0.114 * b1).round().clamp(0.0, 255.0) as u8;
-            let y2 = (0.299 * r2 + 0.587 * g2 + 0.114 * b2).round().clamp(0.0, 255.0) as u8;
+            let y1 = (0.299 * r1 + 0.587 * g1 + 0.114 * b1)
+                .round()
+                .clamp(0.0, 255.0) as u8;
+            let y2 = (0.299 * r2 + 0.587 * g2 + 0.114 * b2)
+                .round()
+                .clamp(0.0, 255.0) as u8;
 
             y_plane.push(y1);
             if x + 1 < width as usize {
@@ -487,9 +529,11 @@ fn rgb_to_yuv422p(rgb_data: &[u8], width: u32, height: u32) -> Vec<u8> {
             let avg_b = (b1 + b2) / 2.0;
 
             let u = (-0.14713 * avg_r - 0.28886 * avg_g + 0.436 * avg_b + 128.0)
-                .round().clamp(0.0, 255.0) as u8;
+                .round()
+                .clamp(0.0, 255.0) as u8;
             let v = (0.615 * avg_r - 0.51499 * avg_g - 0.10001 * avg_b + 128.0)
-                .round().clamp(0.0, 255.0) as u8;
+                .round()
+                .clamp(0.0, 255.0) as u8;
 
             u_plane.push(u);
             v_plane.push(v);
@@ -518,7 +562,9 @@ fn yuv422p_to_rgb(yuv_data: &[u8], width: u32, height: u32) -> Vec<u8> {
             let v_val = v_plane[y * (width as usize / 2) + x / 2] as f32 - 128.0;
 
             let r = (y_val + 1.402 * v_val).round().clamp(0.0, 255.0) as u8;
-            let g = (y_val - 0.34414 * u_val - 0.71414 * v_val).round().clamp(0.0, 255.0) as u8;
+            let g = (y_val - 0.34414 * u_val - 0.71414 * v_val)
+                .round()
+                .clamp(0.0, 255.0) as u8;
             let b = (y_val + 1.772 * u_val).round().clamp(0.0, 255.0) as u8;
 
             rgb_data.push(r);
@@ -547,7 +593,7 @@ fn calculate_psnr(img1: &DynamicImage, img2: &DynamicImage) -> Result<f64> {
     }
 
     mse /= pixels;
-    
+
     if mse == 0.0 {
         Ok(f64::INFINITY)
     } else {
@@ -558,7 +604,7 @@ fn calculate_psnr(img1: &DynamicImage, img2: &DynamicImage) -> Result<f64> {
 fn calculate_ssim(img1: &DynamicImage, img2: &DynamicImage) -> Result<f64> {
     // Simplified SSIM calculation (placeholder)
     let psnr = calculate_psnr(img1, img2)?;
-    
+
     // Convert PSNR to approximate SSIM (simplified)
     if psnr.is_infinite() {
         Ok(1.0)
@@ -574,7 +620,8 @@ fn generate_report(
 ) -> Result<ComparisonReport> {
     let metadata = TestMetadata {
         timestamp: chrono::Utc::now().to_rfc3339(),
-        test_images: test_images.iter()
+        test_images: test_images
+            .iter()
             .map(|p| p.file_name().unwrap().to_string_lossy().to_string())
             .collect(),
         quality_levels: args.quality_levels.clone(),
@@ -582,7 +629,7 @@ fn generate_report(
         system_info: SystemInfo {
             os: std::env::consts::OS.to_string(),
             cpu: "Unknown".to_string(), // Would need additional crate for CPU detection
-            memory_gb: 8.0, // Placeholder
+            memory_gb: 8.0,             // Placeholder
             rust_version: std::env::var("RUSTC_VERSION").unwrap_or_else(|_| "unknown".to_string()),
         },
     };
@@ -601,33 +648,54 @@ fn generate_summary(results: &[BenchmarkResult]) -> Result<CodecSummary> {
     let mut by_quality: HashMap<String, Vec<&BenchmarkResult>> = HashMap::new();
 
     for result in results {
-        by_codec.entry(result.codec.clone()).or_default().push(result);
-        by_quality.entry(result.quality.to_string()).or_default().push(result);
+        by_codec
+            .entry(result.codec.clone())
+            .or_default()
+            .push(result);
+        by_quality
+            .entry(result.quality.to_string())
+            .or_default()
+            .push(result);
     }
 
-    let codec_stats = by_codec.into_iter()
+    let codec_stats = by_codec
+        .into_iter()
         .map(|(codec, results)| {
             let stats = CodecStats {
-                avg_compression_ratio: results.iter().map(|r| r.compression_ratio as f64).sum::<f64>() / results.len() as f64,
-                avg_encode_time_ms: results.iter().map(|r| r.encode_time_ms).sum::<f64>() / results.len() as f64,
-                avg_decode_time_ms: results.iter().map(|r| r.decode_time_ms).sum::<f64>() / results.len() as f64,
+                avg_compression_ratio: results
+                    .iter()
+                    .map(|r| r.compression_ratio as f64)
+                    .sum::<f64>()
+                    / results.len() as f64,
+                avg_encode_time_ms: results.iter().map(|r| r.encode_time_ms).sum::<f64>()
+                    / results.len() as f64,
+                avg_decode_time_ms: results.iter().map(|r| r.decode_time_ms).sum::<f64>()
+                    / results.len() as f64,
                 avg_psnr: results.iter().map(|r| r.psnr).sum::<f64>() / results.len() as f64,
                 avg_ssim: results.iter().map(|r| r.ssim).sum::<f64>() / results.len() as f64,
-                avg_encode_throughput_mbps: results.iter().map(|r| r.encode_throughput_mbps).sum::<f64>() / results.len() as f64,
-                avg_decode_throughput_mbps: results.iter().map(|r| r.decode_throughput_mbps).sum::<f64>() / results.len() as f64,
+                avg_encode_throughput_mbps: results
+                    .iter()
+                    .map(|r| r.encode_throughput_mbps)
+                    .sum::<f64>()
+                    / results.len() as f64,
+                avg_decode_throughput_mbps: results
+                    .iter()
+                    .map(|r| r.decode_throughput_mbps)
+                    .sum::<f64>()
+                    / results.len() as f64,
             };
             (codec, stats)
         })
         .collect();
 
-    let quality_stats = by_quality.into_iter()
+    let quality_stats = by_quality
+        .into_iter()
         .map(|(quality, results)| {
-            let compression_ratios = results.iter()
-                .fold(HashMap::new(), |mut acc, r| {
-                    *acc.entry(r.codec.clone()).or_insert(0.0) += r.compression_ratio as f64;
-                    acc
-                });
-            
+            let compression_ratios = results.iter().fold(HashMap::new(), |mut acc, r| {
+                *acc.entry(r.codec.clone()).or_insert(0.0) += r.compression_ratio as f64;
+                acc
+            });
+
             let stats = QualityStats {
                 compression_ratios,
                 encode_times: HashMap::new(), // Simplified
@@ -668,24 +736,51 @@ fn save_results(report: &ComparisonReport, output_dir: &Path) -> Result<()> {
 
 fn generate_markdown_report(report: &ComparisonReport) -> Result<String> {
     let mut md = String::new();
-    
+
     md.push_str("# JPEG XS Codec Performance Comparison\n\n");
-    md.push_str(&format!("**Generated**: {}\n", report.test_metadata.timestamp));
-    md.push_str(&format!("**Test Images**: {}\n", report.test_metadata.test_images.len()));
-    md.push_str(&format!("**Quality Levels**: {:?}\n", report.test_metadata.quality_levels));
-    md.push_str(&format!("**Iterations**: {}\n\n", report.test_metadata.iterations));
+    md.push_str(&format!(
+        "**Generated**: {}\n",
+        report.test_metadata.timestamp
+    ));
+    md.push_str(&format!(
+        "**Test Images**: {}\n",
+        report.test_metadata.test_images.len()
+    ));
+    md.push_str(&format!(
+        "**Quality Levels**: {:?}\n",
+        report.test_metadata.quality_levels
+    ));
+    md.push_str(&format!(
+        "**Iterations**: {}\n\n",
+        report.test_metadata.iterations
+    ));
 
     md.push_str("## Codec Performance Summary\n\n");
-    
+
     for (codec, stats) in &report.summary.by_codec {
         md.push_str(&format!("### {}\n", codec));
-        md.push_str(&format!("- **Average Compression Ratio**: {:.2}:1\n", stats.avg_compression_ratio));
-        md.push_str(&format!("- **Average Encode Time**: {:.2} ms\n", stats.avg_encode_time_ms));
-        md.push_str(&format!("- **Average Decode Time**: {:.2} ms\n", stats.avg_decode_time_ms));
+        md.push_str(&format!(
+            "- **Average Compression Ratio**: {:.2}:1\n",
+            stats.avg_compression_ratio
+        ));
+        md.push_str(&format!(
+            "- **Average Encode Time**: {:.2} ms\n",
+            stats.avg_encode_time_ms
+        ));
+        md.push_str(&format!(
+            "- **Average Decode Time**: {:.2} ms\n",
+            stats.avg_decode_time_ms
+        ));
         md.push_str(&format!("- **Average PSNR**: {:.2} dB\n", stats.avg_psnr));
         md.push_str(&format!("- **Average SSIM**: {:.3}\n", stats.avg_ssim));
-        md.push_str(&format!("- **Encode Throughput**: {:.2} MB/s\n", stats.avg_encode_throughput_mbps));
-        md.push_str(&format!("- **Decode Throughput**: {:.2} MB/s\n\n", stats.avg_decode_throughput_mbps));
+        md.push_str(&format!(
+            "- **Encode Throughput**: {:.2} MB/s\n",
+            stats.avg_encode_throughput_mbps
+        ));
+        md.push_str(&format!(
+            "- **Decode Throughput**: {:.2} MB/s\n\n",
+            stats.avg_decode_throughput_mbps
+        ));
     }
 
     md.push_str("## Detailed Results\n\n");
@@ -701,22 +796,34 @@ fn print_summary(report: &ComparisonReport) {
     for (codec, stats) in &report.summary.by_codec {
         println!("\n🔧 {} Performance:", codec);
         println!("   Compression Ratio: {:.2}:1", stats.avg_compression_ratio);
-        println!("   Encode Speed: {:.2} MB/s", stats.avg_encode_throughput_mbps);
-        println!("   Decode Speed: {:.2} MB/s", stats.avg_decode_throughput_mbps);
+        println!(
+            "   Encode Speed: {:.2} MB/s",
+            stats.avg_encode_throughput_mbps
+        );
+        println!(
+            "   Decode Speed: {:.2} MB/s",
+            stats.avg_decode_throughput_mbps
+        );
         println!("   Image Quality (PSNR): {:.2} dB", stats.avg_psnr);
     }
 
     // Find best performers
-    let best_compression = report.summary.by_codec.iter()
-        .max_by(|a, b| a.1.avg_compression_ratio.partial_cmp(&b.1.avg_compression_ratio).unwrap());
-    
-    let best_encode_speed = report.summary.by_codec.iter()
-        .max_by(|a, b| a.1.avg_encode_throughput_mbps.partial_cmp(&b.1.avg_encode_throughput_mbps).unwrap());
+    let best_compression = report.summary.by_codec.iter().max_by(|a, b| {
+        a.1.avg_compression_ratio
+            .partial_cmp(&b.1.avg_compression_ratio)
+            .unwrap()
+    });
+
+    let best_encode_speed = report.summary.by_codec.iter().max_by(|a, b| {
+        a.1.avg_encode_throughput_mbps
+            .partial_cmp(&b.1.avg_encode_throughput_mbps)
+            .unwrap()
+    });
 
     if let Some((codec, _)) = best_compression {
         println!("\n🏆 Best Compression: {}", codec);
     }
-    
+
     if let Some((codec, _)) = best_encode_speed {
         println!("🚀 Fastest Encoding: {}", codec);
     }

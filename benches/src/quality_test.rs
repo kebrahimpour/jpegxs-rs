@@ -48,23 +48,36 @@ fn main() -> Result<()> {
 
     // Load test image
     if !args.input.exists() {
-        return Err(anyhow::anyhow!("Input image not found: {}", args.input.display()));
+        return Err(anyhow::anyhow!(
+            "Input image not found: {}",
+            args.input.display()
+        ));
     }
 
     let original_img = image::open(&args.input)?;
     let original_size = fs::metadata(&args.input)?.len() as f64 / 1024.0;
 
-    println!("📁 Test image: {} ({:.1} KB)", args.input.display(), original_size);
+    println!(
+        "📁 Test image: {} ({:.1} KB)",
+        args.input.display(),
+        original_size
+    );
     println!("📊 Testing {} quality levels", args.quality_levels.len());
 
     let mut results = Vec::new();
 
     for (i, &quality) in args.quality_levels.iter().enumerate() {
-        println!("\n🎯 Testing Quality {:.2} ({}/{})", quality, i + 1, args.quality_levels.len());
+        println!(
+            "\n🎯 Testing Quality {:.2} ({}/{})",
+            quality,
+            i + 1,
+            args.quality_levels.len()
+        );
 
         let result = test_quality_level(&original_img, quality, original_size)?;
-        
-        println!("   QP: {} | Size: {:.1} KB | Ratio: {:.1}:1 | Time: {:.2}ms", 
+
+        println!(
+            "   QP: {} | Size: {:.1} KB | Ratio: {:.1}:1 | Time: {:.2}ms",
             result.quantization_parameter,
             result.compressed_size_kb,
             result.compression_ratio,
@@ -76,7 +89,7 @@ fn main() -> Result<()> {
 
     // Save results
     save_results(&results, &args.output_dir)?;
-    
+
     // Print summary
     print_quality_analysis(&results);
 
@@ -124,10 +137,10 @@ fn encode_jpegxs(img: &DynamicImage, quality: f32) -> Result<Vec<u8>> {
     // Convert to RGB and then to YUV422p
     let rgb_img = img.to_rgb8();
     let (width, height) = rgb_img.dimensions();
-    
+
     // Convert RGB to YUV422p
     let yuv_data = rgb_to_yuv422p(rgb_img.as_raw(), width, height);
-    
+
     let image_view = jpegxs_core::types::ImageView8 {
         data: &yuv_data,
         width,
@@ -156,10 +169,10 @@ fn decode_jpegxs(data: &[u8]) -> Result<DynamicImage> {
 
     // Convert YUV back to RGB
     let rgb_data = yuv422p_to_rgb(&decoded.data, decoded.width, decoded.height);
-    
+
     let img_buffer = image::ImageBuffer::from_raw(decoded.width, decoded.height, rgb_data)
         .ok_or_else(|| anyhow::anyhow!("Failed to create image buffer"))?;
-    
+
     Ok(DynamicImage::ImageRgb8(img_buffer))
 }
 
@@ -177,7 +190,9 @@ fn rgb_to_yuv422p(rgb_data: &[u8], width: u32, height: u32) -> Vec<u8> {
             let idx1 = (y * width as usize + x) * 3;
             let idx2 = if x + 1 < width as usize {
                 (y * width as usize + x + 1) * 3
-            } else { idx1 };
+            } else {
+                idx1
+            };
 
             let r1 = rgb_data[idx1] as f32;
             let g1 = rgb_data[idx1 + 1] as f32;
@@ -187,8 +202,12 @@ fn rgb_to_yuv422p(rgb_data: &[u8], width: u32, height: u32) -> Vec<u8> {
             let g2 = rgb_data[idx2 + 1] as f32;
             let b2 = rgb_data[idx2 + 2] as f32;
 
-            let y1 = (0.299 * r1 + 0.587 * g1 + 0.114 * b1).round().clamp(0.0, 255.0) as u8;
-            let y2 = (0.299 * r2 + 0.587 * g2 + 0.114 * b2).round().clamp(0.0, 255.0) as u8;
+            let y1 = (0.299 * r1 + 0.587 * g1 + 0.114 * b1)
+                .round()
+                .clamp(0.0, 255.0) as u8;
+            let y2 = (0.299 * r2 + 0.587 * g2 + 0.114 * b2)
+                .round()
+                .clamp(0.0, 255.0) as u8;
 
             y_plane.push(y1);
             if x + 1 < width as usize {
@@ -200,9 +219,11 @@ fn rgb_to_yuv422p(rgb_data: &[u8], width: u32, height: u32) -> Vec<u8> {
             let avg_b = (b1 + b2) / 2.0;
 
             let u = (-0.14713 * avg_r - 0.28886 * avg_g + 0.436 * avg_b + 128.0)
-                .round().clamp(0.0, 255.0) as u8;
+                .round()
+                .clamp(0.0, 255.0) as u8;
             let v = (0.615 * avg_r - 0.51499 * avg_g - 0.10001 * avg_b + 128.0)
-                .round().clamp(0.0, 255.0) as u8;
+                .round()
+                .clamp(0.0, 255.0) as u8;
 
             u_plane.push(u);
             v_plane.push(v);
@@ -232,7 +253,9 @@ fn yuv422p_to_rgb(yuv_data: &[u8], width: u32, height: u32) -> Vec<u8> {
             let v_val = v_plane[y * (width as usize / 2) + x / 2] as f32 - 128.0;
 
             let r = (y_val + 1.402 * v_val).round().clamp(0.0, 255.0) as u8;
-            let g = (y_val - 0.34414 * u_val - 0.71414 * v_val).round().clamp(0.0, 255.0) as u8;
+            let g = (y_val - 0.34414 * u_val - 0.71414 * v_val)
+                .round()
+                .clamp(0.0, 255.0) as u8;
             let b = (y_val + 1.772 * u_val).round().clamp(0.0, 255.0) as u8;
 
             rgb_data.push(r);
@@ -272,14 +295,21 @@ fn save_results(results: &[QualityTestResult], output_dir: &Path) -> Result<()> 
 
 fn generate_markdown_report(results: &[QualityTestResult]) -> Result<String> {
     let mut md = String::new();
-    
+
     md.push_str("# JPEG XS Quality Parameter Test Report\n\n");
-    md.push_str(&format!("**Generated**: {}\n", chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC")));
+    md.push_str(&format!(
+        "**Generated**: {}\n",
+        chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC")
+    ));
     md.push_str(&format!("**Quality Levels Tested**: {}\n\n", results.len()));
 
     md.push_str("## Quality vs Compression Analysis\n\n");
-    md.push_str("| Quality | QP | Original (KB) | Compressed (KB) | Ratio | Reduction % | Encode (ms) |\n");
-    md.push_str("|---------|----|--------------:|----------------:|------:|------------:|------------:|\n");
+    md.push_str(
+        "| Quality | QP | Original (KB) | Compressed (KB) | Ratio | Reduction % | Encode (ms) |\n",
+    );
+    md.push_str(
+        "|---------|----|--------------:|----------------:|------:|------------:|------------:|\n",
+    );
 
     for result in results {
         md.push_str(&format!(
@@ -295,27 +325,43 @@ fn generate_markdown_report(results: &[QualityTestResult]) -> Result<String> {
     }
 
     md.push_str("\n## Analysis\n\n");
-    
-    let best_compression = results.iter()
-        .max_by(|a, b| a.compression_ratio.partial_cmp(&b.compression_ratio).unwrap())
+
+    let best_compression = results
+        .iter()
+        .max_by(|a, b| {
+            a.compression_ratio
+                .partial_cmp(&b.compression_ratio)
+                .unwrap()
+        })
         .unwrap();
-    
-    let fastest_encode = results.iter()
+
+    let fastest_encode = results
+        .iter()
         .min_by(|a, b| a.encode_time_ms.partial_cmp(&b.encode_time_ms).unwrap())
         .unwrap();
 
-    md.push_str(&format!("- **Best Compression**: Quality {:.2} achieved {:.1}:1 ratio\n", 
-        best_compression.quality, best_compression.compression_ratio));
-    md.push_str(&format!("- **Fastest Encoding**: Quality {:.2} at {:.2}ms\n", 
-        fastest_encode.quality, fastest_encode.encode_time_ms));
-    
+    md.push_str(&format!(
+        "- **Best Compression**: Quality {:.2} achieved {:.1}:1 ratio\n",
+        best_compression.quality, best_compression.compression_ratio
+    ));
+    md.push_str(&format!(
+        "- **Fastest Encoding**: Quality {:.2} at {:.2}ms\n",
+        fastest_encode.quality, fastest_encode.encode_time_ms
+    ));
+
     // Check if compression improves with lower quality
-    let improvements = results.windows(2).filter(|pair| 
-        pair[0].quality > pair[1].quality && pair[1].compression_ratio > pair[0].compression_ratio
-    ).count();
-    
+    let improvements = results
+        .windows(2)
+        .filter(|pair| {
+            pair[0].quality > pair[1].quality
+                && pair[1].compression_ratio > pair[0].compression_ratio
+        })
+        .count();
+
     if improvements > 0 {
-        md.push_str("- **Quality Mapping**: ✅ Working correctly (lower quality = better compression)\n");
+        md.push_str(
+            "- **Quality Mapping**: ✅ Working correctly (lower quality = better compression)\n",
+        );
     } else {
         md.push_str("- **Quality Mapping**: ⚠️ May need further tuning\n");
     }
@@ -332,20 +378,23 @@ fn print_quality_analysis(results: &[QualityTestResult]) {
         let status = if result.compression_ratio >= 2.0 {
             "✅ Good"
         } else if result.compression_ratio >= 1.5 {
-            "⚠️ Moderate"  
+            "⚠️ Moderate"
         } else {
             "🔴 Poor"
         };
-        
-        println!("   Quality {:.2} (QP {}): {:.1}:1 ratio - {}", 
-            result.quality, result.quantization_parameter, result.compression_ratio, status);
+
+        println!(
+            "   Quality {:.2} (QP {}): {:.1}:1 ratio - {}",
+            result.quality, result.quantization_parameter, result.compression_ratio, status
+        );
     }
 
     // Check for proper quality scaling
     let mut compression_improves = true;
     for i in 1..results.len() {
-        if results[i].quality < results[i-1].quality && 
-           results[i].compression_ratio <= results[i-1].compression_ratio {
+        if results[i].quality < results[i - 1].quality
+            && results[i].compression_ratio <= results[i - 1].compression_ratio
+        {
             compression_improves = false;
             break;
         }
@@ -360,7 +409,8 @@ fn print_quality_analysis(results: &[QualityTestResult]) {
         println!("   ⚠️ Some quality levels don't follow expected compression pattern");
     }
 
-    let avg_ratio: f64 = results.iter().map(|r| r.compression_ratio).sum::<f64>() / results.len() as f64;
+    let avg_ratio: f64 =
+        results.iter().map(|r| r.compression_ratio).sum::<f64>() / results.len() as f64;
     println!("   📈 Average compression ratio: {:.1}:1", avg_ratio);
 
     if avg_ratio >= 3.0 {
