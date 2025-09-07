@@ -4,7 +4,9 @@ members = [
     "crates/jpegxs-core",
     "crates/jpegxs-io",
     "crates/jpegxs-cli",
-    "crates/jpegxs-ffi", "commercial/jpegxs-core-clean",
+    "crates/jpegxs-ffi",
+    "commercial/jpegxs-core-clean",
+    "benches",
 ]
 
 [workspace.package]
