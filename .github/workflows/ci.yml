@@ -188,8 +188,8 @@ jobs:
             exit 1
           fi
           
-          # Verify no cross-references between commercial and reference code
-          CROSS_REFS=$(grep -r "reference/" commercial/ 2>/dev/null || true)
+          # Verify no cross-references between commercial and reference code (exclude documentation)
+          CROSS_REFS=$(grep -r "reference/" commercial/ --include="*.rs" --include="*.toml" 2>/dev/null || true)
           if [ -n "$CROSS_REFS" ]; then
             echo "❌ CRITICAL: Commercial code references derivative implementation!"
             echo "References found: $CROSS_REFS"
