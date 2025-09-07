@@ -157,8 +157,7 @@ pub fn decode_frame(bitstream: &Bitstream, _config: &DecoderConfig) -> Result<Im
 
     // Dequantize - Extract QP from WGT marker or use reasonable defaults
     // TODO: Properly parse WGT marker to extract actual QP values
-    let (qp_y, qp_uv) = extract_quantization_parameters(&decoder)
-        .unwrap_or((8u8, 8u8)); // Fallback to medium quality
+    let (qp_y, qp_uv) = extract_quantization_parameters(&decoder).unwrap_or((8u8, 8u8)); // Fallback to medium quality
 
     let y_dwt = quant::dequantize(&y_quantized, qp_y)?;
     let u_dwt = quant::dequantize(&u_quantized, qp_uv)?;
@@ -207,7 +206,9 @@ pub fn decode_frame(bitstream: &Bitstream, _config: &DecoderConfig) -> Result<Im
 
 /// Extract quantization parameters from the decoder's parsed WGT marker
 /// TODO: Implement proper WGT marker parsing
-fn extract_quantization_parameters(_decoder: &jpegxs_core_clean::JpegXsDecoder) -> Option<(u8, u8)> {
+fn extract_quantization_parameters(
+    _decoder: &jpegxs_core_clean::JpegXsDecoder,
+) -> Option<(u8, u8)> {
     // For now, return None to use fallback values
     // In a complete implementation, this would:
     // 1. Check if WGT marker was parsed
