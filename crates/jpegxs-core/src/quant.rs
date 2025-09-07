@@ -31,7 +31,7 @@ pub fn dequantize(coeffs: &[i32], qp: u8) -> Result<Vec<f32>> {
 pub fn compute_quantization_parameters(quality: f32) -> Result<Vec<u8>> {
     if quality <= 0.0 || quality > 1.0 {
         return Err(anyhow::anyhow!(
-            "Invalid quality parameter: {} (must be 0.0 < quality <= 1.0)",
+            "Invalid quality parameter: {} (must be greater than 0.0 and at most 1.0)",
             quality
         ));
     }
