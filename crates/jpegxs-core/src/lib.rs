@@ -362,14 +362,11 @@ pub fn decode_frame_to_format(
             }
             let mut rgb = vec![0u8; y_size * 3];
             colors::yuv_to_rgb(&yuv_interleaved, &mut rgb, width, height)?;
-            // Swap R and B channels to get BGR
-            let mut bgr = Vec::with_capacity(rgb.len());
+            // Convert RGB to BGR in-place by swapping R and B channels
             for i in (0..rgb.len()).step_by(3) {
-                bgr.push(rgb[i + 2]); // B
-                bgr.push(rgb[i + 1]); // G
-                bgr.push(rgb[i]); // R
+                rgb.swap(i, i + 2); // Swap R and B channels
             }
-            bgr
+            rgb
         }
         PixelFormat::Rgb8Planar => {
             // Convert YUV to RGB planar

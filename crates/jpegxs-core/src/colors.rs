@@ -15,6 +15,7 @@ const BT601_CR_R_COEFF: f64 = 0.5;
 const BT601_CR_G_COEFF: f64 = -0.418688;
 const BT601_CR_B_COEFF: f64 = -0.081312;
 
+
 const YUV_TO_RGB_R_Y_COEFF: f64 = 1.0;
 const YUV_TO_RGB_R_CB_COEFF: f64 = 0.0;
 const YUV_TO_RGB_R_CR_COEFF: f64 = 1.402;
@@ -49,6 +50,22 @@ const RGB_TO_YUV_MATRIX: [[f64; 3]; 3] = [
     [BT601_CB_R_COEFF, BT601_CB_G_COEFF, BT601_CB_B_COEFF], // Cb coefficients (Equation 2.2)
     [BT601_CR_R_COEFF, BT601_CR_G_COEFF, BT601_CR_B_COEFF], // Cr coefficients (Equation 2.3)
 ];
+
+/// Helper function to apply RGB to YUV matrix transformation
+/// Returns (Y, U, V) values with U and V offset by +128
+#[inline]
+fn apply_rgb_to_yuv_matrix(r: f64, g: f64, b: f64) -> (f64, f64, f64) {
+    let y = RGB_TO_YUV_MATRIX[0][0] * r + RGB_TO_YUV_MATRIX[0][1] * g + RGB_TO_YUV_MATRIX[0][2] * b;
+    let u = RGB_TO_YUV_MATRIX[1][0] * r
+        + RGB_TO_YUV_MATRIX[1][1] * g
+        + RGB_TO_YUV_MATRIX[1][2] * b
+        + 128.0;
+    let v = RGB_TO_YUV_MATRIX[2][0] * r
+        + RGB_TO_YUV_MATRIX[2][1] * g
+        + RGB_TO_YUV_MATRIX[2][2] * b
+        + 128.0;
+    (y, u, v)
+}
 
 /// ITU-R BT.601 inverse conversion coefficients with higher precision.
 ///
@@ -106,16 +123,7 @@ pub fn rgb_to_yuv(rgb: &[u8], yuv: &mut [u8], width: u32, height: u32) -> Result
         let b = rgb[rgb_idx + 2] as f64;
 
         // Apply ITU-R BT.601 conversion matrix
-        let y =
-            RGB_TO_YUV_MATRIX[0][0] * r + RGB_TO_YUV_MATRIX[0][1] * g + RGB_TO_YUV_MATRIX[0][2] * b;
-        let u = RGB_TO_YUV_MATRIX[1][0] * r
-            + RGB_TO_YUV_MATRIX[1][1] * g
-            + RGB_TO_YUV_MATRIX[1][2] * b
-            + 128.0;
-        let v = RGB_TO_YUV_MATRIX[2][0] * r
-            + RGB_TO_YUV_MATRIX[2][1] * g
-            + RGB_TO_YUV_MATRIX[2][2] * b
-            + 128.0;
+        let (y, u, v) = apply_rgb_to_yuv_matrix(r, g, b);
 
         yuv[yuv_idx] = y.clamp(0.0, 255.0) as u8;
         yuv[yuv_idx + 1] = u.clamp(0.0, 255.0) as u8;
@@ -239,16 +247,7 @@ pub fn bgr_to_yuv_planar(
         let r = bgr[bgr_idx + 2] as f64;
 
         // Apply ITU-R BT.601 conversion matrix
-        let y =
-            RGB_TO_YUV_MATRIX[0][0] * r + RGB_TO_YUV_MATRIX[0][1] * g + RGB_TO_YUV_MATRIX[0][2] * b;
-        let u = RGB_TO_YUV_MATRIX[1][0] * r
-            + RGB_TO_YUV_MATRIX[1][1] * g
-            + RGB_TO_YUV_MATRIX[1][2] * b
-            + 128.0;
-        let v = RGB_TO_YUV_MATRIX[2][0] * r
-            + RGB_TO_YUV_MATRIX[2][1] * g
-            + RGB_TO_YUV_MATRIX[2][2] * b
-            + 128.0;
+        let (y, u, v) = apply_rgb_to_yuv_matrix(r, g, b);
 
         y_plane.push(y.clamp(0.0, 255.0) as u8);
         u_plane.push(u.clamp(0.0, 255.0) as u8);
@@ -286,16 +285,7 @@ pub fn rgb_planar_to_yuv_planar(
         let b = b_plane[i] as f64;
 
         // Apply ITU-R BT.601 conversion matrix
-        let y =
-            RGB_TO_YUV_MATRIX[0][0] * r + RGB_TO_YUV_MATRIX[0][1] * g + RGB_TO_YUV_MATRIX[0][2] * b;
-        let u = RGB_TO_YUV_MATRIX[1][0] * r
-            + RGB_TO_YUV_MATRIX[1][1] * g
-            + RGB_TO_YUV_MATRIX[1][2] * b
-            + 128.0;
-        let v = RGB_TO_YUV_MATRIX[2][0] * r
-            + RGB_TO_YUV_MATRIX[2][1] * g
-            + RGB_TO_YUV_MATRIX[2][2] * b
-            + 128.0;
+        let (y, u, v) = apply_rgb_to_yuv_matrix(r, g, b);
 
         y_plane.push(y.clamp(0.0, 255.0) as u8);
         u_plane.push(u.clamp(0.0, 255.0) as u8);
@@ -332,16 +322,7 @@ pub fn rgb_to_yuv_planar(
         let b = rgb[rgb_idx + 2] as f64;
 
         // Apply ITU-R BT.601 conversion matrix
-        let y =
-            RGB_TO_YUV_MATRIX[0][0] * r + RGB_TO_YUV_MATRIX[0][1] * g + RGB_TO_YUV_MATRIX[0][2] * b;
-        let u = RGB_TO_YUV_MATRIX[1][0] * r
-            + RGB_TO_YUV_MATRIX[1][1] * g
-            + RGB_TO_YUV_MATRIX[1][2] * b
-            + 128.0;
-        let v = RGB_TO_YUV_MATRIX[2][0] * r
-            + RGB_TO_YUV_MATRIX[2][1] * g
-            + RGB_TO_YUV_MATRIX[2][2] * b
-            + 128.0;
+        let (y, u, v) = apply_rgb_to_yuv_matrix(r, g, b);
 
         y_plane.push(y.clamp(0.0, 255.0) as u8);
         u_plane.push(u.clamp(0.0, 255.0) as u8);
