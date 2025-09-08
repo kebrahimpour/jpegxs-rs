@@ -119,6 +119,11 @@ pub fn encode_frame(input: ImageView8, config: &EncoderConfig) -> Result<Bitstre
         PixelFormat::Rgb8Planar => {
             // RGB planar - convert to YUV
             let pixel_count = (input.width * input.height) as usize;
+
+            if input.data.len() < pixel_count * 3 {
+                return Err(anyhow::anyhow!("Insufficient data for RGB8Planar format"));
+            }
+
             let r = &input.data[0..pixel_count];
             let g = &input.data[pixel_count..pixel_count * 2];
             let b = &input.data[pixel_count * 2..pixel_count * 3];
