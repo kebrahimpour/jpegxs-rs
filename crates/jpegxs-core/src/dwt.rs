@@ -76,23 +76,8 @@ pub fn dwt_53_inverse_2d(input: &[f32], output: &mut [f32], width: u32, height: 
     Ok(())
 }
 
-pub fn dwt_97_forward_2d(
-    _input: &[f32],
-    _output: &mut [f32],
-    _width: u32,
-    _height: u32,
-) -> Result<()> {
-    todo!("9/7 DWT forward transform")
-}
-
-pub fn dwt_97_inverse_2d(
-    _input: &[f32],
-    _output: &mut [f32],
-    _width: u32,
-    _height: u32,
-) -> Result<()> {
-    todo!("9/7 DWT inverse transform")
-}
+// Note: JPEG XS standard (ISO/IEC 21122-1:2024) only specifies 5/3 reversible DWT.
+// The 9/7 irreversible DWT is not part of the JPEG XS specification.
 
 // 1D 5/3 lifting-based DWT forward transform
 fn dwt_53_forward_1d(data: &mut [f32]) {
