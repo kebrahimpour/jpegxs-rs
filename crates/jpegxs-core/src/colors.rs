@@ -25,6 +25,10 @@ const YUV_TO_RGB_B_Y_COEFF: f64 = 1.0;
 const YUV_TO_RGB_B_CB_COEFF: f64 = 1.772;
 const YUV_TO_RGB_B_CR_COEFF: f64 = 0.0;
 
+/// Maximum allowable chroma roundtrip error for 4:2:2 subsampling tests
+#[cfg(test)]
+const CHROMA_ROUNDTRIP_ERROR_TOLERANCE: i16 = 50;
+
 /// ITU-R BT.601 conversion coefficients with higher precision.
 ///
 /// These coefficients are taken from ITU-R BT.601-7 standard, specifically:
@@ -325,14 +329,14 @@ mod tests {
 
             // Allow larger differences due to 4:2:2 subsampling
             assert!(
-                u_diff <= 50,
+                u_diff <= CHROMA_ROUNDTRIP_ERROR_TOLERANCE,
                 "U roundtrip error too large at index {}: {} vs {}",
                 i,
                 u[i],
                 u_444[i]
             );
             assert!(
-                v_diff <= 50,
+                v_diff <= CHROMA_ROUNDTRIP_ERROR_TOLERANCE,
                 "V roundtrip error too large at index {}: {} vs {}",
                 i,
                 v[i],

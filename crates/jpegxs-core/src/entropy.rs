@@ -1,5 +1,15 @@
 use anyhow::Result;
 
+/// Maximum consecutive unary bits for br=4 (ISO/IEC 21122-1:2024 Annex C)
+const BR4_MAX_CONSECUTIVE: i32 = 32;
+
+/// Maximum consecutive unary bits for br=5 (ISO/IEC 21122-1:2024 Annex C)
+const BR5_MAX_CONSECUTIVE: i32 = 64;
+
+/// Standard br_bits value for raw mode bitplane count encoding (ISO/IEC 21122-1:2024 Annex C)
+#[cfg(test)]
+const RAW_MODE_BR_BITS: u8 = 4;
+
 /// JPEG XS entropy coding implementation based on ISO/IEC 21122-1:2024 Annex C
 ///
 /// This module implements the standard JPEG XS entropy coding system including:
@@ -149,9 +159,9 @@ pub fn vlc_decode(reader: &mut BitstreamReader, ctx: VlcContext) -> Result<i32> 
     // Count consecutive 1-bits (unary prefix)
     let mut n = 0i32;
     let max_consecutive = if br == 4 {
-        32
+        BR4_MAX_CONSECUTIVE
     } else if br == 5 {
-        64
+        BR5_MAX_CONSECUTIVE
     } else {
         1 << (br + 1)
     };
@@ -477,7 +487,7 @@ mod tests {
         let ctx = VlcContext {
             predictor: 4,
             truncation_pos: 0,
-            br_bits: 4,
+            br_bits: RAW_MODE_BR_BITS,
         };
 
         // Test individual values
@@ -499,7 +509,7 @@ mod tests {
         let ctx = VlcContext {
             predictor: 4, // Use θ > 0 to avoid edge case
             truncation_pos: 0,
-            br_bits: 4,
+            br_bits: RAW_MODE_BR_BITS,
         };
 
         let test_values = [-2, -1, 0, 1, 2]; // Smaller test set
