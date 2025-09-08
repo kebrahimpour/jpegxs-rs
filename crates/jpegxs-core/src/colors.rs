@@ -15,7 +15,6 @@ const BT601_CR_R_COEFF: f64 = 0.5;
 const BT601_CR_G_COEFF: f64 = -0.418688;
 const BT601_CR_B_COEFF: f64 = -0.081312;
 
-
 const YUV_TO_RGB_R_Y_COEFF: f64 = 1.0;
 const YUV_TO_RGB_R_CB_COEFF: f64 = 0.0;
 const YUV_TO_RGB_R_CR_COEFF: f64 = 1.402;
