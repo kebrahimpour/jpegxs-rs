@@ -21,6 +21,9 @@ pub enum PixelFormat {
     Yuv422p8,
     Yuv444p8,
     Rgb8,
+    Bgr8,
+    Rgb8Planar,
+    Yuv420p8,
 }
 
 #[derive(Debug, Clone)]
