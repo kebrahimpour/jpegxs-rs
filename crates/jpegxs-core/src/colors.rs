@@ -4,6 +4,27 @@
 /// in ISO/IEC 21122-1:2024 for JPEG XS color transforms.
 use anyhow::Result;
 
+// ITU-R BT.601-7 coefficients (see Table 3 and Section 2.5.1/2.5.2)
+const BT601_Y_R_COEFF: f64 = 0.299;
+const BT601_Y_G_COEFF: f64 = 0.587;
+const BT601_Y_B_COEFF: f64 = 0.114;
+const BT601_CB_R_COEFF: f64 = -0.168736;
+const BT601_CB_G_COEFF: f64 = -0.331264;
+const BT601_CB_B_COEFF: f64 = 0.5;
+const BT601_CR_R_COEFF: f64 = 0.5;
+const BT601_CR_G_COEFF: f64 = -0.418688;
+const BT601_CR_B_COEFF: f64 = -0.081312;
+
+const YUV_TO_RGB_R_Y_COEFF: f64 = 1.0;
+const YUV_TO_RGB_R_CB_COEFF: f64 = 0.0;
+const YUV_TO_RGB_R_CR_COEFF: f64 = 1.402;
+const YUV_TO_RGB_G_Y_COEFF: f64 = 1.0;
+const YUV_TO_RGB_G_CB_COEFF: f64 = -0.344136;
+const YUV_TO_RGB_G_CR_COEFF: f64 = -0.714136;
+const YUV_TO_RGB_B_Y_COEFF: f64 = 1.0;
+const YUV_TO_RGB_B_CB_COEFF: f64 = 1.772;
+const YUV_TO_RGB_B_CR_COEFF: f64 = 0.0;
+
 /// ITU-R BT.601 conversion coefficients with higher precision.
 ///
 /// These coefficients are taken from ITU-R BT.601-7 standard, specifically:
@@ -20,9 +41,9 @@ use anyhow::Result;
 /// The precision of these coefficients is critical to minimize color conversion
 /// errors. Do not modify these values without consulting the standard.
 const RGB_TO_YUV_MATRIX: [[f64; 3]; 3] = [
-    [0.299, 0.587, 0.114],       // Y coefficients (Equation 2.1)
-    [-0.168736, -0.331264, 0.5], // Cb coefficients (Equation 2.2)
-    [0.5, -0.418688, -0.081312], // Cr coefficients (Equation 2.3)
+    [BT601_Y_R_COEFF, BT601_Y_G_COEFF, BT601_Y_B_COEFF], // Y coefficients (Equation 2.1)
+    [BT601_CB_R_COEFF, BT601_CB_G_COEFF, BT601_CB_B_COEFF], // Cb coefficients (Equation 2.2)
+    [BT601_CR_R_COEFF, BT601_CR_G_COEFF, BT601_CR_B_COEFF], // Cr coefficients (Equation 2.3)
 ];
 
 /// ITU-R BT.601 inverse conversion coefficients with higher precision.
@@ -41,9 +62,21 @@ const RGB_TO_YUV_MATRIX: [[f64; 3]; 3] = [
 /// The precision is critical for accurate color reproduction. Do not change
 /// these values without consulting the standard.
 const YUV_TO_RGB_MATRIX: [[f64; 3]; 3] = [
-    [1.0, 0.0, 1.402],           // R coefficients
-    [1.0, -0.344136, -0.714136], // G coefficients
-    [1.0, 1.772, 0.0],           // B coefficients
+    [
+        YUV_TO_RGB_R_Y_COEFF,
+        YUV_TO_RGB_R_CB_COEFF,
+        YUV_TO_RGB_R_CR_COEFF,
+    ], // R coefficients
+    [
+        YUV_TO_RGB_G_Y_COEFF,
+        YUV_TO_RGB_G_CB_COEFF,
+        YUV_TO_RGB_G_CR_COEFF,
+    ], // G coefficients
+    [
+        YUV_TO_RGB_B_Y_COEFF,
+        YUV_TO_RGB_B_CB_COEFF,
+        YUV_TO_RGB_B_CR_COEFF,
+    ], // B coefficients
 ];
 
 /// Convert RGB to YUV using ITU-R BT.601 standard
