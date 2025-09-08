@@ -3,6 +3,9 @@
 
 pub mod dwt;
 
+/// Maximum quantization parameter gain value per ISO/IEC 21122-1:2024 Table A.25
+const MAX_QP_GAIN: u8 = 15;
+
 /// JPEG XS marker constants from ISO/IEC 21122-1:2024 Table A.2
 pub mod markers {
     /// Start of Codestream - Mandatory (ISO Table A.2, line 603)
@@ -206,8 +209,8 @@ impl JpegXsBitstream {
         // G[b]: Gain of band b (0-15 per ISO) - stores quantization parameter
         // P[b]: Priority of band b (0-255 per ISO) - used for rate control
         for &qp in qps {
-            // Store QP value as gain (clamped to 0-15 range per ISO)
-            let gain = qp.min(15);
+            // Store QP value as gain (clamped to ISO-specified range)
+            let gain = qp.min(MAX_QP_GAIN);
             self.data.push(gain);
             // Fixed priority for now (can be made configurable later)
             self.data.push(128);

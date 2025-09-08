@@ -172,8 +172,11 @@ pub fn vlc_decode(reader: &mut BitstreamReader, ctx: VlcContext) -> Result<i32> 
     }
 
     // Decode based on the alphabet selection
+    // The decoder logic needs to match the encoder:
+    // - For values > theta: encoder uses n = x + theta (unary alphabet)
+    // - For values <= theta: encoder uses signed alphabet
     if n > 2 * theta {
-        // Unary sub-alphabet: return n - θ
+        // Unary sub-alphabet: n = x + theta, so x = n - theta
         Ok(n - theta)
     } else if n > 0 {
         // Signed sub-alphabet
@@ -433,7 +436,16 @@ pub fn decode_coefficients(data: &[u8]) -> Result<Vec<i32>> {
             };
 
             // Decode sign bit
-            let is_negative = reader.read_bit().unwrap_or_default();
+            let is_negative = match reader.read_bit() {
+                Ok(bit) => bit,
+                Err(_) => {
+                    // Not enough data - pad with zeros for remaining coefficients
+                    while coefficients.len() < num_coeffs {
+                        coefficients.push(0);
+                    }
+                    break;
+                }
+            };
 
             let coeff = magnitude as i32;
             coefficients.push(if is_negative { -coeff } else { coeff });
