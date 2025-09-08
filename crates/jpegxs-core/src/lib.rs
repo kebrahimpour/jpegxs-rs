@@ -58,6 +58,11 @@ pub fn encode_frame(input: ImageView8, config: &EncoderConfig) -> Result<Bitstre
         PixelFormat::Yuv444p8 => {
             // Direct YUV444 - most efficient path
             let pixel_count = (input.width * input.height) as usize;
+
+            if input.data.len() < pixel_count * 3 {
+                return Err(anyhow::anyhow!("Insufficient data for YUV444p8 format"));
+            }
+
             let y = &input.data[0..pixel_count];
             let u = &input.data[pixel_count..pixel_count * 2];
             let v = &input.data[pixel_count * 2..pixel_count * 3];

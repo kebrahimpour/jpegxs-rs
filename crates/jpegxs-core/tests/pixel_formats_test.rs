@@ -389,9 +389,9 @@ fn test_invalid_dimensions() -> Result<()> {
     // Test odd width for YUV422
     let width = 63; // Odd width
     let height = 48;
-    // YUV422p8: Y plane = width*height, U = ceil(width/2)*height, V = ceil(width/2)*height
+    // YUV422p8: Y plane = width*height, U = (width/2)*height, V = (width/2)*height
     let y_plane = (width * height) as usize;
-    let uv_plane = (width as usize).div_ceil(2) * height as usize;
+    let uv_plane = ((width / 2) * height) as usize;
     let data = vec![0u8; y_plane + 2 * uv_plane];
 
     let input = ImageView8 {
@@ -414,8 +414,8 @@ fn test_invalid_dimensions() -> Result<()> {
     let width = 64;
     let height = 47; // Odd height
     let y_size = width * height;
-    let uv_width = width / 2;
-    let uv_height = height / 2;
+    let uv_width = (width as usize).div_ceil(2) as u32;
+    let uv_height = (height as usize).div_ceil(2) as u32;
     let uv_size = uv_width * uv_height;
     let data = vec![0u8; (y_size + 2 * uv_size) as usize];
 
