@@ -109,13 +109,35 @@ impl BitstreamWriter {
     }
 }
 
-/// VLC decoding primitive as specified in ISO/IEC 21122-1:2024 Table C.17
+/// Decodes a value from the bitstream using the Variable Length Coding (VLC) primitive
+/// as specified in ISO/IEC 21122-1:2024 Table C.17 (JPEG XS standard).
 ///
-/// This implements the core variable length coding primitive used throughout
-/// the JPEG XS entropy coding system.
+/// # Parameters
+/// - `reader`: A mutable reference to a [`BitstreamReader`] positioned at the start of the VLC codeword.
+/// - `ctx`: The [`VlcContext`] containing the predictor value (`r`), truncation position (`t`), and the number of raw bits (`br`).
 ///
-/// Note: The algorithm has edge cases when θ = 0 where the signed and unary
-/// alphabets overlap. In practice, predictors should be chosen such that θ > 0.
+/// # Returns
+/// Returns the decoded integer value as specified by the VLC algorithm.
+///
+/// # Algorithm Overview
+/// 1. **Threshold Calculation**: Compute θ = max(r - t, 0), which determines the switch between the signed and unary alphabets.
+/// 2. **Unary Prefix**: Read consecutive 1-bits from the bitstream, counting the number `n` until a 0-bit is encountered.
+/// 3. **Alphabet Selection**:
+///     - If `n < θ`, the codeword is decoded using the signed alphabet:
+///         - Read `br` bits as a signed offset.
+///         - The decoded value is `n` if the offset is 0, otherwise the offset is added/subtracted as per the sign bit.
+///     - If `n >= θ`, the codeword is decoded using the unary alphabet:
+///         - The decoded value is `n`.
+/// 4. **Edge Cases**:
+///     - When θ = 0, the signed and unary alphabets overlap, and both can represent the value zero.
+///       In practice, predictors should be chosen such that θ > 0 to avoid ambiguity.
+/// 5. **Safety**: The function checks for an excessive number of consecutive 1-bits to prevent infinite loops or malformed streams.
+///
+/// # Errors
+/// Returns an error if the bitstream ends prematurely or if too many consecutive 1-bits are encountered (malformed codeword).
+///
+/// # References
+/// - ISO/IEC 21122-1:2024 Annex C, Table C.17 (VLC primitive)
 pub fn vlc_decode(reader: &mut BitstreamReader, ctx: VlcContext) -> Result<i32> {
     let r = ctx.predictor;
     let t = ctx.truncation_pos as i32;
@@ -172,9 +194,35 @@ pub fn vlc_decode(reader: &mut BitstreamReader, ctx: VlcContext) -> Result<i32> 
     }
 }
 
-/// VLC encoding primitive as specified in ISO/IEC 21122-1:2024 Table C.18
+/// Encodes an integer value using the JPEG XS variable length coding (VLC) algorithm.
 ///
-/// This implements the encoder that generates the bitstream decoded by vlc_decode.
+/// # Parameters
+/// - `writer`: The bitstream writer to which the encoded bits are written.
+/// - `value`: The integer value to encode.
+/// - `ctx`: The VLC context, containing:
+///     - `predictor` (`r`): The predicted value for the current symbol.
+///     - `truncation_pos` (`t`): The truncation position, used to determine the threshold.
+///     - `br_bits` (`Br`): The number of bits for bitplane count in raw mode (not used directly here).
+///
+/// # Algorithm
+/// The encoding process selects between two sub-alphabets based on the value and a threshold θ:
+/// - θ = max(r - t, 0), where `r` is the predictor and `t` is the truncation position.
+/// - If the value `x` to encode is greater than θ, the unary sub-alphabet is used:
+///     - The codeword is `n = x + θ`.
+///     - The bitstream consists of `n` consecutive 1-bits followed by a 0-bit.
+/// - If `x` ≤ θ, the signed sub-alphabet is used:
+///     - The value is mapped as follows:
+///         - Multiply `x` by 2.
+///         - If the result is negative, `n = -x - 1`.
+///         - If the result is non-negative, `n = x`.
+///     - The bitstream consists of `n` consecutive 1-bits followed by a 0-bit.
+/// - This mapping ensures a unique, prefix-free code for each integer value.
+///
+/// # Notes
+/// - The function writes the codeword as a sequence of `n` 1-bits followed by a terminating 0-bit.
+/// - The algorithm is designed to match the decoder implemented in `vlc_decode`.
+/// - Edge cases may occur when θ = 0, where the signed and unary alphabets overlap.
+/// - For details, see ISO/IEC 21122-1:2024 Table C.18 and Annex C.7.
 pub fn vlc_encode(writer: &mut BitstreamWriter, value: i32, ctx: VlcContext) -> Result<()> {
     let mut x = value;
     let r = ctx.predictor;
