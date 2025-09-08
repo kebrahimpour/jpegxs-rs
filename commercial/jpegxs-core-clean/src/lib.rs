@@ -194,7 +194,7 @@ impl JpegXsBitstream {
         // Default QP values if none provided (for backward compatibility)
         let default_qps = vec![8, 7, 7, 6, 6, 5, 5, 4, 6, 5];
         let qps = qp_values.unwrap_or(&default_qps);
-        
+
         // Lwgt: Size of WGT marker segment
         // Each band has G[b] (u8) + P[b] (u8) = 2 bytes
         // Total: 2 (length) + num_bands * 2
@@ -363,7 +363,7 @@ pub struct JpegXsDecoder {
     width: u16,
     height: u16,
     num_components: u8,
-    wgt_qp_values: Vec<u8>,  // Quantization parameters from WGT marker
+    wgt_qp_values: Vec<u8>, // Quantization parameters from WGT marker
 }
 
 impl JpegXsDecoder {
@@ -534,18 +534,18 @@ impl JpegXsDecoder {
         if self.offset + payload_size > self.data.len() {
             return Err("Insufficient data for WGT payload");
         }
-        
+
         // Extract gain values (QP parameters) from WGT marker
         // Each band has 2 bytes: G[b] (gain/QP) and P[b] (priority)
         let num_bands = payload_size / 2;
         self.wgt_qp_values.clear();
-        
+
         for i in 0..num_bands {
             let gain = self.data[self.offset + i * 2]; // G[b] - quantization parameter
             self.wgt_qp_values.push(gain);
             // Skip P[b] (priority) - at offset + i*2 + 1
         }
-        
+
         self.offset += payload_size;
         Ok(true)
     }
@@ -655,7 +655,7 @@ impl JpegXsDecoder {
     pub fn dimensions(&self) -> (u16, u16, u8) {
         (self.width, self.height, self.num_components)
     }
-    
+
     /// Get quantization parameters from WGT marker
     pub fn get_qp_values(&self) -> &[u8] {
         &self.wgt_qp_values
@@ -810,23 +810,23 @@ mod tests {
         assert_eq!(data[49], 0x07);
         assert_eq!(data[50], 0x80);
     }
-    
+
     #[test]
     fn test_wgt_marker_with_custom_qp() {
         let mut bitstream = JpegXsBitstream::new();
         bitstream.write_cap_marker();
         bitstream.write_pih_marker(256, 256, 3);
         bitstream.write_cdt_marker(3);
-        
+
         // Custom QP values for testing
         let qp_values = vec![4, 6, 6]; // Y, U, V
         bitstream.write_wgt_marker(Some(&qp_values));
         bitstream.finalize();
-        
+
         // Parse the bitstream and extract QP values
         let mut decoder = JpegXsDecoder::new(bitstream.into_bytes()).unwrap();
         decoder.parse_headers().unwrap();
-        
+
         let extracted_qp = decoder.get_qp_values();
         assert_eq!(extracted_qp.len(), 3);
         assert_eq!(extracted_qp[0], 4); // Y QP

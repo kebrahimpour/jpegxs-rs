@@ -208,15 +208,13 @@ pub fn decode_frame(bitstream: &Bitstream, _config: &DecoderConfig) -> Result<Im
 }
 
 /// Extract quantization parameters from the decoder's parsed WGT marker
-fn extract_quantization_parameters(
-    decoder: &jpegxs_core_clean::JpegXsDecoder,
-) -> Option<(u8, u8)> {
+fn extract_quantization_parameters(decoder: &jpegxs_core_clean::JpegXsDecoder) -> Option<(u8, u8)> {
     let qp_values = decoder.get_qp_values();
-    
+
     if qp_values.is_empty() {
         return None;
     }
-    
+
     // Extract QP values for Y and UV components
     // Expected format: [qp_y, qp_u, qp_v, ...] or at minimum [qp_y]
     let qp_y = qp_values[0];
@@ -225,7 +223,7 @@ fn extract_quantization_parameters(
     } else {
         qp_y // Use same QP for all components if only one provided
     };
-    
+
     Some((qp_y, qp_uv))
 }
 
