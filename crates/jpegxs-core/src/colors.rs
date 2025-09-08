@@ -1,9 +1,8 @@
-use anyhow::Result;
-
 /// Color space conversion functions for JPEG XS
 ///
 /// Based on ITU-R BT.601 standard for YUV conversion as specified
 /// in ISO/IEC 21122-1:2024 for JPEG XS color transforms.
+use anyhow::Result;
 
 /// ITU-R BT.601 conversion coefficients with higher precision.
 ///
