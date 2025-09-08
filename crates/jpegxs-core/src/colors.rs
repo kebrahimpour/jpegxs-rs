@@ -4,15 +4,29 @@ use anyhow::Result;
 ///
 /// Based on ITU-R BT.601 standard for YUV conversion as specified
 /// in ISO/IEC 21122-1:2024 for JPEG XS color transforms.
+
+/// ITU-R BT.601 conversion coefficients with higher precision.
 ///
-/// ITU-R BT.601 conversion coefficients with higher precision
+/// These coefficients are taken from the ITU-R BT.601 standard
+/// (see ITU-R BT.601-7, Table 3, "Matrix coefficients for YCbCr").
+/// They are used for converting RGB to YUV (YCbCr) color spaces.
+///
+/// The precision of these coefficients is important to minimize
+/// color conversion errors, especially in image and video processing.
+/// Do not modify these "magic numbers" unless you are updating to
+/// a different color space standard or have verified the impact.
 const RGB_TO_YUV_MATRIX: [[f64; 3]; 3] = [
     [0.299, 0.587, 0.114],       // Y coefficients
     [-0.168736, -0.331264, 0.5], // U coefficients (Cb)
     [0.5, -0.418688, -0.081312], // V coefficients (Cr)
 ];
 
-/// ITU-R BT.601 inverse conversion coefficients with higher precision
+/// ITU-R BT.601 inverse conversion coefficients with higher precision.
+///
+/// These coefficients are from ITU-R BT.601-7, Table 3, and are used
+/// for converting YUV (YCbCr) back to RGB. The precision is critical
+/// for accurate color reproduction. Do not change these values unless
+/// you are certain of the implications and have consulted the standard.
 const YUV_TO_RGB_MATRIX: [[f64; 3]; 3] = [
     [1.0, 0.0, 1.402],           // R coefficients
     [1.0, -0.344136, -0.714136], // G coefficients
@@ -117,7 +131,10 @@ pub fn downsample_444_to_422(
     }
 
     if width % 2 != 0 {
-        return Err(anyhow::anyhow!("Width must be even for 4:2:2 subsampling"));
+        return Err(anyhow::anyhow!(
+            "Width must be even for 4:2:2 subsampling, got width: {}",
+            width
+        ));
     }
 
     let new_chroma_width = width / 2;
@@ -157,7 +174,10 @@ pub fn upsample_422_to_444(
     height: u32,
 ) -> Result<(Vec<u8>, Vec<u8>, Vec<u8>)> {
     if width % 2 != 0 {
-        return Err(anyhow::anyhow!("Width must be even for 4:2:2 upsampling"));
+        return Err(anyhow::anyhow!(
+            "Width must be even for 4:2:2 upsampling, got width: {}",
+            width
+        ));
     }
 
     let chroma_width = width / 2;
