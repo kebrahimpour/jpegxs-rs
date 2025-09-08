@@ -123,11 +123,11 @@ impl BitstreamWriter {
 /// 1. **Threshold Calculation**: Compute θ = max(r - t, 0), which determines the switch between the signed and unary alphabets.
 /// 2. **Unary Prefix**: Read consecutive 1-bits from the bitstream, counting the number `n` until a 0-bit is encountered.
 /// 3. **Alphabet Selection**:
-///     - If `n < θ`, the codeword is decoded using the signed alphabet:
-///         - Read `br` bits as a signed offset.
-///         - The decoded value is `n` if the offset is 0, otherwise the offset is added/subtracted as per the sign bit.
-///     - If `n >= θ`, the codeword is decoded using the unary alphabet:
-///         - The decoded value is `n`.
+///     - If `n <= 2*θ`, the codeword is decoded using the signed alphabet:
+///         - For even `n`: decoded value is `n/2`
+///         - For odd `n`: decoded value is `-(n+1)/2` (negative)
+///     - If `n > 2*θ`, the codeword is decoded using the unary alphabet:
+///         - The decoded value is `n - θ` (since encoder used `n = x + θ`)
 /// 4. **Edge Cases**:
 ///     - When θ = 0, the signed and unary alphabets overlap, and both can represent the value zero.
 ///       In practice, predictors should be chosen such that θ > 0 to avoid ambiguity.
@@ -174,7 +174,9 @@ pub fn vlc_decode(reader: &mut BitstreamReader, ctx: VlcContext) -> Result<i32> 
     // Decode based on the alphabet selection
     // The decoder logic needs to match the encoder:
     // - For values > theta: encoder uses n = x + theta (unary alphabet)
-    // - For values <= theta: encoder uses signed alphabet
+    //   This means n > theta + theta = 2*theta for the unary case
+    // - For values <= theta: encoder uses signed alphabet with n = 2*x (or -2*x-1)
+    //   This means n <= 2*theta for the signed case
     if n > 2 * theta {
         // Unary sub-alphabet: n = x + theta, so x = n - theta
         Ok(n - theta)
