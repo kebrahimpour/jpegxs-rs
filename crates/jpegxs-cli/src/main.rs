@@ -71,6 +71,17 @@ enum Commands {
         #[arg(short, long)]
         input: String,
     },
+
+    /// Calculate PSNR between two images
+    Psnr {
+        /// Reference image file
+        #[arg(short, long)]
+        reference: String,
+
+        /// Test image file
+        #[arg(short, long)]
+        test: String,
+    },
 }
 
 fn detect_image_format(path: &str) -> Result<Option<ImageFormat>> {
@@ -391,6 +402,54 @@ fn main() -> Result<()> {
             let uncompressed_size = (width as usize * height as usize * 3 * 8) / 8;
             let compression_ratio = uncompressed_size as f32 / bitstream_data.len() as f32;
             println!("\nCompression ratio: {:.1}:1", compression_ratio);
+        }
+
+        Commands::Psnr { reference, test } => {
+            info!("Calculating PSNR between {} and {}", reference, test);
+
+            // Load both images
+            let ref_img = image::open(&reference)?.to_rgb8();
+            let test_img = image::open(&test)?.to_rgb8();
+
+            // Check dimensions match
+            if ref_img.dimensions() != test_img.dimensions() {
+                return Err(anyhow::anyhow!(
+                    "Image dimensions don't match: {:?} vs {:?}",
+                    ref_img.dimensions(),
+                    test_img.dimensions()
+                ));
+            }
+
+            // Calculate MSE
+            let mut mse: f64 = 0.0;
+            let pixel_count = ref_img.width() * ref_img.height() * 3; // 3 channels
+
+            for (ref_pixel, test_pixel) in ref_img.as_raw().iter().zip(test_img.as_raw().iter()) {
+                let diff = (*ref_pixel as f64) - (*test_pixel as f64);
+                mse += diff * diff;
+            }
+
+            mse /= pixel_count as f64;
+
+            // Calculate PSNR
+            let psnr = if mse == 0.0 {
+                f64::INFINITY
+            } else {
+                20.0 * 255.0_f64.log10() - 10.0 * mse.log10()
+            };
+
+            println!("PSNR: {:.2} dB", psnr);
+            if psnr.is_infinite() {
+                println!("Images are identical");
+            } else if psnr > 40.0 {
+                println!("Quality: Excellent (>40 dB)");
+            } else if psnr > 30.0 {
+                println!("Quality: Good (30-40 dB)");
+            } else if psnr > 20.0 {
+                println!("Quality: Fair (20-30 dB)");
+            } else {
+                println!("Quality: Poor (<20 dB)");
+            }
         }
     }
 
