@@ -435,7 +435,7 @@ fn main() -> Result<()> {
             let psnr = if mse == 0.0 {
                 f64::INFINITY
             } else {
-                20.0 * (255.0 as f64).log10() - 10.0 * mse.log10()
+                20.0 * 255.0_f64.log10() - 10.0 * mse.log10()
             };
 
             println!("PSNR: {:.2} dB", psnr);
