@@ -92,7 +92,9 @@ pub fn encode_frame(input: ImageView8, config: &EncoderConfig) -> Result<Bitstre
 
     // Add WGT (Weights Table) marker according to ISO A.4.12 specification
     // Fifth mandatory marker providing band gain parameters for quantization
-    jxs_bitstream.write_wgt_marker();
+    // Pass the actual QP values that were used for quantization
+    let wgt_qp_values = vec![qp_y, qp_uv, qp_uv]; // Y, U, V component QPs
+    jxs_bitstream.write_wgt_marker(Some(&wgt_qp_values));
 
     // Add entropy coded data per ISO Annex C specification
     // Combine all quantized coefficients for entropy coding
@@ -206,16 +208,23 @@ pub fn decode_frame(bitstream: &Bitstream, _config: &DecoderConfig) -> Result<Im
 }
 
 /// Extract quantization parameters from the decoder's parsed WGT marker
-/// TODO: Implement proper WGT marker parsing
-fn extract_quantization_parameters(
-    _decoder: &jpegxs_core_clean::JpegXsDecoder,
-) -> Option<(u8, u8)> {
-    // For now, return None to use fallback values
-    // In a complete implementation, this would:
-    // 1. Check if WGT marker was parsed
-    // 2. Extract QP values from the marker data
-    // 3. Return appropriate values for Y and UV components
-    None
+fn extract_quantization_parameters(decoder: &jpegxs_core_clean::JpegXsDecoder) -> Option<(u8, u8)> {
+    let qp_values = decoder.get_qp_values();
+
+    if qp_values.is_empty() {
+        return None;
+    }
+
+    // Extract QP values for Y and UV components
+    // Expected format: [qp_y, qp_u, qp_v, ...] or at minimum [qp_y]
+    let qp_y = qp_values[0];
+    let qp_uv = if qp_values.len() > 1 {
+        qp_values[1] // Use U component QP for both U and V
+    } else {
+        qp_y // Use same QP for all components if only one provided
+    };
+
+    Some((qp_y, qp_uv))
 }
 
 /// Get default quantization parameters using the same quality mapping as encoder

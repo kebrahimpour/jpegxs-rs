@@ -76,7 +76,7 @@ This JPEG XS codec implementation has been verified to comply with the ISO/IEC 2
 
 | Component | Standard Reference | Status | Implementation | Test Coverage |
 |-----------|-------------------|--------|----------------|---------------|
-| **5/3 DWT** | ISO Annex E.7, E.13 | ✅ | Clean-room | 100% |
+| **5/3 DWT (only)** | ISO Annex E.7, E.13 | ✅ | Clean-room | 100% |
 | **Quantization** | ISO Annex D | ✅ | Original | 100% |
 | **Entropy Coding** | ISO Annex C | ✅ | Original | 100% |
 | **Color Transform** | ISO Annex F | ✅ | Original | 100% |
@@ -89,6 +89,8 @@ This JPEG XS codec implementation has been verified to comply with the ISO/IEC 2
 ## MATHEMATICAL VALIDATION
 
 ### DWT Compliance (ISO Annex E)
+
+**JPEG XS uses ONLY 5/3 reversible DWT** - no 9/7 irreversible transform is specified.
 
 **Forward Transform Equations Verified**:
 ```

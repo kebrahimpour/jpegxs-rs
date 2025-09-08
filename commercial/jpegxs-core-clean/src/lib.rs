@@ -3,6 +3,9 @@
 
 pub mod dwt;
 
+/// Maximum quantization parameter gain value per ISO/IEC 21122-1:2024 Table A.25
+const MAX_QP_GAIN: u8 = 15;
+
 /// JPEG XS marker constants from ISO/IEC 21122-1:2024 Table A.2
 pub mod markers {
     /// Start of Codestream - Mandatory (ISO Table A.2, line 603)
@@ -184,42 +187,33 @@ impl JpegXsBitstream {
         }
     }
 
-    /// Write Weights Table marker
+    /// Write Weights Table marker with actual quantization parameters
     /// ISO A.4.12: "Contains parameters required to set the gain of each band"
     /// ISO Table A.25: Weights table syntax
-    pub fn write_wgt_marker(&mut self) {
+    pub fn write_wgt_marker(&mut self, qp_values: Option<&[u8]>) {
         let wgt_bytes = markers::WGT.to_be_bytes();
         self.data.extend_from_slice(&wgt_bytes);
 
+        // Default QP values if none provided (for backward compatibility)
+        let default_qps = vec![8, 7, 7, 6, 6, 5, 5, 4, 6, 5];
+        let qps = qp_values.unwrap_or(&default_qps);
+
         // Lwgt: Size of WGT marker segment
-        // For basic implementation: minimal weights for standard YUV422p8
-        // Assuming NL = 10 bands (typical for 2-level DWT on 3 components)
         // Each band has G[b] (u8) + P[b] (u8) = 2 bytes
-        // Total: 2 (length) + 10 * 2 = 22 bytes
-        let num_bands = 10;
-        let lwgt: u16 = 2 + (num_bands * 2);
+        // Total: 2 (length) + num_bands * 2
+        let num_bands = qps.len();
+        let lwgt: u16 = 2 + (num_bands as u16 * 2);
         self.data.extend_from_slice(&lwgt.to_be_bytes());
 
         // Per ISO Table A.25: Loop over all bands
-        // Standard weights for 2-level DWT on YUV422p8
-        let band_weights = [
-            (8, 128), // LL band - lowest frequency, highest gain
-            (7, 128), // LH band
-            (7, 128), // HL band
-            (6, 128), // HH band
-            (6, 128), // Component 1 (U) LL
-            (5, 128), // Component 1 (U) LH
-            (5, 128), // Component 1 (U) HL
-            (4, 128), // Component 1 (U) HH
-            (6, 128), // Component 2 (V) LL
-            (5, 128), // Component 2 (V) bands
-        ];
-
-        for (gain, priority) in &band_weights {
-            // G[b]: Gain of band b (0-15 per ISO)
-            self.data.push(*gain);
-            // P[b]: Priority of band b (0-255 per ISO)
-            self.data.push(*priority);
+        // G[b]: Gain of band b (0-15 per ISO) - stores quantization parameter
+        // P[b]: Priority of band b (0-255 per ISO) - used for rate control
+        for &qp in qps {
+            // Store QP value as gain (clamped to ISO-specified range)
+            let gain = qp.min(MAX_QP_GAIN);
+            self.data.push(gain);
+            // Fixed priority for now (can be made configurable later)
+            self.data.push(128);
         }
     }
 
@@ -372,6 +366,7 @@ pub struct JpegXsDecoder {
     width: u16,
     height: u16,
     num_components: u8,
+    wgt_qp_values: Vec<u8>, // Quantization parameters from WGT marker
 }
 
 impl JpegXsDecoder {
@@ -383,6 +378,7 @@ impl JpegXsDecoder {
             width: 0,
             height: 0,
             num_components: 0,
+            wgt_qp_values: Vec::new(),
         })
     }
 
@@ -521,7 +517,7 @@ impl JpegXsDecoder {
         Ok(true)
     }
 
-    /// Parse Weights Table marker
+    /// Parse Weights Table marker and extract quantization parameters
     fn parse_wgt_marker(&mut self) -> Result<bool, &'static str> {
         if self.offset + 4 > self.data.len() {
             return Err("Insufficient data for WGT marker");
@@ -536,12 +532,24 @@ impl JpegXsDecoder {
         let length = u16::from_be_bytes([self.data[self.offset], self.data[self.offset + 1]]);
         self.offset += 2;
 
-        // Skip WGT data
-        if self.offset + (length as usize - 2) > self.data.len() {
+        // Parse WGT data to extract QP values
+        let payload_size = length as usize - 2;
+        if self.offset + payload_size > self.data.len() {
             return Err("Insufficient data for WGT payload");
         }
-        self.offset += length as usize - 2;
 
+        // Extract gain values (QP parameters) from WGT marker
+        // Each band has 2 bytes: G[b] (gain/QP) and P[b] (priority)
+        let num_bands = payload_size / 2;
+        self.wgt_qp_values.clear();
+
+        for i in 0..num_bands {
+            let gain = self.data[self.offset + i * 2]; // G[b] - quantization parameter
+            self.wgt_qp_values.push(gain);
+            // Skip P[b] (priority) - at offset + i*2 + 1
+        }
+
+        self.offset += payload_size;
         Ok(true)
     }
 
@@ -649,6 +657,11 @@ impl JpegXsDecoder {
     /// Get decoded image dimensions
     pub fn dimensions(&self) -> (u16, u16, u8) {
         (self.width, self.height, self.num_components)
+    }
+
+    /// Get quantization parameters from WGT marker
+    pub fn get_qp_values(&self) -> &[u8] {
+        &self.wgt_qp_values
     }
 }
 
@@ -778,7 +791,7 @@ mod tests {
         bitstream.write_cap_marker();
         bitstream.write_pih_marker(256, 256, 3);
         bitstream.write_cdt_marker(3);
-        bitstream.write_wgt_marker();
+        bitstream.write_wgt_marker(None); // Use default QP values
         let data = bitstream.data();
 
         // Should have SOC (2) + CAP (4) + PIH (29) + CDT (8) + WGT (24) = 67 bytes
@@ -802,12 +815,35 @@ mod tests {
     }
 
     #[test]
+    fn test_wgt_marker_with_custom_qp() {
+        let mut bitstream = JpegXsBitstream::new();
+        bitstream.write_cap_marker();
+        bitstream.write_pih_marker(256, 256, 3);
+        bitstream.write_cdt_marker(3);
+
+        // Custom QP values for testing
+        let qp_values = vec![4, 6, 6]; // Y, U, V
+        bitstream.write_wgt_marker(Some(&qp_values));
+        bitstream.finalize();
+
+        // Parse the bitstream and extract QP values
+        let mut decoder = JpegXsDecoder::new(bitstream.into_bytes()).unwrap();
+        decoder.parse_headers().unwrap();
+
+        let extracted_qp = decoder.get_qp_values();
+        assert_eq!(extracted_qp.len(), 3);
+        assert_eq!(extracted_qp[0], 4); // Y QP
+        assert_eq!(extracted_qp[1], 6); // U QP
+        assert_eq!(extracted_qp[2], 6); // V QP
+    }
+
+    #[test]
     fn test_complete_jpeg_xs_bitstream() {
         let mut bitstream = JpegXsBitstream::new();
         bitstream.write_cap_marker();
         bitstream.write_pih_marker(256, 256, 3);
         bitstream.write_cdt_marker(3);
-        bitstream.write_wgt_marker();
+        bitstream.write_wgt_marker(None);
 
         // Add some test entropy data
         let test_coefficients = vec![0, 0, 0, 15, -7, 0, 0, 23, -12, 0];
@@ -853,7 +889,7 @@ mod tests {
         bitstream.write_cap_marker();
         bitstream.write_pih_marker(256, 256, 3);
         bitstream.write_cdt_marker(3);
-        bitstream.write_wgt_marker();
+        bitstream.write_wgt_marker(None);
 
         let test_coefficients = vec![0, 0, 15, -7, 0, 23, -12];
         bitstream.add_entropy_coded_data(&test_coefficients);
