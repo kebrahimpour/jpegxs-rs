@@ -284,7 +284,26 @@ pub fn decode_vlc_bitplane_counts(
 /// Encode coefficients using simplified JPEG XS-inspired entropy coding
 ///
 /// This is a working implementation that uses JPEG XS concepts but with
-/// simplified algorithms for now. TODO: Replace with full ISO compliance.
+/// simplified algorithms for now.
+///
+/// # Simplifications and deviations from ISO/IEC 21122-1:2024
+/// - **Bitplane count encoding:** Uses a fixed raw mode (see `encode_raw_bitplane_counts`)
+///   instead of the full variable-length coding (VLC) or context-adaptive coding as specified
+///   in the standard.
+/// - **No context modeling:** The implementation does not use context modeling or prediction
+///   for bitplane counts or coefficient values.
+/// - **No support for all coding modes:** Only a basic, non-predictive mode is implemented;
+///   advanced features such as run-length coding, group significance, and context adaptation
+///   are omitted.
+/// - **Sign/magnitude encoding:** Coefficient magnitudes are encoded without redundancy
+///   reduction beyond omitting the MSB, and sign bits are written directly.
+/// - **No error resilience or packetization:** Features related to error resilience,
+///   packetization, and marker insertion are not implemented.
+/// - **Limited parameterization:** Some parameters (e.g., bit widths) are hardcoded or
+///   simplified.
+///
+/// This function is intended for prototyping and is **not** fully ISO-compliant.
+/// TODO: Replace with a fully ISO-compliant implementation.
 pub fn encode_coefficients(coeffs: &[i32]) -> Result<Vec<u8>> {
     let mut writer = BitstreamWriter::new();
 
