@@ -43,7 +43,7 @@ A high-performance, clean-room implementation of the JPEG XS (ISO/IEC 21122-1:20
 | 0.5     | 4.3:1            | Good quality |
 | 0.7     | 2.9:1            | High quality |
 
-[^1]: The compression ratio at quality 0.1 improved from 12.3:1 to 46.2:1 due to the new ISO-compliant entropy coding implementation, which provides significantly better compression efficiency at low quality settings.
+[^1]: Improved from 12.3:1 with new ISO-compliant entropy coding implementation.
 
 ### Benchmark Results vs Reference
 - **Quality 0.1**: 11.1 KB vs 24 KB reference (53.8% better)
