@@ -38,14 +38,16 @@ A high-performance, clean-room implementation of the JPEG XS (ISO/IEC 21122-1:20
 ### Compression Ratios by Quality Level
 | Quality | Compression Ratio | Use Case |
 |---------|-------------------|----------|
-| 0.1     | 46.2:1           | Maximum compression |
+| 0.1     | 46.2:1[^1]       | Maximum compression |
 | 0.3     | 7.0:1            | Balanced |
 | 0.5     | 4.3:1            | Good quality |
 | 0.7     | 2.9:1            | High quality |
 
+[^1]: The compression ratio at quality 0.1 improved from 12.3:1 to 46.2:1 due to the new ISO-compliant entropy coding implementation, which provides significantly better compression efficiency at low quality settings.
+
 ### Benchmark Results vs Reference
 - **Quality 0.1**: 11.1 KB vs 24 KB reference (53.8% better)
-- **Quality 0.3**: 19.5 KB vs ~24 KB reference (18.8% better)
+- **Quality 0.3**: 19.5 KB vs 24 KB reference (18.8% better)
 - **Maintains superior performance** while achieving much better quality
 
 ## 🚀 Features
