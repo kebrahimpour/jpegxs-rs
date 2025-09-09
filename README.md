@@ -38,7 +38,7 @@ A high-performance, clean-room implementation of the JPEG XS (ISO/IEC 21122-1:20
 ### Compression Ratios by Quality Level
 | Quality | Compression Ratio | Use Case |
 |---------|-------------------|----------|
-| 0.1     | 46.2:1[^1]       | Maximum compression |
+| 0.1     | 46.2:1[^1] | Maximum compression |
 | 0.3     | 7.0:1            | Balanced |
 | 0.5     | 4.3:1            | Good quality |
 | 0.7     | 2.9:1            | High quality |
