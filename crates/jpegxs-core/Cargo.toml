@@ -21,3 +21,4 @@ jpegxs-core-clean = { path = "../../commercial/jpegxs-core-clean" }
 
 [dev-dependencies]
 env_logger = { workspace = true }
+approx = "0.5"

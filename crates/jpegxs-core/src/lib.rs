@@ -7,6 +7,7 @@
 
 pub mod colors;
 pub mod dwt;
+pub mod dwt_validation;
 pub mod entropy;
 pub mod packet;
 pub mod quant;
@@ -181,9 +182,8 @@ pub fn encode_frame(input: ImageView8, config: &EncoderConfig) -> Result<Bitstre
 
     // Add WGT (Weights Table) marker according to ISO A.4.12 specification
     // Fifth mandatory marker providing band gain parameters for quantization
-    // Pass the actual QP values that were used for quantization
-    let wgt_qp_values = vec![qp_y, qp_uv, qp_uv]; // Y, U, V component QPs
-    jxs_bitstream.write_wgt_marker(Some(&wgt_qp_values));
+    // Pass all subband QP values computed from quality setting
+    jxs_bitstream.write_wgt_marker(Some(&qps));
 
     // Add entropy coded data per ISO Annex C specification
     // Combine all quantized coefficients for entropy coding
@@ -277,10 +277,10 @@ pub fn decode_frame_to_format(
     let u_quantized = all_coefficients[y_size..y_size + uv_size].to_vec();
     let v_quantized = all_coefficients[y_size + uv_size..y_size + 2 * uv_size].to_vec();
 
-    // Dequantize - Extract QP from WGT marker or use quality-consistent defaults
-    // TODO: Properly parse WGT marker to extract actual QP values from bitstream
-    let (qp_y, qp_uv) = extract_quantization_parameters(&decoder)
-        .unwrap_or_else(get_default_quantization_parameters);
+    // Dequantize - Extract QP from WGT marker
+    let qp_values = decoder.get_qp_values();
+    let qp_y = qp_values.get(0).copied().unwrap_or(8); // Default fallback
+    let qp_uv = qp_values.get(1).copied().unwrap_or(qp_y);
 
     let y_dwt = quant::dequantize(&y_quantized, qp_y)?;
     let u_dwt = quant::dequantize(&u_quantized, qp_uv)?;
