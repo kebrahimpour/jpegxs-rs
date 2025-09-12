@@ -1,0 +1,33 @@
+[package]
+name = "jpegxs-conformance"
+version = "0.1.0"
+edition = "2021"
+authors = ["Keyvan Ebrahimpour <k1.ebrahimpour@gmail.com>"]
+description = "JPEG XS conformance testing and benchmarking suite"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+jpegxs-core = { path = "../jpegxs-core" }
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+csv = "1.3"
+criterion = "0.5"
+memory-stats = "1.0"
+tempfile = "3.8"
+
+[dev-dependencies]
+pretty_assertions = "1.4"
+test-case = "3.1"
+
+[[bench]]
+name = "memory"
+harness = false
+
+[[bench]]
+name = "speed"
+harness = false
+
+[[bench]]
+name = "quality"
+harness = false
