@@ -2,6 +2,8 @@ pub mod metrics;
 pub mod conformance;
 pub mod benchmarks;
 pub mod reference;
+pub mod test_vectors;
+pub mod test_runner;
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
