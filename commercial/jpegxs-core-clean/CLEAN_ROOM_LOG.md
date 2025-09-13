@@ -14,7 +14,7 @@ This log documents the clean-room implementation of JPEG XS core functionality, 
 ### ISO/IEC 21122-1:2024 Sections Referenced
 - **Table A.2**: JPEG XS codestream markers (line 603)
   - SOC (Start of Codestream): 0xff10 - Mandatory
-  - EOC (End of Codestream): 0xff11 - Mandatory  
+  - EOC (End of Codestream): 0xff11 - Mandatory
   - PIH (Picture Header): 0xff12 - Mandatory
   - Other markers for future implementation
 
@@ -37,7 +37,7 @@ This log documents the clean-room implementation of JPEG XS core functionality, 
 
 ## Development Status
 - [x] Environment setup
-- [x] ISO specification analysis  
+- [x] ISO specification analysis
 - [x] SOC marker implementation
 - [x] CAP marker implementation
 - [x] Basic JPEG XS file format structure
@@ -54,7 +54,7 @@ This log documents the clean-room implementation of JPEG XS core functionality, 
    - First marker in codestream (0xff10)
    - Proper big-endian encoding
 
-2. **CAP Marker**: ✅ Implemented per ISO A.4.3  
+2. **CAP Marker**: ✅ Implemented per ISO A.4.3
    - Second marker after SOC (0xff50)
    - Minimal capabilities (empty cap array)
    - Proper length field (4 bytes)

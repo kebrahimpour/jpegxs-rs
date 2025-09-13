@@ -101,7 +101,7 @@ jpeg-xs/
 **A:** Yes, but modifications must be shared under the same license for non-commercial use.
 
 ### Q: Why multiple license files?
-**A:** 
+**A:**
 - `LICENSE` - Main license (non-commercial terms)
 - `LICENSE-COMMERCIAL.md` - Commercial licensing information
 - `reference/jxs/LICENSE.md` - Reference implementation (not ours)
@@ -110,7 +110,7 @@ jpeg-xs/
 **A:** Code written solely from the ISO specification without looking at any existing implementation. This ensures no copyright issues and full commercial licensing rights.
 
 ### Q: Can I get support?
-**A:** 
+**A:**
 - Non-commercial: Community support via GitHub issues
 - Commercial: Priority support with SLA included
 
@@ -118,8 +118,8 @@ jpeg-xs/
 
 For commercial licensing, custom development, or questions:
 
-**Keyvan Ebrahimpour**  
-Email: k1.ebrahimpour@gmail.com  
+**Keyvan Ebrahimpour**
+Email: k1.ebrahimpour@gmail.com
 GitHub: [@kebrahimpour](https://github.com/kebrahimpour)
 
 ## ⚖️ Legal Notice

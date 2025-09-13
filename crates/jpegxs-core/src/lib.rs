@@ -7,6 +7,7 @@
 
 pub mod colors;
 pub mod dwt;
+pub mod dwt_validation;
 pub mod entropy;
 pub mod packet;
 pub mod quant;
@@ -14,6 +15,10 @@ pub mod types;
 
 use anyhow::Result;
 pub use types::{Bitstream, DecoderConfig, EncoderConfig, ImageOwned8, ImageView8, PixelFormat};
+
+/// Default quantization parameter used when QP values cannot be extracted from bitstream
+/// This provides a moderate quality fallback that balances compression and visual quality
+const DEFAULT_FALLBACK_QP: u8 = 8;
 
 /// Encode an image frame using JPEG XS compression
 ///
@@ -181,9 +186,8 @@ pub fn encode_frame(input: ImageView8, config: &EncoderConfig) -> Result<Bitstre
 
     // Add WGT (Weights Table) marker according to ISO A.4.12 specification
     // Fifth mandatory marker providing band gain parameters for quantization
-    // Pass the actual QP values that were used for quantization
-    let wgt_qp_values = vec![qp_y, qp_uv, qp_uv]; // Y, U, V component QPs
-    jxs_bitstream.write_wgt_marker(Some(&wgt_qp_values));
+    // Pass all subband QP values computed from quality setting
+    jxs_bitstream.write_wgt_marker(Some(&qps));
 
     // Add entropy coded data per ISO Annex C specification
     // Combine all quantized coefficients for entropy coding
@@ -277,10 +281,10 @@ pub fn decode_frame_to_format(
     let u_quantized = all_coefficients[y_size..y_size + uv_size].to_vec();
     let v_quantized = all_coefficients[y_size + uv_size..y_size + 2 * uv_size].to_vec();
 
-    // Dequantize - Extract QP from WGT marker or use quality-consistent defaults
-    // TODO: Properly parse WGT marker to extract actual QP values from bitstream
-    let (qp_y, qp_uv) = extract_quantization_parameters(&decoder)
-        .unwrap_or_else(get_default_quantization_parameters);
+    // Dequantize - Extract QP from WGT marker
+    let qp_values = decoder.get_qp_values();
+    let qp_y = qp_values.first().copied().unwrap_or(DEFAULT_FALLBACK_QP);
+    let qp_uv = qp_values.get(1).copied().unwrap_or(qp_y);
 
     let y_dwt = quant::dequantize(&y_quantized, qp_y)?;
     let u_dwt = quant::dequantize(&u_quantized, qp_uv)?;
@@ -401,52 +405,6 @@ pub fn decode_frame_to_format(
         height,
         format: output_format,
     })
-}
-
-/// Extract quantization parameters from the decoder's parsed WGT marker
-fn extract_quantization_parameters(decoder: &jpegxs_core_clean::JpegXsDecoder) -> Option<(u8, u8)> {
-    let qp_values = decoder.get_qp_values();
-
-    if qp_values.is_empty() {
-        return None;
-    }
-
-    // Extract QP values for Y and UV components
-    // Expected format: [qp_y, qp_u, qp_v, ...] or at minimum [qp_y]
-    let qp_y = qp_values[0];
-    let qp_uv = if qp_values.len() > 1 {
-        qp_values[1] // Use U component QP for both U and V
-    } else {
-        qp_y // Use same QP for all components if only one provided
-    };
-
-    Some((qp_y, qp_uv))
-}
-
-/// Get default quantization parameters using the same quality mapping as encoder
-/// This ensures consistency when QP values cannot be extracted from bitstream
-fn get_default_quantization_parameters() -> (u8, u8) {
-    // Use the same quality-to-QP mapping as the encoder for consistency
-    // Assuming medium-high quality (0.8) as a reasonable default for decoding
-    const DEFAULT_QUALITY: f32 = 0.8;
-
-    // This mirrors the logic from quant::compute_quantization_parameters()
-    let base_qp = if DEFAULT_QUALITY >= 0.95 {
-        1 // Virtually lossless
-    } else if DEFAULT_QUALITY >= 0.9 {
-        2 // Very high quality
-    } else if DEFAULT_QUALITY >= 0.8 {
-        4 // High quality
-    } else if DEFAULT_QUALITY >= 0.6 {
-        8 // Medium quality
-    } else if DEFAULT_QUALITY >= 0.4 {
-        12 // Lower quality
-    } else {
-        16 // Low quality
-    };
-
-    // Use same QP for both Y and UV components as default
-    (base_qp, base_qp)
 }
 
 #[cfg(test)]

@@ -10,9 +10,9 @@ assignees: kebrahimpour
 **⚠️ For faster response, email directly: k1.ebrahimpour@gmail.com**
 
 ## Organization
-**Company Name:** 
-**Contact Email:** 
-**Website:** 
+**Company Name:**
+**Contact Email:**
+**Website:**
 
 ## Use Case
 **What will you use the JPEG XS codec for?**
@@ -20,7 +20,7 @@ assignees: kebrahimpour
 
 **Expected deployment scale:**
 - [ ] < 100 installations
-- [ ] 100-1,000 installations  
+- [ ] 100-1,000 installations
 - [ ] 1,000-10,000 installations
 - [ ] > 10,000 installations
 
