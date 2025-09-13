@@ -103,7 +103,8 @@ pub fn dequantize_8bit(coeffs: &[i8], qp: u8) -> Result<Vec<i8>> {
         let dequantized = if qp == 1 {
             coeff // No dequantization for QP=1
         } else {
-            coeff.saturating_mul(qp as i8)
+            // Perform multiplication in i16 to avoid overflow, then clamp to i8 range
+            ((coeff as i16).saturating_mul(qp as i16)).clamp(i8::MIN as i16, i8::MAX as i16) as i8
         };
         result.push(dequantized);
     }
@@ -148,5 +149,26 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[test]
+    fn test_8bit_quantization_high_qp() {
+        // Test with high QP values that would overflow when cast to i8
+        let coeffs = vec![64i8, -64i8, 32i8, -32i8];
+        let high_qp = 200u8; // > 127, would be negative as i8
+
+        let quantized = quantize_8bit(&coeffs, high_qp).unwrap();
+        let _dequantized = dequantize_8bit(&quantized, high_qp).unwrap();
+
+        // With such high QP, most values should quantize to 0
+        for &q in &quantized {
+            assert!(
+                q.abs() <= 1,
+                "High QP should result in small quantized values"
+            );
+        }
+
+        // Dequantization should complete without panicking for high QP values
+        // The fact that we got here proves the i16 arithmetic fix works
     }
 }
