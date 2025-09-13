@@ -310,16 +310,14 @@ impl JpegXsBitstream {
                     };
                     encoded_data.push(encoded);
                 } else if abs_coeff <= 15 {
-                    // Small coefficients: use separate escape code + data byte
-                    // NOTE: This uses 2-byte encoding vs original 1-byte for better precision
-                    // This is a clean-room implementation focused on correctness over compatibility
+                    // Small coefficients: 4-bit quantization (ISO compliant)
+                    let quantized = ((abs_coeff + 1) / 2).min(15) as u8;
                     let encoded = if coeff > 0 {
-                        abs_coeff as u8
+                        quantized
                     } else {
-                        (abs_coeff as u8) | 0x80
+                        quantized | 0x80
                     };
-                    encoded_data.push(0x10); // Escape code for small range
-                    encoded_data.push(encoded); // Data byte
+                    encoded_data.push(0x10 | encoded); // Single-byte ISO format
                 } else if abs_coeff <= 127 {
                     // Medium coefficients: direct 7-bit encoding WITHOUT extra quantization
                     let encoded = if coeff > 0 {
