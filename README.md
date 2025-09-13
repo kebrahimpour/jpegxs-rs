@@ -76,7 +76,37 @@ A high-performance, clean-room implementation of the JPEG XS (ISO/IEC 21122-1:20
 - [`DWT_VALIDATION_REPORT.md`](DWT_VALIDATION_REPORT.md) - Comprehensive DWT validation results
 - [`ENTROPY_CODING_INVESTIGATION_PLAN.md`](ENTROPY_CODING_INVESTIGATION_PLAN.md) - Roadmap for quality improvements
 
-## 🚀 Features
+## 🏢 Commercial Edition Features
+
+The **Commercial Edition** includes enhanced features for professional and research use:
+
+### 🚀 Performance Optimizations
+- **8-bit Coefficient Pipeline**: 50% memory reduction with optimized integer arithmetic
+- **Enhanced DWT Performance**: Vectorized implementations for high-throughput applications
+- **Multi-threaded Processing**: Parallel encoding/decoding across CPU cores
+- **Hardware Acceleration**: SIMD optimizations for x86/ARM architectures
+
+### 🔬 Research & Analysis Tools
+- **Quality Bypass Mode**: `JPEGXS_BYPASS_ENTROPY=1` for algorithm analysis
+- **Extended Run-Length Encoding**: 1-byte/2-byte optimization for research
+- **Coefficient Analysis**: Detailed quantization and entropy statistics
+- **Algorithm Validation**: Advanced conformance testing with reference comparisons
+
+### 📈 Advanced Codec Features
+- **Custom Quantization Tables**: Fine-tuned quality control per subband
+- **Lossless Extensions**: Perfect reconstruction modes for archival use
+- **Profile Extensions**: Beyond ISO Main Profile for specialized applications
+- **Streaming Support**: Real-time encoding/decoding for broadcast applications
+
+### 💼 Enterprise Support & Licensing
+- **Professional Licensing**: Full commercial use rights with patent consultation
+- **Technical Support**: Direct access to codec engineers and algorithm specialists
+- **Custom Integration**: Tailored implementations for specific hardware/software stacks
+- **SLA Guarantees**: Response time commitments for mission-critical deployments
+
+> **💰 Commercial Licensing**: Enhanced features require a paid license. The community edition (this repository) is free for non-commercial use. Contact [k1.ebrahimpour@gmail.com](mailto:k1.ebrahimpour@gmail.com) for commercial licensing and pricing.
+
+## 🚀 Community Edition Features
 
 ### Core Codec Features
 - **ISO/IEC 21122-1:2024 Compliant**: Full standard implementation with ISO entropy coding

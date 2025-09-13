@@ -218,8 +218,8 @@ The conformance testing infrastructure provides excellent visibility into codec 
 
 ---
 
-**Report Generated**: 2025-09-12  
-**Test Suite Version**: 0.1.0  
-**Codec Version**: v0.2.0-alpha  
-**Total Test Time**: 28.24 seconds  
+**Report Generated**: 2025-09-12
+**Test Suite Version**: 0.1.0
+**Codec Version**: v0.2.0-alpha
+**Total Test Time**: 28.24 seconds
 **Test Report**: `test_report.json`

@@ -16,7 +16,7 @@ ISO test vectors for JPEG XS are **not freely available** - they must be purchas
   - Error metrics and validation procedures
   - Tests for profiles/levels compliance
 
-### ISO/IEC 21122-5 - Reference Software  
+### ISO/IEC 21122-5 - Reference Software
 - **Current Version**: ISO/IEC 21122-5:2022
 - **Contains**: Official reference encoder/decoder
 - **Price**: ~$200-300 USD from ISO store
@@ -90,23 +90,23 @@ ISO test vectors for JPEG XS are **not freely available** - they must be purchas
 pub fn validate_implementation() -> Result<ValidationReport> {
     let test_images = generate_test_suite();
     let mut report = ValidationReport::new();
-    
+
     for image in test_images {
         // Test against TangKii/jxs reference
         let tangkii_encoded = encode_with_tangkii(image)?;
         let our_decoded = decode_frame(&tangkii_encoded)?;
         report.add_cross_decode_test("TangKii", calculate_psnr(&image, &our_decoded));
-        
+
         // Test our encoder against reference decoder
         let our_encoded = encode_frame(image)?;
         let tangkii_decoded = decode_with_tangkii(&our_encoded)?;
         report.add_cross_encode_test("TangKii", calculate_psnr(&image, &tangkii_decoded));
-        
+
         // Roundtrip test
         let roundtrip = decode_frame(&our_encoded)?;
         report.add_roundtrip_test(calculate_psnr(&image, &roundtrip));
     }
-    
+
     Ok(report)
 }
 ```
@@ -117,24 +117,24 @@ pub fn generate_conformance_test_vectors() -> Vec<TestVector> {
     vec![
         // Basic patterns
         create_solid_color_test(255, 0, 0),      // Red
-        create_gradient_test(256, 256),          // Smooth gradient  
+        create_gradient_test(256, 256),          // Smooth gradient
         create_checker_pattern(64),              // High frequency
-        
+
         // Edge cases
         create_black_image(1920, 1080),          // All zeros
         create_white_image(1920, 1080),          // All max values
         create_random_noise(512, 512),           // Random data
-        
+
         // Real-world scenarios
         create_natural_image_proxy(),            // Natural image characteristics
         create_graphics_content(),               // Sharp edges, text
         create_video_frame_sequence(10),         // Temporal consistency
-        
+
         // Bit depth variations
         create_10bit_test_pattern(),
         create_12bit_test_pattern(),
         create_16bit_test_pattern(),
-        
+
         // Format variations
         create_yuv422_test(),
         create_yuv420_test(),
@@ -151,7 +151,7 @@ pub fn generate_conformance_test_vectors() -> Vec<TestVector> {
 - **Risk**: May miss edge cases in official test suite
 - **Timeline**: Immediate start
 
-### Official ISO Approach  
+### Official ISO Approach
 - **Cost**: ~$400-600 USD (both standards)
 - **Coverage**: 100% official conformance
 - **Risk**: Low - official reference
@@ -174,7 +174,7 @@ pub fn generate_conformance_test_vectors() -> Vec<TestVector> {
 ## Next Steps
 
 1. **This week**: Clone and analyze TangKii/jxs repository
-2. **Next week**: Extract test bitstreams and run against your decoder  
+2. **Next week**: Extract test bitstreams and run against your decoder
 3. **Week 3**: Generate custom test vectors for missing coverage
 4. **Week 4**: Implement cross-validation with SVT-JPEG-XS
 5. **Month 2**: Consider ISO standard purchase for full certification
@@ -187,6 +187,6 @@ For a public repository, using free resources is appropriate and provides good c
 
 ---
 
-**Document Version**: 1.0  
-**Created**: 2025-09-12  
+**Document Version**: 1.0
+**Created**: 2025-09-12
 **Next Review**: When ISO test vectors are acquired

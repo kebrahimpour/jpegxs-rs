@@ -95,7 +95,7 @@ pub struct AdvancedEntropyEncoder {
 }
 
 impl AdvancedEntropyEncoder {
-    pub fn encode_with_context(&self, coefficients: &[i32], 
+    pub fn encode_with_context(&self, coefficients: &[i32],
                                subband: SubbandType) -> Vec<u8>
     pub fn apply_prediction(&self, coefficients: &[i32]) -> Vec<i32>
     pub fn encode_significance_map(&self, coefficients: &[i32]) -> BitStream
@@ -108,7 +108,7 @@ impl AdvancedEntropyEncoder {
 3. Integrate significance coding
 4. Optimize sign coding
 
-**Expected Impact**: 
+**Expected Impact**:
 - PSNR: +10-15 dB
 - Compression: +30-50%
 - Complexity: 2-3x encoding time
@@ -147,7 +147,7 @@ pub fn dwt_53_2d_forward(data: &mut [i32], width: usize, height: usize)
 ```rust
 pub struct MultiLevelDWT {
     levels: u8, // 1-5
-    
+
     pub fn forward(&self, data: &mut [i32], width: usize, height: usize) {
         for level in 0..self.levels {
             // Apply DWT to LL subband recursively
@@ -162,7 +162,7 @@ pub struct MultiLevelDWT {
 ```rust
 pub enum Profile {
     Main { level: u8 },    // Levels 1-5
-    Light { level: u8 },   // Levels 1-3  
+    Light { level: u8 },   // Levels 1-3
     High { level: u8 },    // Levels 1-4
 }
 
@@ -324,6 +324,6 @@ Premium Features:
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: 2025-09-12  
+**Document Version**: 1.0
+**Last Updated**: 2025-09-12
 **Next Review**: 2025-09-19

@@ -67,7 +67,7 @@ impl DwtTransform for BasicDwt {
         // Basic, unoptimized implementation
         dwt_53_2d_forward_basic(data, width, height);
     }
-    
+
     fn inverse(&self, data: &mut [i32], width: usize, height: usize) {
         dwt_53_2d_inverse_basic(data, width, height);
     }
@@ -95,7 +95,7 @@ impl DwtTransform for SimdDwt {
             dwt_53_2d_forward_optimized(data, width, height)
         }
     }
-    
+
     fn inverse(&self, data: &mut [i32], width: usize, height: usize) {
         // Similar optimized paths
     }
@@ -162,19 +162,19 @@ impl CodecBuilder {
     pub fn new() -> Self {
         Self { optimizer: None }
     }
-    
+
     pub fn with_optimizer(mut self, opt: Box<dyn Optimizer>) -> Self {
         self.optimizer = Some(opt);
         self
     }
-    
+
     pub fn build(self) -> Codec {
         let dwt: Box<dyn DwtTransform> = if let Some(opt) = self.optimizer {
             opt.optimize(&BasicDwt)
         } else {
             Box::new(BasicDwt)
         };
-        
+
         Codec { dwt }
     }
 }
@@ -399,6 +399,6 @@ pub struct CloudCodec {
 
 ---
 
-**Document Version**: 1.0  
-**Created**: 2025-09-12  
+**Document Version**: 1.0
+**Created**: 2025-09-12
 **Next Review**: 2025-09-26
