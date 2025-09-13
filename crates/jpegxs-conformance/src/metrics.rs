@@ -1,5 +1,5 @@
-use std::time::Instant;
 use memory_stats::memory_stats;
+use std::time::Instant;
 
 pub struct MemoryProfiler {
     baseline: Option<usize>,
@@ -43,7 +43,9 @@ impl MemoryProfiler {
         let baseline = self.baseline.unwrap_or(0);
         let peak_usage = self.peak.saturating_sub(baseline);
         let avg_usage = if !self.samples.is_empty() {
-            let sum: usize = self.samples.iter()
+            let sum: usize = self
+                .samples
+                .iter()
                 .map(|&s| s.saturating_sub(baseline))
                 .sum();
             sum / self.samples.len()
@@ -121,17 +123,12 @@ impl SpeedProfiler {
     }
 
     pub fn report(&self) -> SpeedReport {
-        let total_duration: u128 = self.operations.iter()
-            .map(|op| op.duration_ns)
-            .sum();
+        let total_duration: u128 = self.operations.iter().map(|op| op.duration_ns).sum();
 
-        let total_bytes: usize = self.operations.iter()
-            .map(|op| op.bytes_processed)
-            .sum();
+        let total_bytes: usize = self.operations.iter().map(|op| op.bytes_processed).sum();
 
         let throughput_mbps = if total_duration > 0 {
-            (total_bytes as f64 * 8.0 * 1_000_000_000.0) /
-            (total_duration as f64 * 1_000_000.0)
+            (total_bytes as f64 * 8.0 * 1_000_000_000.0) / (total_duration as f64 * 1_000_000.0)
         } else {
             0.0
         };
@@ -172,13 +169,15 @@ pub fn calculate_psnr(original: &[u8], compressed: &[u8]) -> f64 {
         return 0.0;
     }
 
-    let mse: f64 = original.iter()
+    let mse: f64 = original
+        .iter()
         .zip(compressed.iter())
         .map(|(&o, &c)| {
             let diff = o as f64 - c as f64;
             diff * diff
         })
-        .sum::<f64>() / original.len() as f64;
+        .sum::<f64>()
+        / original.len() as f64;
 
     if mse == 0.0 {
         f64::INFINITY
@@ -191,7 +190,7 @@ pub fn calculate_ssim(original: &[u8], compressed: &[u8], width: usize, height: 
     // Simplified SSIM calculation
     // In production, use a proper SSIM library
 
-    const C1: f64 = 6.5025;  // (0.01 * 255)^2
+    const C1: f64 = 6.5025; // (0.01 * 255)^2
     const C2: f64 = 58.5225; // (0.03 * 255)^2
 
     if original.len() != compressed.len() || original.len() != width * height {
@@ -203,26 +202,30 @@ pub fn calculate_ssim(original: &[u8], compressed: &[u8], width: usize, height: 
     let mean_x: f64 = original.iter().map(|&x| x as f64).sum::<f64>() / n;
     let mean_y: f64 = compressed.iter().map(|&y| y as f64).sum::<f64>() / n;
 
-    let var_x: f64 = original.iter()
+    let var_x: f64 = original
+        .iter()
         .map(|&x| {
             let diff = x as f64 - mean_x;
             diff * diff
         })
-        .sum::<f64>() / n;
+        .sum::<f64>()
+        / n;
 
-    let var_y: f64 = compressed.iter()
+    let var_y: f64 = compressed
+        .iter()
         .map(|&y| {
             let diff = y as f64 - mean_y;
             diff * diff
         })
-        .sum::<f64>() / n;
+        .sum::<f64>()
+        / n;
 
-    let cov_xy: f64 = original.iter()
+    let cov_xy: f64 = original
+        .iter()
         .zip(compressed.iter())
-        .map(|(&x, &y)| {
-            (x as f64 - mean_x) * (y as f64 - mean_y)
-        })
-        .sum::<f64>() / n;
+        .map(|(&x, &y)| (x as f64 - mean_x) * (y as f64 - mean_y))
+        .sum::<f64>()
+        / n;
 
     let numerator = (2.0 * mean_x * mean_y + C1) * (2.0 * cov_xy + C2);
     let denominator = (mean_x * mean_x + mean_y * mean_y + C1) * (var_x + var_y + C2);

@@ -11,15 +11,15 @@ fn test_rgb_yuv_roundtrip_precision() {
     for y in 0..height {
         for x in 0..width {
             let idx = (y * width + x) as usize;
-            rgb_data[idx * 3] = (x * 255 / width) as u8;     // R gradient
+            rgb_data[idx * 3] = (x * 255 / width) as u8; // R gradient
             rgb_data[idx * 3 + 1] = (y * 255 / height) as u8; // G gradient
-            rgb_data[idx * 3 + 2] = 128;                        // B constant
+            rgb_data[idx * 3 + 2] = 128; // B constant
         }
     }
 
     // Convert RGB to YUV
-    let (y_data, u_data, v_data) = colors::rgb_to_yuv_planar(&rgb_data, width, height)
-        .expect("RGB to YUV conversion failed");
+    let (y_data, u_data, v_data) =
+        colors::rgb_to_yuv_planar(&rgb_data, width, height).expect("RGB to YUV conversion failed");
 
     // Convert back to RGB
     let mut yuv_interleaved = vec![0u8; size * 3];
@@ -80,18 +80,22 @@ fn test_yuv_444_precision() {
         *item = (i * 255 / size) as u8;
     }
     // U plane: constant 128 (neutral)
-    for item in test_data.iter_mut().take(size*2).skip(size) {
+    for item in test_data.iter_mut().take(size * 2).skip(size) {
         *item = 128;
     }
     // V plane: constant 128 (neutral)
-    for item in test_data.iter_mut().take(size*3).skip(size*2) {
+    for item in test_data.iter_mut().take(size * 3).skip(size * 2) {
         *item = 128;
     }
 
     println!("YUV444 Direct Processing Test:");
-    println!("  Input Y range: {} to {}", test_data[0], test_data[size-1]);
+    println!(
+        "  Input Y range: {} to {}",
+        test_data[0],
+        test_data[size - 1]
+    );
     println!("  Input U value: {}", test_data[size]);
-    println!("  Input V value: {}", test_data[size*2]);
+    println!("  Input V value: {}", test_data[size * 2]);
 
     // Test whether the issue is in YUV444 handling specifically
     // This should show if the problem is color conversion vs. codec pipeline

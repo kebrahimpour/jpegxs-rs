@@ -276,16 +276,23 @@ impl JpegXsBitstream {
                 let abs_coeff = coeff.abs();
 
                 // Log coefficient analysis for debugging
-                log::info!("Coefficient analysis - abs_coeff: {}, tier: {}",
-                           abs_coeff,
-                           if abs_coeff <= 3 { "direct" }
-                           else if abs_coeff <= 15 { "2x_quant" }
-                           else if abs_coeff <= 127 { "4x_quant" }
-                           else { "16x_quant" });
+                log::info!(
+                    "Coefficient analysis - abs_coeff: {}, tier: {}",
+                    abs_coeff,
+                    if abs_coeff <= 3 {
+                        "direct"
+                    } else if abs_coeff <= 15 {
+                        "2x_quant"
+                    } else if abs_coeff <= 127 {
+                        "4x_quant"
+                    } else {
+                        "16x_quant"
+                    }
+                );
 
                 if bypass_entropy_quantization {
                     // EXPERIMENTAL: Store coefficient with minimal loss for quality testing
-                    let stored_coeff = abs_coeff.min(255) as u8;  // Simple clamp instead of quantization
+                    let stored_coeff = abs_coeff.min(255) as u8; // Simple clamp instead of quantization
                     let encoded = if coeff > 0 {
                         stored_coeff
                     } else {
@@ -303,34 +310,31 @@ impl JpegXsBitstream {
                     };
                     encoded_data.push(encoded);
                 } else if abs_coeff <= 15 {
-                    // Small coefficients: 4-bit quantization
-                    let quantized = ((abs_coeff + 1) / 2).min(15) as u8;
+                    // Small coefficients: use separate escape code + data byte
                     let encoded = if coeff > 0 {
-                        quantized
+                        abs_coeff as u8
                     } else {
-                        quantized | 0x80
+                        (abs_coeff as u8) | 0x80
                     };
-                    encoded_data.push(0x10 | encoded); // Escape code for 4-bit quantized
+                    encoded_data.push(0x10); // Escape code for small range
+                    encoded_data.push(encoded); // Data byte
                 } else if abs_coeff <= 127 {
-                    // Medium coefficients: direct 7-bit encoding
-                    let quantized = (abs_coeff / 4).min(127) as u8;
+                    // Medium coefficients: direct 7-bit encoding WITHOUT extra quantization
                     let encoded = if coeff > 0 {
-                        quantized
+                        abs_coeff as u8
                     } else {
-                        quantized | 0x80
+                        (abs_coeff as u8) | 0x80
                     };
                     encoded_data.push(0x20); // Escape code
                     encoded_data.push(encoded);
                 } else {
-                    // Large coefficients: aggressive quantization
-                    let quantized = (abs_coeff / 16).min(63) as u8;
-                    let encoded = if coeff > 0 {
-                        quantized
-                    } else {
-                        quantized | 0x80
-                    };
-                    encoded_data.push(0x30); // Escape code
-                    encoded_data.push(encoded);
+                    // Large coefficients: extend to full 8-bit range (0-255)
+                    let clamped = abs_coeff.min(255) as u8;
+
+                    // Use separate sign encoding for full 8-bit range
+                    encoded_data.push(0x30); // Escape code for large coefficients
+                    encoded_data.push(clamped); // Magnitude (0-255)
+                    encoded_data.push(if coeff > 0 { 0x00 } else { 0x01 }); // Sign byte
                 }
                 i += 1;
             }
@@ -632,34 +636,48 @@ impl JpegXsDecoder {
                     coefficients.push(pattern_0 as i8 as i32);
                     coefficients.push(pattern_1 as i8 as i32);
                 }
-            } else if (byte & 0xF0) == 0x10 {
-                // 4-bit quantized coefficient
-                let quantized = (byte & 0x0F) as i32;
-                let coeff = quantized * 2;
-                coefficients.push(if (byte & 0x80) != 0 { -coeff } else { coeff });
+            } else if byte == 0x10 {
+                // Small coefficient: read separate data byte
+                i += 1;
+                if i >= entropy_data.len() {
+                    break;
+                }
+                let encoded = entropy_data[i];
+                let abs_coeff = (encoded & 0x7F) as i32;
+                coefficients.push(if (encoded & 0x80) != 0 {
+                    -abs_coeff
+                } else {
+                    abs_coeff
+                });
                 i += 1;
             } else if byte == 0x20 {
-                // Medium coefficient: 7-bit encoding
+                // Medium coefficient: direct 7-bit decode WITHOUT extra dequantization
                 i += 1;
                 if i >= entropy_data.len() {
                     break;
                 }
                 let encoded = entropy_data[i];
-                let quantized = (encoded & 0x7F) as i32;
-                let coeff = quantized * 4;
-                coefficients.push(if (encoded & 0x80) != 0 { -coeff } else { coeff });
+                let abs_coeff = (encoded & 0x7F) as i32;
+                coefficients.push(if (encoded & 0x80) != 0 {
+                    -abs_coeff
+                } else {
+                    abs_coeff
+                });
                 i += 1;
             } else if byte == 0x30 {
-                // Large coefficient: aggressive quantization
+                // Large coefficient: 8-bit range with separate sign byte
                 i += 1;
-                if i >= entropy_data.len() {
+                if i + 1 >= entropy_data.len() {
                     break;
                 }
-                let encoded = entropy_data[i];
-                let quantized = (encoded & 0x7F) as i32;
-                let coeff = quantized * 16;
-                coefficients.push(if (encoded & 0x80) != 0 { -coeff } else { coeff });
-                i += 1;
+                let magnitude = entropy_data[i] as i32; // 0-255 magnitude
+                let sign_byte = entropy_data[i + 1];
+                coefficients.push(if sign_byte == 0x00 {
+                    magnitude
+                } else {
+                    -magnitude
+                });
+                i += 2;
             } else if byte == 0x40 {
                 // EXPERIMENTAL: Bypass mode - direct coefficient storage
                 i += 1;
@@ -668,7 +686,11 @@ impl JpegXsDecoder {
                 }
                 let encoded = entropy_data[i];
                 let abs_coeff = (encoded & 0x7F) as i32;
-                coefficients.push(if (encoded & 0x80) != 0 { -abs_coeff } else { abs_coeff });
+                coefficients.push(if (encoded & 0x80) != 0 {
+                    -abs_coeff
+                } else {
+                    abs_coeff
+                });
                 i += 1;
             } else {
                 // Direct encoded small coefficient (1-3)

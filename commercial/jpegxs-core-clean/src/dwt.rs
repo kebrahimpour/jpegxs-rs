@@ -195,13 +195,14 @@ fn dwt_53_inverse_1d(data: &mut [f32]) {
         }
     };
 
-    // Step 1: Inverse predict step (reconstruct even samples from low-pass)
-    // ISO equation: Y[i] = X[i] - ((X[i-1] + X[i+1] + 2) >> 2)
+    // Step 1: Inverse update step (undo the forward update step)
+    // Forward update was: Y[i] = X[i] + ((Y[i-1] + Y[i+1] + 2) >> 2)
+    // Inverse is: X[i] = Y[i] - ((Y[i-1] + Y[i+1] + 2) >> 2)
     // Process even indices: i = 0, 2, 4, ...
     for i in (0..len).step_by(2) {
         let left = if i > 0 { temp[i - 1] } else { 0.0 };
         let right = if i + 1 < len { temp[i + 1] } else { 0.0 };
-        data[i] = temp[i] - (left + right + 2.0) / 4.0; // +2.0 for rounding per ISO
+        data[i] = temp[i] - (left + right + 2.0) / 4.0; // Undo the forward update
     }
 
     // Update temp buffer with first step results
@@ -209,13 +210,14 @@ fn dwt_53_inverse_1d(data: &mut [f32]) {
         temp[i] = data[i];
     }
 
-    // Step 2: Inverse update step (reconstruct odd samples from high-pass)
-    // ISO equation: Y[i] = X[i] + ((Y[i-1] + Y[i+1]) >> 1)
+    // Step 2: Inverse predict step (undo the forward predict step)
+    // Forward predict was: Y[i] = X[i] - ((X[i-1] + X[i+1]) >> 1)
+    // Inverse is: X[i] = Y[i] + ((X[i-1] + X[i+1]) >> 1)
     // Process odd indices: i = 1, 3, 5, ...
     for i in (1..len).step_by(2) {
         let left = get_sample_safe(&temp, i as i32 - 1);
         let right = get_sample_safe(&temp, i as i32 + 1);
-        data[i] = temp[i] + (left + right) / 2.0;
+        data[i] = temp[i] + (left + right) / 2.0; // Undo the forward predict
     }
 }
 
