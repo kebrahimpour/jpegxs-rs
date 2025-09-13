@@ -73,44 +73,6 @@ pub fn compute_quantization_parameters(quality: f32) -> Result<Vec<u8>> {
     Ok(vec![base_qp; NUM_SUBBANDS])
 }
 
-// 8-bit coefficient quantization functions
-
-pub fn quantize_8bit(coeffs: &[i8], qp: u8) -> Result<Vec<i8>> {
-    if qp == 0 {
-        return Err(anyhow::anyhow!("Quantization parameter cannot be zero"));
-    }
-
-    let mut result = Vec::with_capacity(coeffs.len());
-
-    for &coeff in coeffs {
-        // For 8-bit coefficients, use rounding division to match float behavior
-        let quantized = if qp == 1 {
-            coeff // No quantization for QP=1
-        } else {
-            ((coeff as f32) / (qp as f32)).round() as i8
-        };
-        result.push(quantized);
-    }
-
-    Ok(result)
-}
-
-pub fn dequantize_8bit(coeffs: &[i8], qp: u8) -> Result<Vec<i8>> {
-    let mut result = Vec::with_capacity(coeffs.len());
-
-    for &coeff in coeffs {
-        // Dequantization multiplies by QP
-        let dequantized = if qp == 1 {
-            coeff // No dequantization for QP=1
-        } else {
-            // Perform multiplication in i16 to avoid overflow, then clamp to i8 range
-            ((coeff as i16).saturating_mul(qp as i16)).clamp(i8::MIN as i16, i8::MAX as i16) as i8
-        };
-        result.push(dequantized);
-    }
-
-    Ok(result)
-}
 
 #[cfg(test)]
 mod tests {
@@ -151,54 +113,4 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_8bit_quantization_high_qp() {
-        // Test with high QP values that would overflow when cast to i8
-        let coeffs = vec![64i8, -64i8, 32i8, -32i8];
-        let high_qp = 200u8; // > 127, would be negative as i8
-
-        let quantized = quantize_8bit(&coeffs, high_qp).unwrap();
-        let _dequantized = dequantize_8bit(&quantized, high_qp).unwrap();
-
-        // With such high QP, most values should quantize to 0
-        for &q in &quantized {
-            assert!(
-                q.abs() <= 1,
-                "High QP should result in small quantized values"
-            );
-        }
-
-        // Dequantization should complete without panicking for high QP values
-        // The fact that we got here proves the i16 arithmetic fix works
-    }
-
-    #[test]
-    fn test_8bit_dequantization_fast_vs_slow_path() {
-        // Test that fast path and slow path produce identical results
-        let coeffs = vec![1i8, -1i8, 10i8, -10i8, 50i8, -50i8];
-
-        // Test with low QP (should use fast path for small coefficients)
-        let low_qp = 2u8;
-        let low_qp_result = dequantize_8bit(&coeffs, low_qp).unwrap();
-
-        // Test with medium QP (mixed fast/slow paths)
-        let med_qp = 50u8;
-        let med_qp_result = dequantize_8bit(&coeffs, med_qp).unwrap();
-
-        // Test with high QP (should use slow path)
-        let high_qp = 200u8;
-        let _high_qp_result = dequantize_8bit(&coeffs, high_qp).unwrap();
-
-        // Verify results make sense (dequantization should scale values)
-        for (i, &coeff) in coeffs.iter().enumerate() {
-            assert_eq!(low_qp_result[i], coeff * (low_qp as i8));
-            // For higher QPs, verify clamping works correctly
-            let expected_med =
-                (coeff as i16 * med_qp as i16).clamp(i8::MIN as i16, i8::MAX as i16) as i8;
-            assert_eq!(med_qp_result[i], expected_med);
-        }
-
-        // High QP should clamp large results (this is implicit since values are i8)
-        // Just verify the function completed without panicking
-    }
 }
