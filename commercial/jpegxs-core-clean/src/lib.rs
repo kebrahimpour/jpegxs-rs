@@ -328,13 +328,14 @@ impl JpegXsBitstream {
                     encoded_data.push(0x20); // Escape code
                     encoded_data.push(encoded);
                 } else {
-                    // Large coefficients: extend to full 8-bit range (0-255)
-                    let clamped = abs_coeff.min(255) as u8;
+                    // Large coefficients: use more efficient encoding
+                    // Clamp to 7-bit range to reserve high bit for sign
+                    let clamped = abs_coeff.min(127) as u8;
 
-                    // Use separate sign encoding for full 8-bit range
+                    // Encode sign in high bit of magnitude byte for compactness
+                    let signed_mag = if coeff > 0 { clamped } else { clamped | 0x80 };
                     encoded_data.push(0x30); // Escape code for large coefficients
-                    encoded_data.push(clamped); // Magnitude (0-255)
-                    encoded_data.push(if coeff > 0 { 0x00 } else { 0x01 }); // Sign byte
+                    encoded_data.push(signed_mag); // Magnitude with sign in high bit
                 }
                 i += 1;
             }
@@ -665,19 +666,19 @@ impl JpegXsDecoder {
                 });
                 i += 1;
             } else if byte == 0x30 {
-                // Large coefficient: 8-bit range with separate sign byte
+                // Large coefficient: 7-bit magnitude with sign in high bit
                 i += 1;
-                if i + 1 >= entropy_data.len() {
+                if i >= entropy_data.len() {
                     break;
                 }
-                let magnitude = entropy_data[i] as i32; // 0-255 magnitude
-                let sign_byte = entropy_data[i + 1];
-                coefficients.push(if sign_byte == 0x00 {
+                let signed_mag = entropy_data[i];
+                let magnitude = (signed_mag & 0x7F) as i32; // Extract 7-bit magnitude
+                coefficients.push(if (signed_mag & 0x80) == 0 {
                     magnitude
                 } else {
                     -magnitude
                 });
-                i += 2;
+                i += 1;
             } else if byte == 0x40 {
                 // EXPERIMENTAL: Bypass mode - direct coefficient storage
                 i += 1;

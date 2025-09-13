@@ -196,8 +196,9 @@ fn dwt_53_inverse_1d(data: &mut [f32]) {
     };
 
     // Step 1: Inverse update step (undo the forward update step)
-    // Forward update was: Y[i] = X[i] + ((Y[i-1] + Y[i+1] + 2) >> 2)
-    // Inverse is: X[i] = Y[i] - ((Y[i-1] + Y[i+1] + 2) >> 2)
+    // Forward update was: Y[i] = X[i] + ((Y[i-1] + Y[i+1]) / 4.0)
+    // Inverse is: X[i] = Y[i] - ((Y[i-1] + Y[i+1]) / 4.0)
+    // Note: Using floating-point division since data is f32, not integer bit-shifting
     // Process even indices: i = 0, 2, 4, ...
     for i in (0..len).step_by(2) {
         let left = if i > 0 { temp[i - 1] } else { 0.0 };
@@ -211,8 +212,9 @@ fn dwt_53_inverse_1d(data: &mut [f32]) {
     }
 
     // Step 2: Inverse predict step (undo the forward predict step)
-    // Forward predict was: Y[i] = X[i] - ((X[i-1] + X[i+1]) >> 1)
-    // Inverse is: X[i] = Y[i] + ((X[i-1] + X[i+1]) >> 1)
+    // Forward predict was: Y[i] = X[i] - ((X[i-1] + X[i+1]) / 2.0)
+    // Inverse is: X[i] = Y[i] + ((X[i-1] + X[i+1]) / 2.0)
+    // Note: Using floating-point division since data is f32, not integer bit-shifting
     // Process odd indices: i = 1, 3, 5, ...
     for i in (1..len).step_by(2) {
         let left = get_sample_safe(&temp, i as i32 - 1);
