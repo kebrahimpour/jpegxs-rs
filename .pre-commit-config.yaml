@@ -13,27 +13,35 @@ repos:
 
   - repo: local
     hooks:
-      - id: cargo-fmt
-        name: Cargo Format
-        entry: cargo fmt --all --
+      - id: ai-signature-check
+        name: Check for AI-generated signatures
+        entry: .git/hooks/pre-commit.legacy
+        language: system
+        always_run: true
+        pass_filenames: false
+        stages: [pre-commit]
+
+      - id: cargo-fmt-check
+        name: Cargo Format Check
+        entry: cargo fmt --all -- --check
         language: system
         types: [rust]
         pass_filenames: false
-      
+
       - id: cargo-clippy
         name: Cargo Clippy
         entry: cargo clippy --all-targets --all-features -- -D warnings
         language: system
         types: [rust]
         pass_filenames: false
-      
+
       - id: cargo-test
         name: Cargo Test
         entry: cargo test --all-features
         language: system
         types: [rust]
         pass_filenames: false
-      
+
       - id: cargo-check
         name: Cargo Check
         entry: cargo check --all-features

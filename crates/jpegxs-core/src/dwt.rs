@@ -86,7 +86,7 @@ fn dwt_53_forward_1d(data: &mut [f32]) {
         return;
     }
 
-    // Lifting steps for 5/3 DWT
+    // ISO/IEC 21122-1 Annex E.7: 5/3 lifting scheme
     // Predict step: odd[i] -= (even[i-1] + even[i+1]) / 2
     for i in (1..len).step_by(2) {
         let left = if i > 0 { data[i - 1] } else { data[i + 1] };

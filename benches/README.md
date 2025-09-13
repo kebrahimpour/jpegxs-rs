@@ -23,7 +23,7 @@ Fast performance comparison focusing on JPEG XS vs JPEG vs PNG:
 - **Duration**: ~30 seconds
 - **Output**: Detailed report with summary statistics
 
-### Codec Comparison (`codec_comparison`)  
+### Codec Comparison (`codec_comparison`)
 Comprehensive comparison across multiple codecs and quality levels:
 - **Focus**: Multi-codec analysis, quality metrics (PSNR, SSIM)
 - **Duration**: ~5-10 minutes
@@ -113,7 +113,7 @@ cargo run --bin simple_benchmark -- --help
 
 Options:
   -i, --input-dir <INPUT_DIR>      Input directory [default: test_images]
-  -o, --output-dir <OUTPUT_DIR>    Output directory [default: benchmark_results]  
+  -o, --output-dir <OUTPUT_DIR>    Output directory [default: benchmark_results]
   -q, --quality <QUALITY>          Quality level 0.1-1.0 [default: 0.9]
       --iterations <ITERATIONS>    Number of iterations [default: 3]
 ```
@@ -173,7 +173,7 @@ benchmark_results/
 # Compare before/after performance
 git checkout baseline_branch
 cargo run --bin simple_benchmark -- --output-dir results_before
-git checkout feature_branch  
+git checkout feature_branch
 cargo run --bin simple_benchmark -- --output-dir results_after
 python scripts/compare_results.py results_before results_after
 ```
@@ -195,7 +195,7 @@ cargo run --bin simple_benchmark -- --output-dir current_results
 
 The benchmark suite is suitable for:
 - **Codec Comparison Studies**: Systematic performance evaluation
-- **Algorithm Development**: Testing new compression techniques  
+- **Algorithm Development**: Testing new compression techniques
 - **Standards Validation**: Verifying ISO/IEC 21122-1:2024 compliance
 - **Performance Analysis**: Identifying optimization opportunities
 
@@ -215,7 +215,7 @@ The benchmark suite is suitable for:
 perf record cargo run --release --bin simple_benchmark
 perf report
 
-# Profile with instruments (macOS)  
+# Profile with instruments (macOS)
 cargo install cargo-instruments
 cargo instruments --release --bin simple_benchmark --bench
 ```
@@ -262,7 +262,7 @@ To add new benchmarks or improve existing ones:
 
 For questions about benchmarking results or methodology:
 - **Technical Issues**: Create GitHub issue with benchmark output
-- **Performance Questions**: Include system specifications and timing results  
+- **Performance Questions**: Include system specifications and timing results
 - **Codec Comparisons**: Share test images and configuration used
 
 ---
