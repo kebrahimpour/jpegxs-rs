@@ -14,41 +14,67 @@
 
 A high-performance, clean-room implementation of the JPEG XS (ISO/IEC 21122-1:2024) codec in Rust, achieving superior compression ratios compared to reference implementations.
 
-## 🎯 Key Achievements
+## 🎯 Current Status & Achievements
 
-- **ISO-Compliant Entropy Coding**: Full ISO/IEC 21122-1:2024 entropy coding implementation
-- **Superior Quality**: 31.15 dB PSNR (vs 7.90 dB old implementation - 294% improvement)
-- **Excellent Compression**: 2.2:1 ratio with 47% better efficiency than previous version
-- **Outperforms Reference**: 53.8% better compression while maintaining superior quality
-- **Production Ready**: All tests passing, memory-safe implementation with large image support
-- **Complete CLI Tool**: Encoding, decoding, file inspection, and PSNR measurement
-- **Multi-Format Support**: Direct PNG/JPEG/YUV input/output with automatic detection
-- **v0.1.0-alpha Released**: First alpha version with ISO-compliant entropy coding
+### ✅ Fixed Components (Production Ready)
+- **ISO-Compliant DWT**: Perfect reconstruction 5/3 wavelet transform per ISO/IEC 21122-1:2024
+- **Quantization System**: Proper quality→QP mapping with full subband support
+- **Decoder Pipeline**: 100% success rate across all test patterns
+- **Bitstream Format**: ISO-compliant marker structure and parsing
+- **Comprehensive Testing**: 22 synthetic test patterns with automated validation
 
-## 📊 Performance Metrics
+### 🔧 Under Investigation
+- **Encoder Quality**: Currently 8.3 dB PSNR (target: 30+ dB)
+- **Entropy Coding**: Aggressive quantization identified as quality bottleneck
+- **Root Cause**: Multi-tier coefficient quantization causing 2x-16x precision loss
 
-### Quality Improvements (ISO Entropy Coding)
-| Metric | Old RLE | New ISO | Improvement |
-|--------|---------|---------|-------------|
-| PSNR | 7.90 dB | 31.15 dB | +23.25 dB (294%) |
-| Compression | 1.5:1 | 2.2:1 | 47% better |
-| File Size | 423 KB | 285 KB | 32.6% smaller |
-| Quality Rating | Poor | Good | 2 levels up |
+### 📈 Recent Improvements
+- **DWT Foundation**: Fixed energy conservation (78.9%→0% error)
+- **Parameter Mapping**: Quality 0.95 now correctly maps to QP=1
+- **Test Infrastructure**: Created comprehensive conformance testing framework
 
-### Compression Ratios by Quality Level
-| Quality | Compression Ratio | Use Case |
-|---------|-------------------|----------|
-| 0.1     | 46.2:1[^1] | Maximum compression |
-| 0.3     | 7.0:1            | Balanced |
-| 0.5     | 4.3:1            | Good quality |
-| 0.7     | 2.9:1            | High quality |
+## 📊 Current Performance Metrics
 
-[^1]: Improved from 12.3:1 with new ISO-compliant entropy coding implementation.
+### Conformance Test Results (Post-Fix)
+| Component | Success Rate | Status |
+|-----------|--------------|--------|
+| **Decoder Tests** | 22/22 (100%) | ✅ Production Ready |
+| **Bitstream Tests** | 4/4 (100%) | ✅ ISO Compliant |
+| **Encoder Tests** | 0/22 (0%) | 🔧 Under Investigation |
+| **Overall Compliance** | 54.2% | 🔧 Improving |
 
-### Benchmark Results vs Reference
-- **Quality 0.1**: 11.1 KB vs 24 KB reference (53.8% better)
-- **Quality 0.3**: 19.5 KB vs 24 KB reference (18.8% better)
-- **Maintains superior performance** while achieving much better quality
+### Performance Benchmarks  
+| Metric | Current Value | Target | Status |
+|--------|---------------|--------|--------|
+| **Encoding Speed** | 44.4 Mbps | >40 Mbps | ✅ Meeting Target |
+| **Decoding Speed** | 52.9 Mbps | >40 Mbps | ✅ Exceeding Target |
+| **Memory Usage** | 0.2 MB peak | <1 MB | ✅ Efficient |
+| **PSNR Quality** | 8.3 dB | 30+ dB | 🔧 Major Issue |
+| **Compression Ratio** | 23.2:1 | Variable | ⚠️ Too Aggressive |
+
+### Root Cause Analysis Status
+- **DWT System**: ✅ **FIXED** - Perfect reconstruction achieved
+- **Quantization**: ✅ **FIXED** - Quality→QP mapping corrected  
+- **Decoder Pipeline**: ✅ **WORKING** - 100% reliability
+- **Entropy Coding**: 🔍 **INVESTIGATING** - Suspected quality bottleneck
+
+## 🔬 Investigation Roadmap
+
+### Next Steps (Priority Order)
+1. **Entropy Coding Analysis** - Profile coefficient quantization impact
+2. **Quality-Adaptive Entropy** - Implement precision-preserving compression for high quality
+3. **Color Space Validation** - Verify RGB↔YUV conversion accuracy
+4. **Performance Optimization** - Maintain encoding speed while improving quality
+
+### Expected Timeline
+- **Week 1**: Entropy coding investigation and bypass testing
+- **Week 2**: Implementation of quality-aware entropy system
+- **Target**: Achieve 30+ dB PSNR while maintaining >40 Mbps encoding speed
+
+## 📚 Documentation
+- [`QUALITY_IMPROVEMENTS_ANALYSIS.md`](QUALITY_IMPROVEMENTS_ANALYSIS.md) - Detailed analysis of fixes applied
+- [`DWT_VALIDATION_REPORT.md`](DWT_VALIDATION_REPORT.md) - Comprehensive DWT validation results
+- [`ENTROPY_CODING_INVESTIGATION_PLAN.md`](ENTROPY_CODING_INVESTIGATION_PLAN.md) - Roadmap for quality improvements
 
 ## 🚀 Features
 
