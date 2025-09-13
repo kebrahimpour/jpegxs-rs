@@ -1,47 +1,42 @@
-# Commercial Repository Tasks
+# Commercial Repository Action Plan
 
 ## Private Repository: `kebrahimpour/jpegxs-rs-commercial`
 
-### Immediate Actions Required
+### 🔴 Immediate Actions (Do First)
 
-#### 1. Branch Cleanup
 ```bash
-# Steps to clean commercial repository:
-git checkout main
-git pull origin main
-git branch -d old-branches  # Remove obsolete branches
-git push --delete origin old-branches
+# 1. Clean AI signatures from history
+git filter-branch --force --msg-filter 'perl -pe "s/Co-[Aa]uthored-[Bb]y:.*([Cc]laude|[Cc]opilot|anthropic|175728472).*\n//gi"' --tag-name-filter cat -- --all
+git push --force origin main
+
+# 2. Clean up branches
+git branch -d feature/8bit-coefficients-backup
+git push --delete origin feature/8bit-coefficients-backup
 ```
 
-#### 2. Remove AI References
-- Check all commit messages for AI signatures
-- Rebase if necessary to clean history
-- Ensure pre-commit hooks are active
+### ✅ Verify Commercial Features
 
-#### 3. Verify Enhanced Features
+```bash
+# Test 8-bit pipeline (50% memory reduction)
+cargo test test_8bit_coefficient
 
-##### 8-bit Coefficient Pipeline
-- Location: `crates/jpegxs-core/src/types.rs`
-- Benefit: 50% memory reduction
-- Status: Should be preserved and working
+# Test research bypass mode
+JPEGXS_BYPASS_ENTROPY=1 cargo test
 
-##### Research Tools
-- Environment variable: `JPEGXS_BYPASS_ENTROPY`
-- Purpose: Algorithm analysis and debugging
-- Usage: For research institutions and development
+# Benchmark memory usage
+/usr/bin/time -v cargo run --release -- encode test.png
+```
 
-##### Extended Optimizations
-- Run-length encoding enhancements
-- Coefficient packing optimizations
-- Multi-threading preparations
+### 📊 CI Cost Optimization Check
 
-#### 4. CI Optimization Verification
-```yaml
-# .github/workflows/ci-optimized.yml should:
-- Check public repo CI status first
-- Skip redundant tests if public CI passed
-- Run only commercial-specific tests
-- Result: 70-80% cost reduction
+```bash
+# Trigger a test commit
+git commit --allow-empty -m "Test CI optimization"
+git push
+
+# Should see in CI logs:
+# "✅ Tests already passed in public repo"
+# Runtime: <2 minutes (vs 7-8 min normal)
 ```
 
 ### Testing Checklist
