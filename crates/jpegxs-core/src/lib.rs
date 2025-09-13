@@ -151,6 +151,21 @@ pub fn encode_frame(input: ImageView8, config: &EncoderConfig) -> Result<Bitstre
         v_plane[i] = val as f32 - 128.0;
     }
 
+    // Log pre-DWT statistics for precision analysis
+    log::info!("DWT_ANALYSIS: Pre-DWT Y coefficients - min: {:.3}, max: {:.3}, mean: {:.3}, std: {:.3}",
+               y_plane.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
+               y_plane.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)),
+               y_plane.iter().sum::<f32>() / y_plane.len() as f32,
+               {
+                   let mean = y_plane.iter().sum::<f32>() / y_plane.len() as f32;
+                   (y_plane.iter().map(|x| (x - mean).powi(2)).sum::<f32>() / y_plane.len() as f32).sqrt()
+               });
+    log::info!("DWT_ANALYSIS: Pre-DWT UV coefficients - U_min: {:.3}, U_max: {:.3}, V_min: {:.3}, V_max: {:.3}",
+               u_plane.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
+               u_plane.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)),
+               v_plane.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
+               v_plane.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)));
+
     // Apply DWT to each plane (all are now 444)
     let mut y_dwt = vec![0.0f32; y_plane.len()];
     let mut u_dwt = vec![0.0f32; u_plane.len()];
@@ -160,6 +175,21 @@ pub fn encode_frame(input: ImageView8, config: &EncoderConfig) -> Result<Bitstre
     jpegxs_core_clean::dwt::dwt_53_forward_2d(&u_plane, &mut u_dwt, input.width, input.height)?;
     jpegxs_core_clean::dwt::dwt_53_forward_2d(&v_plane, &mut v_dwt, input.width, input.height)?;
 
+    // Log post-DWT statistics for precision analysis
+    log::info!("DWT_ANALYSIS: Post-DWT Y coefficients - min: {:.3}, max: {:.3}, mean: {:.3}, std: {:.3}",
+               y_dwt.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
+               y_dwt.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)),
+               y_dwt.iter().sum::<f32>() / y_dwt.len() as f32,
+               {
+                   let mean = y_dwt.iter().sum::<f32>() / y_dwt.len() as f32;
+                   (y_dwt.iter().map(|x| (x - mean).powi(2)).sum::<f32>() / y_dwt.len() as f32).sqrt()
+               });
+    log::info!("DWT_ANALYSIS: Post-DWT UV coefficients - U_min: {:.3}, U_max: {:.3}, V_min: {:.3}, V_max: {:.3}",
+               u_dwt.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
+               u_dwt.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)),
+               v_dwt.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
+               v_dwt.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)));
+
     // Quantize coefficients using corrected quality mapping
     let qps = quant::compute_quantization_parameters(config.quality)?;
     let qp_y = qps[0];
@@ -168,6 +198,19 @@ pub fn encode_frame(input: ImageView8, config: &EncoderConfig) -> Result<Bitstre
     let y_quantized = quant::quantize(&y_dwt, qp_y)?;
     let u_quantized = quant::quantize(&u_dwt, qp_uv)?;
     let v_quantized = quant::quantize(&v_dwt, qp_uv)?;
+
+    // Log post-quantization statistics for precision analysis
+    log::info!("DWT_ANALYSIS: Post-Quantization Y coefficients - min: {}, max: {}, mean: {:.3}, QP: {}",
+               y_quantized.iter().min().unwrap_or(&0),
+               y_quantized.iter().max().unwrap_or(&0),
+               y_quantized.iter().sum::<i32>() as f32 / y_quantized.len() as f32,
+               qp_y);
+    log::info!("DWT_ANALYSIS: Post-Quantization UV coefficients - U_min: {}, U_max: {}, V_min: {}, V_max: {}, QP: {}",
+               u_quantized.iter().min().unwrap_or(&0),
+               u_quantized.iter().max().unwrap_or(&0),
+               v_quantized.iter().min().unwrap_or(&0),
+               v_quantized.iter().max().unwrap_or(&0),
+               qp_uv);
 
     // Use clean-room JPEG XS bitstream format from ISO/IEC 21122-1:2024
     let mut jxs_bitstream = jpegxs_core_clean::JpegXsBitstream::new();
@@ -290,6 +333,17 @@ pub fn decode_frame_to_format(
     let u_dwt = quant::dequantize(&u_quantized, qp_uv)?;
     let v_dwt = quant::dequantize(&v_quantized, qp_uv)?;
 
+    // Log post-dequantization statistics for precision analysis
+    log::info!("DWT_ANALYSIS: Post-Dequantization Y coefficients - min: {:.3}, max: {:.3}, mean: {:.3}",
+               y_dwt.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
+               y_dwt.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)),
+               y_dwt.iter().sum::<f32>() / y_dwt.len() as f32);
+    log::info!("DWT_ANALYSIS: Post-Dequantization UV coefficients - U_min: {:.3}, U_max: {:.3}, V_min: {:.3}, V_max: {:.3}",
+               u_dwt.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
+               u_dwt.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)),
+               v_dwt.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
+               v_dwt.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)));
+
     // Apply inverse DWT (all planes are 444)
     let mut y_plane = vec![0.0f32; y_size];
     let mut u_plane = vec![0.0f32; uv_size];
@@ -298,6 +352,21 @@ pub fn decode_frame_to_format(
     jpegxs_core_clean::dwt::dwt_53_inverse_2d(&y_dwt, &mut y_plane, width, height)?;
     jpegxs_core_clean::dwt::dwt_53_inverse_2d(&u_dwt, &mut u_plane, width, height)?;
     jpegxs_core_clean::dwt::dwt_53_inverse_2d(&v_dwt, &mut v_plane, width, height)?;
+
+    // Log post-inverse-DWT statistics for precision analysis
+    log::info!("DWT_ANALYSIS: Post-Inverse-DWT Y coefficients - min: {:.3}, max: {:.3}, mean: {:.3}, std: {:.3}",
+               y_plane.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
+               y_plane.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)),
+               y_plane.iter().sum::<f32>() / y_plane.len() as f32,
+               {
+                   let mean = y_plane.iter().sum::<f32>() / y_plane.len() as f32;
+                   (y_plane.iter().map(|x| (x - mean).powi(2)).sum::<f32>() / y_plane.len() as f32).sqrt()
+               });
+    log::info!("DWT_ANALYSIS: Post-Inverse-DWT UV coefficients - U_min: {:.3}, U_max: {:.3}, V_min: {:.3}, V_max: {:.3}",
+               u_plane.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
+               u_plane.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)),
+               v_plane.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
+               v_plane.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)));
 
     // Convert back to 8-bit
     let mut y_data = Vec::with_capacity(y_size);

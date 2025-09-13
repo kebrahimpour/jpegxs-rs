@@ -1,6 +1,6 @@
 use anyhow::{Result, Context};
 use jpegxs_core::{
-    encode_frame, decode_frame, 
+    encode_frame, decode_frame,
     EncoderConfig, DecoderConfig,
     ImageView8, ImageOwned8, PixelFormat, Bitstream
 };
@@ -42,21 +42,21 @@ impl ConformanceTest for DecoderConformanceTest {
 
     fn run(&self) -> Result<TestCase> {
         let start = std::time::Instant::now();
-        
+
         // Read the bitstream
         let bitstream_data = fs::read(&self.bitstream_path)
             .context("Failed to read bitstream")?;
-        
+
         // Create Bitstream struct
         let bitstream = Bitstream {
             data: bitstream_data.clone(),
             size_bits: bitstream_data.len() * 8,
         };
-        
+
         // Attempt to decode
         let config = DecoderConfig::default();
         let result = decode_frame(&bitstream, &config);
-        
+
         let (status, message) = match result {
             Ok(decoded) => {
                 // If we have expected output, compare
@@ -64,7 +64,7 @@ impl ConformanceTest for DecoderConformanceTest {
                     if expected_path.exists() {
                         let expected = fs::read(expected_path)
                             .context("Failed to read expected output")?;
-                        
+
                         if decoded.data == expected {
                             (TestStatus::Pass, None)
                         } else {
@@ -84,7 +84,7 @@ impl ConformanceTest for DecoderConformanceTest {
             }
             Err(e) => (TestStatus::Fail, Some(e.to_string())),
         };
-        
+
         Ok(TestCase {
             name: self.name.clone(),
             category: self.category.clone(),
@@ -100,6 +100,7 @@ pub struct EncoderConformanceTest {
     category: String,
     input_image: ImageOwned8,
     quality: f32,
+    #[allow(clippy::type_complexity)]
     reference_decoder: Option<Box<dyn Fn(&[u8]) -> Result<ImageOwned8>>>,
 }
 
@@ -114,7 +115,7 @@ impl EncoderConformanceTest {
         }
     }
 
-    pub fn with_reference_decoder<F>(mut self, decoder: F) -> Self 
+    pub fn with_reference_decoder<F>(mut self, decoder: F) -> Self
     where
         F: Fn(&[u8]) -> Result<ImageOwned8> + 'static
     {
@@ -134,34 +135,34 @@ impl ConformanceTest for EncoderConformanceTest {
 
     fn run(&self) -> Result<TestCase> {
         let start = std::time::Instant::now();
-        
+
         let input_view = ImageView8 {
             data: &self.input_image.data,
             width: self.input_image.width,
             height: self.input_image.height,
             format: self.input_image.format,
         };
-        
+
         let config = EncoderConfig {
             quality: self.quality,
             ..Default::default()
         };
-        
+
         // Encode
         let encoded = encode_frame(input_view, &config);
-        
+
         let (status, message) = match encoded {
             Ok(bitstream) => {
                 // Try to decode with our decoder
                 let our_decode = decode_frame(&bitstream, &DecoderConfig::default());
-                
+
                 match our_decode {
                     Ok(decoded) => {
                         let psnr = crate::metrics::calculate_psnr(
                             &self.input_image.data,
                             &decoded.data
                         );
-                        
+
                         // If we have a reference decoder, test with it too
                         if let Some(ref ref_decoder) = self.reference_decoder {
                             match ref_decoder(&bitstream.data) {
@@ -176,12 +177,10 @@ impl ConformanceTest for EncoderConformanceTest {
                                     (TestStatus::Fail, Some(format!("Reference decoder failed: {}", e)))
                                 }
                             }
+                        } else if psnr > 30.0 {
+                            (TestStatus::Pass, Some(format!("PSNR: {:.2} dB", psnr)))
                         } else {
-                            if psnr > 30.0 {
-                                (TestStatus::Pass, Some(format!("PSNR: {:.2} dB", psnr)))
-                            } else {
-                                (TestStatus::Fail, Some(format!("PSNR too low: {:.2} dB", psnr)))
-                            }
+                            (TestStatus::Fail, Some(format!("PSNR too low: {:.2} dB", psnr)))
                         }
                     }
                     Err(e) => (TestStatus::Fail, Some(format!("Self-decode failed: {}", e))),
@@ -189,7 +188,7 @@ impl ConformanceTest for EncoderConformanceTest {
             }
             Err(e) => (TestStatus::Fail, Some(e.to_string())),
         };
-        
+
         Ok(TestCase {
             name: self.name.clone(),
             category: self.category.clone(),
@@ -212,18 +211,18 @@ impl BitstreamConformanceTest {
             bitstream,
         }
     }
-    
+
     fn validate_markers(&self) -> Result<()> {
         // Check for SOC marker (0xFF10)
-        if self.bitstream.len() < 2 || 
-           self.bitstream[0] != 0xFF || 
+        if self.bitstream.len() < 2 ||
+           self.bitstream[0] != 0xFF ||
            self.bitstream[1] != 0x10 {
             return Err(anyhow::anyhow!("Missing SOC marker"));
         }
-        
+
         // Additional marker validation would go here
         // This is a simplified example
-        
+
         Ok(())
     }
 }
@@ -239,12 +238,12 @@ impl ConformanceTest for BitstreamConformanceTest {
 
     fn run(&self) -> Result<TestCase> {
         let start = std::time::Instant::now();
-        
+
         let (status, message) = match self.validate_markers() {
             Ok(_) => (TestStatus::Pass, Some("All markers valid".to_string())),
             Err(e) => (TestStatus::Fail, Some(e.to_string())),
         };
-        
+
         Ok(TestCase {
             name: self.name.clone(),
             category: "Bitstream".to_string(),
@@ -257,7 +256,7 @@ impl ConformanceTest for BitstreamConformanceTest {
 
 pub fn create_iso_test_suite() -> Vec<Box<dyn ConformanceTest>> {
     let mut tests: Vec<Box<dyn ConformanceTest>> = Vec::new();
-    
+
     // Create synthetic test image
     let test_image = ImageOwned8 {
         data: vec![128; 256 * 256 * 3],
@@ -265,25 +264,25 @@ pub fn create_iso_test_suite() -> Vec<Box<dyn ConformanceTest>> {
         height: 256,
         format: PixelFormat::Rgb8,
     };
-    
+
     // Add encoder tests
     tests.push(Box::new(
         EncoderConformanceTest::new("encode_quality_high", test_image.clone(), 0.95)
     ));
-    
+
     tests.push(Box::new(
         EncoderConformanceTest::new("encode_quality_medium", test_image.clone(), 0.5)
     ));
-    
+
     tests.push(Box::new(
         EncoderConformanceTest::new("encode_quality_low", test_image, 0.1)
     ));
-    
+
     // Decoder tests would be added here once we have test vectors
     // tests.push(Box::new(
     //     DecoderConformanceTest::new("decode_iso_vector_1", Path::new("vectors/test1.jxs"))
     // ));
-    
+
     tests
 }
 
@@ -299,10 +298,10 @@ mod tests {
             height: 64,
             format: PixelFormat::Rgb8,
         };
-        
+
         let test = EncoderConformanceTest::new("test", test_image, 0.9);
         let result = test.run().unwrap();
-        
+
         assert_eq!(result.name, "test");
         assert_eq!(result.category, "Encoder");
     }

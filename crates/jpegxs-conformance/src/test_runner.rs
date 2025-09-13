@@ -2,7 +2,7 @@ use anyhow::{Result, Context};
 use jpegxs_core::{encode_frame, decode_frame, EncoderConfig, DecoderConfig, ImageView8};
 use crate::{
     test_vectors::{TestVectorGenerator, TestPattern},
-    metrics::{calculate_psnr, MemoryProfiler, SpeedProfiler},
+    metrics::{calculate_psnr, MemoryProfiler},
     TestReport, ConformanceResults, PerformanceResults, TestSuite, TestCase, TestStatus,
     MemoryMetrics, SpeedMetrics, CompressionMetrics,
 };
@@ -76,7 +76,7 @@ impl ConformanceTestRunner {
         println!("\n🏁 Conformance Suite Complete!");
         println!("📊 Overall Compliance: {:.1}%", compliance_percentage);
         println!("⏱️  Total Time: {:.2}s", elapsed.as_secs_f64());
-        
+
         if compliance_percentage >= 80.0 {
             println!("✅ PASS - Good conformance level achieved");
         } else if compliance_percentage >= 60.0 {
@@ -103,7 +103,7 @@ impl ConformanceTestRunner {
 
         for (i, pattern) in patterns.iter().enumerate() {
             print!("  [{:2}/{}] {} ... ", i + 1, patterns.len(), pattern.name);
-            
+
             let result = self.run_single_encoder_test(pattern);
             match &result {
                 Ok(test_case) => {
@@ -150,7 +150,7 @@ impl ConformanceTestRunner {
 
     fn run_single_encoder_test(&self, pattern: &TestPattern) -> Result<TestCase> {
         let start = Instant::now();
-        
+
         // Generate test image
         let image = self.generator.generate_pattern(pattern)
             .context("Failed to generate test pattern")?;
@@ -201,7 +201,7 @@ impl ConformanceTestRunner {
 
         for (i, pattern) in patterns.iter().enumerate() {
             print!("  [{:2}/{}] {} ... ", i + 1, patterns.len(), pattern.name);
-            
+
             let result = self.run_single_decoder_test(pattern);
             match &result {
                 Ok(test_case) => {
@@ -248,7 +248,7 @@ impl ConformanceTestRunner {
 
     fn run_single_decoder_test(&self, pattern: &TestPattern) -> Result<TestCase> {
         let start = Instant::now();
-        
+
         // Generate and encode test image
         let image = self.generator.generate_pattern(pattern)?;
         let input_view = ImageView8 {
@@ -270,7 +270,7 @@ impl ConformanceTestRunner {
         let (status, message) = if decoded.width == image.width && decoded.height == image.height {
             (TestStatus::Pass, Some(format!("{}x{} decoded correctly", decoded.width, decoded.height)))
         } else {
-            (TestStatus::Fail, Some(format!("Size mismatch: expected {}x{}, got {}x{}", 
+            (TestStatus::Fail, Some(format!("Size mismatch: expected {}x{}, got {}x{}",
                 image.width, image.height, decoded.width, decoded.height)))
         };
 
@@ -292,10 +292,10 @@ impl ConformanceTestRunner {
 
         for (i, pattern_name) in test_patterns.iter().enumerate() {
             print!("  [{}/{}] bitstream_{} ... ", i + 1, test_patterns.len(), pattern_name);
-            
+
             let pattern = self.generator.get_pattern(pattern_name)
                 .ok_or_else(|| anyhow::anyhow!("Pattern not found: {}", pattern_name))?;
-            
+
             let result = self.run_single_bitstream_test(pattern);
             match &result {
                 Ok(test_case) => {
@@ -342,7 +342,7 @@ impl ConformanceTestRunner {
 
     fn run_single_bitstream_test(&self, pattern: &TestPattern) -> Result<TestCase> {
         let start = Instant::now();
-        
+
         // Generate and encode test image
         let image = self.generator.generate_pattern(pattern)?;
         let input_view = ImageView8 {
@@ -407,7 +407,7 @@ impl ConformanceTestRunner {
         // Test with a representative image (HD resolution)
         let pattern = self.generator.get_pattern("hd_gradient")
             .ok_or_else(|| anyhow::anyhow!("HD gradient pattern not found"))?;
-        
+
         let image = self.generator.generate_pattern(pattern)?;
         let input_view = ImageView8 {
             data: &image.data,
@@ -421,7 +421,7 @@ impl ConformanceTestRunner {
         profiler.sample();
 
         let report = profiler.stop();
-        
+
         Ok(MemoryMetrics {
             peak_heap_mb: report.peak_mb(),
             peak_stack_kb: 0.0, // Would need platform-specific code
@@ -433,7 +433,7 @@ impl ConformanceTestRunner {
     fn run_speed_benchmark(&self) -> Result<SpeedMetrics> {
         let pattern = self.generator.get_pattern("horizontal_gradient")
             .ok_or_else(|| anyhow::anyhow!("Gradient pattern not found"))?;
-        
+
         let image = self.generator.generate_pattern(pattern)?;
         let input_view = ImageView8 {
             data: &image.data,
@@ -485,7 +485,7 @@ impl ConformanceTestRunner {
         for pattern_name in &test_patterns {
             let pattern = self.generator.get_pattern(pattern_name)
                 .ok_or_else(|| anyhow::anyhow!("Pattern not found: {}", pattern_name))?;
-            
+
             let image = self.generator.generate_pattern(pattern)?;
             let input_view = ImageView8 {
                 data: &image.data,
@@ -542,10 +542,10 @@ mod tests {
     fn test_single_encoder_test() {
         let runner = ConformanceTestRunner::new();
         let pattern = runner.generator.get_pattern("solid_red").unwrap();
-        
+
         let result = runner.run_single_encoder_test(pattern);
         assert!(result.is_ok());
-        
+
         let test_case = result.unwrap();
         assert_eq!(test_case.category, "Encoder");
         assert!(test_case.duration_ms > 0.0);

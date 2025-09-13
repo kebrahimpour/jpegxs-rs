@@ -7,6 +7,12 @@ pub struct MemoryProfiler {
     samples: Vec<usize>,
 }
 
+impl Default for MemoryProfiler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MemoryProfiler {
     pub fn new() -> Self {
         Self {
@@ -71,6 +77,7 @@ impl MemoryReport {
 }
 
 pub struct SpeedProfiler {
+    #[allow(dead_code)]
     start_time: Option<Instant>,
     operations: Vec<Operation>,
 }
@@ -80,6 +87,12 @@ pub struct Operation {
     pub name: String,
     pub duration_ns: u128,
     pub bytes_processed: usize,
+}
+
+impl Default for SpeedProfiler {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl SpeedProfiler {
@@ -111,13 +124,13 @@ impl SpeedProfiler {
         let total_duration: u128 = self.operations.iter()
             .map(|op| op.duration_ns)
             .sum();
-        
+
         let total_bytes: usize = self.operations.iter()
             .map(|op| op.bytes_processed)
             .sum();
 
         let throughput_mbps = if total_duration > 0 {
-            (total_bytes as f64 * 8.0 * 1_000_000_000.0) / 
+            (total_bytes as f64 * 8.0 * 1_000_000_000.0) /
             (total_duration as f64 * 1_000_000.0)
         } else {
             0.0
@@ -177,43 +190,43 @@ pub fn calculate_psnr(original: &[u8], compressed: &[u8]) -> f64 {
 pub fn calculate_ssim(original: &[u8], compressed: &[u8], width: usize, height: usize) -> f64 {
     // Simplified SSIM calculation
     // In production, use a proper SSIM library
-    
+
     const C1: f64 = 6.5025;  // (0.01 * 255)^2
     const C2: f64 = 58.5225; // (0.03 * 255)^2
-    
+
     if original.len() != compressed.len() || original.len() != width * height {
         return 0.0;
     }
 
     let n = original.len() as f64;
-    
+
     let mean_x: f64 = original.iter().map(|&x| x as f64).sum::<f64>() / n;
     let mean_y: f64 = compressed.iter().map(|&y| y as f64).sum::<f64>() / n;
-    
+
     let var_x: f64 = original.iter()
         .map(|&x| {
             let diff = x as f64 - mean_x;
             diff * diff
         })
         .sum::<f64>() / n;
-    
+
     let var_y: f64 = compressed.iter()
         .map(|&y| {
             let diff = y as f64 - mean_y;
             diff * diff
         })
         .sum::<f64>() / n;
-    
+
     let cov_xy: f64 = original.iter()
         .zip(compressed.iter())
         .map(|(&x, &y)| {
             (x as f64 - mean_x) * (y as f64 - mean_y)
         })
         .sum::<f64>() / n;
-    
+
     let numerator = (2.0 * mean_x * mean_y + C1) * (2.0 * cov_xy + C2);
     let denominator = (mean_x * mean_x + mean_y * mean_y + C1) * (var_x + var_y + C2);
-    
+
     numerator / denominator
 }
 
@@ -225,11 +238,11 @@ mod tests {
     fn test_memory_profiler() {
         let mut profiler = MemoryProfiler::new();
         profiler.start();
-        
+
         // Allocate some memory
         let _data: Vec<u8> = vec![0; 1024 * 1024]; // 1MB
         profiler.sample();
-        
+
         let report = profiler.stop();
         assert!(report.samples > 0);
     }
@@ -237,12 +250,12 @@ mod tests {
     #[test]
     fn test_speed_profiler() {
         let mut profiler = SpeedProfiler::new();
-        
+
         let mut timer = profiler.start_operation("test");
         timer.set_bytes(1024);
         std::thread::sleep(std::time::Duration::from_millis(10));
         profiler.record(timer);
-        
+
         let report = profiler.report();
         assert_eq!(report.total_operations, 1);
         assert!(report.total_duration_ms >= 10.0);
@@ -253,7 +266,7 @@ mod tests {
         let original = vec![100; 100];
         let compressed = vec![100; 100];
         assert!(calculate_psnr(&original, &compressed).is_infinite());
-        
+
         let compressed_lossy = vec![101; 100];
         let psnr = calculate_psnr(&original, &compressed_lossy);
         assert!(psnr > 40.0 && psnr < 50.0);

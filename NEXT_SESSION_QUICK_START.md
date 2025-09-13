@@ -1,8 +1,16 @@
 # 🚀 Next Session Quick Start Guide
 
-**Date Created**: September 13, 2025
+**Date Updated**: September 13, 2025
 **Session Ready**: ✅ **READY TO START IMMEDIATELY**
-**Primary Mission**: 🔍 **Entropy Coding Quality Investigation**
+**Primary Mission**: 🔧 **FIX DWT IMPLEMENTATION - RANGE EXPLOSION ISSUE**
+
+## ✅ **DWT INVESTIGATION COMPLETED - ROOT CAUSE IDENTIFIED**
+
+### **CRITICAL DISCOVERY**
+- **❌ Inverse DWT range explosion**: Coefficients expand from [-124, +124] to [-219, +119]
+- **✅ Color conversion excellent**: RGB↔YUV roundtrip 44.10 dB PSNR
+- **✅ Forward DWT working**: Preserves coefficient ranges correctly
+- **🚨 95.9% pixel corruption**: Due to clamping when invalid ranges converted to 8-bit
 
 ## ⚡ Quick Status Check
 
@@ -32,78 +40,91 @@ grep -i "psnr" conformance_baseline.json
 
 ## 🎯 **IMMEDIATE NEXT TASKS - START HERE**
 
-### Task 1: Coefficient Logging Setup (30 mins)
+### ✅ **DWT INVESTIGATION COMPLETED - ROOT CAUSE IDENTIFIED**
+**Result**: Inverse DWT implementation has critical range explosion issue causing 95.9% pixel corruption
 
-**Objective**: Add logging to entropy coding pipeline to understand coefficient distributions
+### **NEW FOCUS: Fix DWT Implementation**
 
-**Files to modify**:
-- `commercial/jpegxs-core-clean/src/entropy.rs`
-- `commercial/jpegxs-core-clean/src/bitstream.rs`
+### Task 1: Investigate DWT Normalization Issue (60 mins)
 
-**Add logging before quantization**:
+**Objective**: Fix inverse DWT range explosion in implementation
+
+**Primary file to investigate**:
+- `commercial/jpegxs-core-clean/src/dwt.rs` (DWT implementation)
+
+**Key investigation points**:
 ```rust
-// In add_entropy_coded_data() function, add before quantization:
-log::info!("Coefficient analysis - component: {}, abs_coeff: {}, tier: {}",
-           component, abs_coeff,
-           if abs_coeff <= 15 { "15" }
-           else if abs_coeff <= 127 { "127" }
-           else { "63" });
+// Check for normalization issues in inverse transform
+// Look for scaling factor mismatches between forward/inverse
+// Verify lifting scheme coefficients match ISO specification
+// Check boundary condition handling
+
+// Current evidence:
+// Input to inverse DWT: [-124, +124] (reasonable)
+// Output from inverse DWT: [-219, +119] (invalid range explosion)
 ```
 
-### Task 2: Run Coefficient Analysis (15 mins)
+### Task 2: Validate DWT Perfect Reconstruction (30 mins)
+
+**Objective**: Test DWT-only roundtrip without quantization
 
 ```bash
-# Run with logging to capture coefficient stats
-RUST_LOG=info ./target/release/jpegxs encode -i test-data/lenna.png -o test_analysis.jxs --quality 0.9 2> coefficient_analysis.log
+# Test current DWT precision (already built with logging)
+RUST_LOG=jpegxs_core=info cargo test test_dwt_roundtrip_precision -- --nocapture
 
-# Analyze the results
-grep "Coefficient analysis" coefficient_analysis.log | head -100
+# Expected: Should fail showing DWT reconstruction error
+# Target: <1e-6 reconstruction error for perfect reconstruction
 ```
 
-### Task 3: Entropy Bypass Experiment (45 mins)
+### Task 3: Fix DWT Implementation (90 mins)
 
-**Objective**: Create temporary bypass to test hypothesis that entropy coding is the quality bottleneck
+**Objective**: Implement correct DWT normalization
 
-**Add bypass flag to encoder**:
+**Investigation checklist**:
+- [ ] Compare forward/inverse scaling factors
+- [ ] Verify lifting scheme coefficients against ISO 21122-1
+- [ ] Check for integer overflow in lifting operations
+- [ ] Validate boundary condition handling
+- [ ] Test with synthetic impulse/gradient patterns
+
+**Expected fix location**:
 ```rust
-// In entropy coding function, add bypass mode
-if bypass_entropy_quantization {
-    // Store coefficient with minimal loss
-    let stored_coeff = abs_coeff.min(255) as u8;  // Simple clamp instead of quantization
-    // ... rest of encoding without quantization tiers
-}
+// In dwt_53_inverse_2d() function
+// Look for scaling/normalization issues in:
+// - Lifting step coefficients
+// - Final scaling factors
+// - Boundary condition handling
 ```
 
-**Test bypass mode**:
-```bash
-# Encode with bypass (modify code to enable)
-./target/release/jpegxs encode -i test-data/lenna.png -o test_bypass.jxs --quality 0.9
+**Success Criteria**: Achieve >30 dB PSNR for quality 0.99 (currently 9.44 dB)
 
-# Decode and measure PSNR
-./target/release/jpegxs decode -i test_bypass.jxs -o test_bypass_decoded.png
-./target/release/jpegxs psnr -r test-data/lenna.png -t test_bypass_decoded.png
-```
+## 🔍 **ROOT CAUSE CONFIRMED**
 
-**Success Criteria**: If PSNR jumps to >30 dB, confirms entropy coding as root cause.
+**✅ DWT Investigation COMPLETE**: Inverse DWT implementation is the primary bottleneck.
 
-## 🔍 **INVESTIGATION HYPOTHESIS**
+**📊 Evidence Collected**:
+1. **✅ Color Conversion Validated**: RGB↔YUV roundtrip 44.10 dB PSNR (excellent)
+2. **✅ Forward DWT Working**: Preserves coefficient ranges correctly
+3. **❌ Inverse DWT Broken**: Range explosion [-124, +124] → [-219, +119]
+4. **✅ Pipeline Mapped**: Stage-by-stage precision loss identified
 
-**Current Theory**: Entropy coding aggressive quantization (2x-16x loss) is the primary quality bottleneck.
+**🎯 CONFIRMED ISSUE**: Inverse DWT normalization/scaling problem
 
-**Evidence to collect**:
-1. **Coefficient Distribution**: Which quantization tiers are used most frequently
-2. **Stage-by-Stage Loss**: Where in the pipeline is the most quality lost
-3. **Bypass Validation**: Does removing entropy quantization achieve target PSNR
+**Technical Evidence**:
+1. **Input Range**: [-124, +124] (valid coefficients from dequantization)
+2. **Output Range**: [-219, +119] (invalid, causes clamping)
+3. **Pixel Corruption**: 95.9% of pixels affected by range overflow
+4. **PSNR Impact**: 20+ dB quality loss from DWT issue alone
 
-## 📊 **Expected Session 1 Results**
+## 📊 **Expected Next Session Results**
 
-By end of investigation session, you should have:
+By end of DWT fix session, you should have:
 
-- [ ] **Coefficient Statistics**: Clear data on tier usage (15, 127, 63 thresholds)
-- [ ] **Bypass Test Results**: PSNR measurement with entropy quantization disabled
-- [ ] **Quality Loss Location**: Quantified precision loss at each pipeline stage
-- [ ] **Root Cause Confirmation**: Data-driven proof entropy coding is bottleneck
-- [ ] **Implementation Plan**: Clear approach for quality-adaptive entropy coding
+- [ ] **DWT Implementation Fixed**: Inverse DWT producing correct coefficient ranges
+- [ ] **Perfect Reconstruction Validated**: <1e-6 DWT roundtrip error achieved
+- [ ] **Quality Improvement Measured**: >30 dB PSNR for quality 0.99
+- [ ] **Encoder Conformance**: >90% encoder test success rate
+- [ ] **Production Quality**: Overall compliance >80%
 
 ## 🛠️ **Environment Status**
 
@@ -114,8 +135,8 @@ By end of investigation session, you should have:
 - **Conformance Framework**: Comprehensive test suite operational
 - **CI/CD**: Pre-commit hooks preventing regressions
 
-### 🔧 Investigation Target
-- **Entropy Coding**: Multi-tier quantization causing 2x-16x precision loss
+### 🔧 Critical Fix Target
+- **Inverse DWT Implementation**: Range explosion issue causing 95.9% pixel corruption
 
 ### 📈 Current Baseline Metrics
 - **Overall Compliance**: 54.2%
@@ -145,8 +166,8 @@ By end of investigation session, you should have:
 
 ---
 
-**🚀 START COMMAND**: Open `commercial/jpegxs-core-clean/src/entropy.rs` and add coefficient logging
+**🚀 START COMMAND**: Open `commercial/jpegxs-core-clean/src/dwt.rs` and investigate inverse DWT normalization
 
-**Expected First Session Duration**: 2-3 hours for complete investigation phase
+**Expected First Session Duration**: 2-3 hours for DWT implementation fix
 
 **Ready to Go**: ✅ **ALL SYSTEMS READY - START IMMEDIATELY**

@@ -93,7 +93,7 @@ impl TestVectorGenerator {
                 expected_psnr_threshold: 50.0,
                 generator: PatternType::SolidColor { r: 255, g: 255, b: 255 },
             },
-            
+
             // Gradient patterns for smooth transitions
             TestPattern {
                 name: "horizontal_gradient".to_string(),
@@ -122,7 +122,7 @@ impl TestVectorGenerator {
                 expected_psnr_threshold: 30.0,
                 generator: PatternType::DiagonalGradient,
             },
-            
+
             // High frequency patterns
             TestPattern {
                 name: "checker_8x8".to_string(),
@@ -151,7 +151,7 @@ impl TestVectorGenerator {
                 expected_psnr_threshold: 15.0,
                 generator: PatternType::CheckerBoard { size: 2 },
             },
-            
+
             // Frequency domain tests
             TestPattern {
                 name: "sine_wave_low".to_string(),
@@ -171,7 +171,7 @@ impl TestVectorGenerator {
                 expected_psnr_threshold: 25.0,
                 generator: PatternType::SineWave { frequency: 16.0 },
             },
-            
+
             // Impulse and edge cases
             TestPattern {
                 name: "impulse_center".to_string(),
@@ -182,7 +182,7 @@ impl TestVectorGenerator {
                 expected_psnr_threshold: 30.0,
                 generator: PatternType::Impulse { position: (64, 64) },
             },
-            
+
             // Random noise
             TestPattern {
                 name: "random_noise".to_string(),
@@ -193,7 +193,7 @@ impl TestVectorGenerator {
                 expected_psnr_threshold: 10.0,
                 generator: PatternType::RandomNoise { seed: 42 },
             },
-            
+
             // Standard test patterns
             TestPattern {
                 name: "color_bars".to_string(),
@@ -213,7 +213,7 @@ impl TestVectorGenerator {
                 expected_psnr_threshold: 25.0,
                 generator: PatternType::Zone,
             },
-            
+
             // Different resolutions
             TestPattern {
                 name: "hd_gradient".to_string(),
@@ -233,7 +233,7 @@ impl TestVectorGenerator {
                 expected_psnr_threshold: 50.0,
                 generator: PatternType::SolidColor { r: 128, g: 128, b: 128 },
             },
-            
+
             // YUV format tests
             TestPattern {
                 name: "yuv444_gradient".to_string(),
@@ -328,9 +328,9 @@ impl TestVectorGenerator {
                 let y = (0.299 * r as f32 + 0.587 * g as f32 + 0.114 * b as f32) as u8;
                 let u = (128.0 - 0.168736 * r as f32 - 0.331264 * g as f32 + 0.5 * b as f32) as u8;
                 let v = (128.0 + 0.5 * r as f32 - 0.418688 * g as f32 - 0.081312 * b as f32) as u8;
-                
+
                 let mut data = Vec::with_capacity((width * height * 3) as usize);
-                
+
                 // Y plane
                 for _ in 0..width * height {
                     data.push(y);
@@ -365,8 +365,8 @@ impl TestVectorGenerator {
 
     fn generate_horizontal_gradient(&self, width: u32, height: u32, format: PixelFormat) -> Result<ImageOwned8> {
         let mut data = Vec::with_capacity((width * height * 3) as usize);
-        
-        for y in 0..height {
+
+        for _y in 0..height {
             for x in 0..width {
                 let value = (x * 255 / (width - 1)) as u8;
                 match format {
@@ -393,10 +393,10 @@ impl TestVectorGenerator {
 
     fn generate_vertical_gradient(&self, width: u32, height: u32, format: PixelFormat) -> Result<ImageOwned8> {
         let mut data = Vec::with_capacity((width * height * 3) as usize);
-        
+
         for y in 0..height {
             let value = (y * 255 / (height - 1)) as u8;
-            for x in 0..width {
+            for _x in 0..width {
                 match format {
                     PixelFormat::Rgb8 => {
                         data.extend_from_slice(&[value, value, value]);
@@ -421,7 +421,7 @@ impl TestVectorGenerator {
 
     fn generate_diagonal_gradient(&self, width: u32, height: u32, format: PixelFormat) -> Result<ImageOwned8> {
         let mut data = Vec::with_capacity((width * height * 3) as usize);
-        
+
         for y in 0..height {
             for x in 0..width {
                 let value = ((x + y) * 255 / (width + height - 2)) as u8;
@@ -449,12 +449,12 @@ impl TestVectorGenerator {
 
     fn generate_checkerboard(&self, width: u32, height: u32, format: PixelFormat, size: u32) -> Result<ImageOwned8> {
         let mut data = Vec::with_capacity((width * height * 3) as usize);
-        
+
         for y in 0..height {
             for x in 0..width {
                 let is_white = ((x / size) + (y / size)) % 2 == 0;
                 let value = if is_white { 255 } else { 0 };
-                
+
                 match format {
                     PixelFormat::Rgb8 => {
                         data.extend_from_slice(&[value, value, value]);
@@ -479,20 +479,20 @@ impl TestVectorGenerator {
 
     fn generate_random_noise(&self, width: u32, height: u32, format: PixelFormat, seed: u64) -> Result<ImageOwned8> {
         let mut data = Vec::with_capacity((width * height * 3) as usize);
-        
+
         // Simple linear congruential generator
         let mut rng = seed;
-        
+
         for _ in 0..width * height {
             rng = rng.wrapping_mul(1103515245).wrapping_add(12345);
             let r = (rng >> 16) as u8;
-            
+
             rng = rng.wrapping_mul(1103515245).wrapping_add(12345);
             let g = (rng >> 16) as u8;
-            
+
             rng = rng.wrapping_mul(1103515245).wrapping_add(12345);
             let b = (rng >> 16) as u8;
-            
+
             match format {
                 PixelFormat::Rgb8 => {
                     data.extend_from_slice(&[r, g, b]);
@@ -516,14 +516,14 @@ impl TestVectorGenerator {
 
     fn generate_sine_wave(&self, width: u32, height: u32, format: PixelFormat, frequency: f32) -> Result<ImageOwned8> {
         let mut data = Vec::with_capacity((width * height * 3) as usize);
-        
+
         for y in 0..height {
             for x in 0..width {
                 let fx = x as f32 / width as f32;
                 let fy = y as f32 / height as f32;
                 let wave = ((fx * frequency * 2.0 * PI).sin() + (fy * frequency * 2.0 * PI).sin()) / 2.0;
                 let value = ((wave + 1.0) * 127.5) as u8;
-                
+
                 match format {
                     PixelFormat::Rgb8 => {
                         data.extend_from_slice(&[value, value, value]);
@@ -548,12 +548,12 @@ impl TestVectorGenerator {
 
     fn generate_impulse(&self, width: u32, height: u32, format: PixelFormat, position: (u32, u32)) -> Result<ImageOwned8> {
         let mut data = Vec::with_capacity((width * height * 3) as usize);
-        
+
         for y in 0..height {
             for x in 0..width {
                 let is_impulse = x == position.0 && y == position.1;
                 let value = if is_impulse { 255 } else { 0 };
-                
+
                 match format {
                     PixelFormat::Rgb8 => {
                         data.extend_from_slice(&[value, value, value]);
@@ -587,15 +587,15 @@ impl TestVectorGenerator {
             (0, 0, 255),     // Blue
             (0, 0, 0),       // Black
         ];
-        
+
         let mut data = Vec::with_capacity((width * height * 3) as usize);
         let bar_width = width / colors.len() as u32;
-        
-        for y in 0..height {
+
+        for _y in 0..height {
             for x in 0..width {
                 let color_index = (x / bar_width).min(colors.len() as u32 - 1);
                 let (r, g, b) = colors[color_index as usize];
-                
+
                 match format {
                     PixelFormat::Rgb8 => {
                         data.extend_from_slice(&[r, g, b]);
@@ -620,7 +620,7 @@ impl TestVectorGenerator {
 
     fn generate_zone_pattern(&self, width: u32, height: u32, format: PixelFormat) -> Result<ImageOwned8> {
         let mut data = Vec::with_capacity((width * height * 3) as usize);
-        
+
         for y in 0..height {
             for x in 0..width {
                 let cx = width as f32 / 2.0;
@@ -630,7 +630,7 @@ impl TestVectorGenerator {
                 let distance = (dx * dx + dy * dy).sqrt();
                 let max_distance = (cx * cx + cy * cy).sqrt();
                 let value = ((1.0 - distance / max_distance) * 255.0) as u8;
-                
+
                 match format {
                     PixelFormat::Rgb8 => {
                         data.extend_from_slice(&[value, value, value]);
@@ -657,16 +657,16 @@ impl TestVectorGenerator {
         // Generate a proxy for natural image characteristics
         // Combines low frequency background with some texture
         let mut data = Vec::with_capacity((width * height * 3) as usize);
-        
+
         for y in 0..height {
             for x in 0..width {
                 // Background gradient
                 let bg = (x * 255 / width + y * 255 / height) / 2;
-                
+
                 // Add some texture
                 let texture = ((x as f32 * 0.1).sin() * (y as f32 * 0.1).cos() * 32.0) as i32;
                 let value = (bg as i32 + texture).clamp(0, 255) as u8;
-                
+
                 match format {
                     PixelFormat::Rgb8 => {
                         data.extend_from_slice(&[value, value, value]);
@@ -699,12 +699,12 @@ impl TestVectorGenerator {
 
     pub fn generate_all(&self) -> Result<Vec<(TestPattern, ImageOwned8)>> {
         let mut results = Vec::new();
-        
+
         for pattern in &self.patterns {
             let image = self.generate_pattern(pattern)?;
             results.push((pattern.clone(), image));
         }
-        
+
         Ok(results)
     }
 }
@@ -723,10 +723,10 @@ mod tests {
     fn test_pattern_generation() {
         let generator = TestVectorGenerator::new();
         let patterns = generator.get_all_patterns();
-        
+
         assert!(!patterns.is_empty());
         assert!(patterns.len() > 10);
-        
+
         // Test a few specific patterns
         let solid_red = generator.get_pattern("solid_red").unwrap();
         let image = generator.generate_pattern(solid_red).unwrap();
@@ -734,7 +734,7 @@ mod tests {
         assert_eq!(image.height, 256);
         assert_eq!(image.format, PixelFormat::Rgb8);
         assert_eq!(image.data.len(), 256 * 256 * 3);
-        
+
         // Check that it's actually red
         assert_eq!(image.data[0], 255); // R
         assert_eq!(image.data[1], 0);   // G
@@ -746,13 +746,13 @@ mod tests {
         let generator = TestVectorGenerator::new();
         let pattern = generator.get_pattern("horizontal_gradient").unwrap();
         let image = generator.generate_pattern(pattern).unwrap();
-        
+
         assert_eq!(image.width, 512);
         assert_eq!(image.height, 256);
-        
+
         // Check gradient properties
         let first_pixel = image.data[0];
-        let last_pixel = image.data[(image.data.len() - 3)];
+        let last_pixel = image.data[image.data.len() - 3];
         assert!(last_pixel > first_pixel); // Should increase from left to right
     }
 
@@ -761,7 +761,7 @@ mod tests {
         let generator = TestVectorGenerator::new();
         let pattern = generator.get_pattern("checker_8x8").unwrap();
         let image = generator.generate_pattern(pattern).unwrap();
-        
+
         // Check that we have alternating values
         let pixel1 = image.data[0];
         let pixel2 = image.data[24]; // 8 pixels over

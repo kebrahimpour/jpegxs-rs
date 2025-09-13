@@ -39,23 +39,23 @@ pub fn compute_quantization_parameters(quality: f32) -> Result<Vec<u8>> {
     // Proper quality-to-quantization parameter mapping
     // Higher quality -> Lower QP -> Less compression loss
     // Lower quality -> Higher QP -> More compression gain
-    let base_qp = if quality >= 0.95 {
-        1 // Virtually lossless (minimal compression)
-    } else if quality >= 0.9 {
-        2 // Very high quality (moderate compression ~2:1)
+    let base_qp = if quality >= 0.9 {
+        1 // High quality: virtually lossless for 0.9+ quality
     } else if quality >= 0.8 {
-        3 // High quality (good compression ~3:1)
+        2 // Very high quality (moderate compression ~2:1)
     } else if quality >= 0.7 {
-        4 // Good quality (significant compression ~4:1)
+        3 // High quality (good compression ~3:1)
     } else if quality >= 0.6 {
-        6 // Medium-high quality (~5:1)
+        4 // Good quality (significant compression ~4:1)
     } else if quality >= 0.5 {
-        8 // Medium quality (strong compression ~6:1)
+        6 // Medium-high quality (~5:1)
     } else if quality >= 0.4 {
-        12 // Medium-low quality (~8:1)
+        8 // Medium quality (strong compression ~6:1)
     } else if quality >= 0.3 {
-        16 // Low quality (high compression ~10:1)
+        12 // Medium-low quality (~8:1)
     } else if quality >= 0.2 {
+        16 // Low quality (high compression ~10:1)
+    } else if quality >= 0.1 {
         24 // Very low quality (~12:1)
     } else {
         32 // Minimum quality (maximum compression ~15:1)

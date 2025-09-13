@@ -57,7 +57,7 @@ fn main() -> Result<()> {
     let verbose = matches.get_flag("verbose");
     let quick = matches.get_flag("quick");
 
-    if quality < 0.0 || quality > 1.0 {
+    if !(0.0..=1.0).contains(&quality) {
         return Err(anyhow::anyhow!("Quality must be between 0.0 and 1.0"));
     }
 
@@ -69,7 +69,6 @@ fn main() -> Result<()> {
 
     let decoder_config = DecoderConfig {
         strict_mode: true,
-        ..Default::default()
     };
 
     // Create test runner
@@ -131,7 +130,7 @@ fn print_summary(report: &jpegxs_conformance::TestReport) {
 
     println!("\n🎯 Overall Results:");
     println!("   Compliance Level: {:.1}%", report.conformance.compliance_percentage);
-    
+
     let status_icon = if report.conformance.compliance_percentage >= 80.0 {
         "✅"
     } else if report.conformance.compliance_percentage >= 60.0 {
@@ -139,21 +138,21 @@ fn print_summary(report: &jpegxs_conformance::TestReport) {
     } else {
         "❌"
     };
-    
+
     println!("   Status: {} {}", status_icon, get_compliance_status(report.conformance.compliance_percentage));
 
     println!("\n📊 Test Categories:");
-    println!("   Encoder Tests:   {}/{} passed ({:.1}%)", 
+    println!("   Encoder Tests:   {}/{} passed ({:.1}%)",
         report.conformance.encoder_tests.passed,
         report.conformance.encoder_tests.total,
         (report.conformance.encoder_tests.passed as f64 / report.conformance.encoder_tests.total as f64) * 100.0
     );
-    println!("   Decoder Tests:   {}/{} passed ({:.1}%)", 
+    println!("   Decoder Tests:   {}/{} passed ({:.1}%)",
         report.conformance.decoder_tests.passed,
         report.conformance.decoder_tests.total,
         (report.conformance.decoder_tests.passed as f64 / report.conformance.decoder_tests.total as f64) * 100.0
     );
-    println!("   Bitstream Tests: {}/{} passed ({:.1}%)", 
+    println!("   Bitstream Tests: {}/{} passed ({:.1}%)",
         report.conformance.bitstream_tests.passed,
         report.conformance.bitstream_tests.total,
         (report.conformance.bitstream_tests.passed as f64 / report.conformance.bitstream_tests.total as f64) * 100.0
@@ -166,10 +165,10 @@ fn print_summary(report: &jpegxs_conformance::TestReport) {
     println!("   Avg PSNR:        {:.1} dB", report.performance.compression.avg_psnr_db);
     println!("   Compression:     {:.1}:1", report.performance.compression.avg_ratio);
 
-    if report.conformance.encoder_tests.failed > 0 || 
-       report.conformance.decoder_tests.failed > 0 || 
+    if report.conformance.encoder_tests.failed > 0 ||
+       report.conformance.decoder_tests.failed > 0 ||
        report.conformance.bitstream_tests.failed > 0 {
-        
+
         println!("\n❌ Failed Tests:");
         print_failed_tests(&report.conformance.encoder_tests, "Encoder");
         print_failed_tests(&report.conformance.decoder_tests, "Decoder");
@@ -198,12 +197,12 @@ fn print_failed_tests(test_suite: &jpegxs_conformance::TestSuite, category: &str
     let failed_tests: Vec<_> = test_suite.details.iter()
         .filter(|t| matches!(t.status, jpegxs_conformance::TestStatus::Fail))
         .collect();
-    
+
     if !failed_tests.is_empty() {
         println!("   {} Failures:", category);
         for test in failed_tests {
-            println!("     • {} - {}", 
-                test.name, 
+            println!("     • {} - {}",
+                test.name,
                 test.message.as_deref().unwrap_or("No details")
             );
         }

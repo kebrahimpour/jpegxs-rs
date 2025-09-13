@@ -12,6 +12,12 @@ pub struct MemoryBenchmark {
     results: Vec<MemoryMetrics>,
 }
 
+impl Default for MemoryBenchmark {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MemoryBenchmark {
     pub fn new() -> Self {
         Self {
@@ -35,33 +41,33 @@ impl MemoryBenchmark {
 
     fn benchmark_resolution(&self, width: u32, height: u32) -> Result<MemoryMetrics> {
         let mut profiler = MemoryProfiler::new();
-        
+
         // Create test image
         let size = (width * height * 3) as usize;
         let data = vec![128u8; size];
-        
+
         profiler.start();
-        
+
         let input = ImageView8 {
             data: &data,
             width,
             height,
             format: PixelFormat::Rgb8,
         };
-        
+
         let config = EncoderConfig::default();
-        
+
         // Encode
         profiler.sample();
         let encoded = encode_frame(input, &config)?;
         profiler.sample();
-        
+
         // Decode
         let _decoded = decode_frame(&encoded, &DecoderConfig::default())?;
         profiler.sample();
-        
+
         let report = profiler.stop();
-        
+
         Ok(MemoryMetrics {
             peak_heap_mb: report.peak_mb(),
             peak_stack_kb: 0.0, // Would need platform-specific code
@@ -78,6 +84,12 @@ impl MemoryBenchmark {
 pub struct SpeedBenchmark {
     test_sizes: Vec<(u32, u32, usize)>, // width, height, iterations
     results: Vec<SpeedMetrics>,
+}
+
+impl Default for SpeedBenchmark {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl SpeedBenchmark {
@@ -102,49 +114,49 @@ impl SpeedBenchmark {
 
     fn benchmark_speed(&self, width: u32, height: u32, iterations: usize) -> Result<SpeedMetrics> {
         let mut profiler = SpeedProfiler::new();
-        
+
         // Create test image
         let size = (width * height * 3) as usize;
         let data = vec![128u8; size];
-        
+
         let input = ImageView8 {
             data: &data,
             width,
             height,
             format: PixelFormat::Rgb8,
         };
-        
+
         let config = EncoderConfig::default();
-        
+
         // Warm up
         let _ = encode_frame(input, &config)?;
-        
+
         // Benchmark encoding
         let mut encode_times = Vec::new();
         for _ in 0..iterations {
             let mut timer = profiler.start_operation("encode");
             timer.set_bytes(size);
-            
+
             let encoded = encode_frame(input, &config)?;
             profiler.record(timer);
-            
+
             let start = std::time::Instant::now();
             let _ = encode_frame(input, &config)?;
             encode_times.push(start.elapsed().as_secs_f64());
-            
+
             // Benchmark decoding
             let mut timer = profiler.start_operation("decode");
             timer.set_bytes(encoded.data.len());
             let _ = decode_frame(&encoded, &DecoderConfig::default())?;
             profiler.record(timer);
         }
-        
+
         let report = profiler.report();
-        
+
         // Calculate metrics
         let avg_encode_time = encode_times.iter().sum::<f64>() / encode_times.len() as f64;
         let encode_mbps = (size as f64 * 8.0) / (avg_encode_time * 1_000_000.0);
-        
+
         Ok(SpeedMetrics {
             encode_mbps,
             decode_mbps: report.throughput_mbps * 0.6, // Rough estimate
@@ -164,11 +176,17 @@ pub struct QualityBenchmark {
     results: Vec<CompressionMetrics>,
 }
 
+impl Default for QualityBenchmark {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl QualityBenchmark {
     pub fn new() -> Self {
         // Create different test patterns
         let mut test_images = Vec::new();
-        
+
         // Gradient image
         let mut gradient = vec![0u8; 256 * 256 * 3];
         for y in 0..256 {
@@ -185,7 +203,7 @@ impl QualityBenchmark {
             height: 256,
             format: PixelFormat::Rgb8,
         });
-        
+
         // Random noise
         let noise: Vec<u8> = (0..256*256*3).map(|i| (i * 7 % 256) as u8).collect();
         test_images.push(ImageOwned8 {
@@ -194,7 +212,7 @@ impl QualityBenchmark {
             height: 256,
             format: PixelFormat::Rgb8,
         });
-        
+
         Self {
             test_images,
             quality_levels: vec![0.1, 0.3, 0.5, 0.7, 0.9, 0.95],
@@ -215,7 +233,7 @@ impl QualityBenchmark {
         let mut bpps = Vec::new();
         let mut psnrs = Vec::new();
         let mut ssims = Vec::new();
-        
+
         for image in &self.test_images {
             let input = ImageView8 {
                 data: &image.data,
@@ -223,15 +241,15 @@ impl QualityBenchmark {
                 height: image.height,
                 format: image.format,
             };
-            
+
             let config = EncoderConfig {
                 quality,
                 ..Default::default()
             };
-            
+
             let encoded = encode_frame(input, &config)?;
             let decoded = decode_frame(&encoded, &DecoderConfig::default())?;
-            
+
             // Calculate metrics
             let original_size = image.data.len();
             let compressed_size = encoded.data.len();
@@ -244,13 +262,13 @@ impl QualityBenchmark {
                 image.width as usize,
                 image.height as usize
             );
-            
+
             ratios.push(ratio);
             bpps.push(bpp);
             psnrs.push(psnr);
             ssims.push(ssim);
         }
-        
+
         Ok(CompressionMetrics {
             avg_ratio: ratios.iter().sum::<f64>() / ratios.len() as f64,
             avg_bpp: bpps.iter().sum::<f64>() / bpps.len() as f64,
