@@ -403,51 +403,6 @@ pub fn decode_frame_to_format(
     })
 }
 
-/// Extract quantization parameters from the decoder's parsed WGT marker
-fn extract_quantization_parameters(decoder: &jpegxs_core_clean::JpegXsDecoder) -> Option<(u8, u8)> {
-    let qp_values = decoder.get_qp_values();
-
-    if qp_values.is_empty() {
-        return None;
-    }
-
-    // Extract QP values for Y and UV components
-    // Expected format: [qp_y, qp_u, qp_v, ...] or at minimum [qp_y]
-    let qp_y = qp_values[0];
-    let qp_uv = if qp_values.len() > 1 {
-        qp_values[1] // Use U component QP for both U and V
-    } else {
-        qp_y // Use same QP for all components if only one provided
-    };
-
-    Some((qp_y, qp_uv))
-}
-
-/// Get default quantization parameters using the same quality mapping as encoder
-/// This ensures consistency when QP values cannot be extracted from bitstream
-fn get_default_quantization_parameters() -> (u8, u8) {
-    // Use the same quality-to-QP mapping as the encoder for consistency
-    // Assuming medium-high quality (0.8) as a reasonable default for decoding
-    const DEFAULT_QUALITY: f32 = 0.8;
-
-    // This mirrors the logic from quant::compute_quantization_parameters()
-    let base_qp = if DEFAULT_QUALITY >= 0.95 {
-        1 // Virtually lossless
-    } else if DEFAULT_QUALITY >= 0.9 {
-        2 // Very high quality
-    } else if DEFAULT_QUALITY >= 0.8 {
-        4 // High quality
-    } else if DEFAULT_QUALITY >= 0.6 {
-        8 // Medium quality
-    } else if DEFAULT_QUALITY >= 0.4 {
-        12 // Lower quality
-    } else {
-        16 // Low quality
-    };
-
-    // Use same QP for both Y and UV components as default
-    (base_qp, base_qp)
-}
 
 #[cfg(test)]
 mod tests {
