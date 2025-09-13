@@ -87,7 +87,7 @@ By contributing, you agree that your contributions will be licensed under the sa
 
 Contributors will be acknowledged in:
 - CHANGELOG updates
-- Release notes  
+- Release notes
 - Project documentation
 
 We appreciate all contributions, no matter how small!

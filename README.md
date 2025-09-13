@@ -43,7 +43,7 @@ A high-performance, clean-room implementation of the JPEG XS (ISO/IEC 21122-1:20
 | **Encoder Tests** | 0/22 (0%) | 🔧 Under Investigation |
 | **Overall Compliance** | 54.2% | 🔧 Improving |
 
-### Performance Benchmarks  
+### Performance Benchmarks
 | Metric | Current Value | Target | Status |
 |--------|---------------|--------|--------|
 | **Encoding Speed** | 44.4 Mbps | >40 Mbps | ✅ Meeting Target |
@@ -54,7 +54,7 @@ A high-performance, clean-room implementation of the JPEG XS (ISO/IEC 21122-1:20
 
 ### Root Cause Analysis Status
 - **DWT System**: ✅ **FIXED** - Perfect reconstruction achieved
-- **Quantization**: ✅ **FIXED** - Quality→QP mapping corrected  
+- **Quantization**: ✅ **FIXED** - Quality→QP mapping corrected
 - **Decoder Pipeline**: ✅ **WORKING** - 100% reliability
 - **Entropy Coding**: 🔍 **INVESTIGATING** - Suspected quality bottleneck
 
@@ -218,7 +218,7 @@ jpegxs psnr -r original.png -t decoded.png
 JPEG XS File Information:
 ========================
 File: photo.jxs
-Size: 23499 bytes  
+Size: 23499 bytes
 Resolution: 256x256
 Components: 3
 
@@ -267,7 +267,7 @@ This software is licensed under a proprietary license that restricts commercial 
 ### Non-Commercial Use
 This software is free for:
 - Personal use
-- Educational purposes  
+- Educational purposes
 - Academic research
 - Open source projects (non-commercial)
 

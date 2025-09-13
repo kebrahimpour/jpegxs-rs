@@ -13,7 +13,7 @@ The `jpegxs_core_clean::JpegXsBitstream::add_entropy_coded_data()` function impl
 if abs_coeff <= 15 {
     let quantized = ((abs_coeff + 1) / 2).min(15) as u8;  // 2x quantization loss
 } else if abs_coeff <= 127 {
-    let quantized = (abs_coeff / 4).min(127) as u8;       // 4x quantization loss  
+    let quantized = (abs_coeff / 4).min(127) as u8;       // 4x quantization loss
 } else {
     let quantized = (abs_coeff / 16).min(63) as u8;       // 16x quantization loss
 }
@@ -34,16 +34,16 @@ if abs_coeff <= 15 {
 - [ ] Identify which quantization tiers are being triggered most frequently
 - [ ] Document coefficient range patterns for different image types
 
-**Expected Output**: 
+**Expected Output**:
 ```
 Coefficient Analysis Report:
 - Y coefficients: range [-127, 89], mean=2.3, std=15.4
-- U coefficients: range [-45, 67], mean=0.1, std=8.9  
+- U coefficients: range [-45, 67], mean=0.1, std=8.9
 - V coefficients: range [-52, 43], mean=-0.3, std=9.2
 - Quantization tier usage: Tier1(2x): 65%, Tier2(4x): 30%, Tier3(16x): 5%
 ```
 
-#### 1.2 Entropy Bypass Experiment  
+#### 1.2 Entropy Bypass Experiment
 **Goal**: Isolate entropy coding impact on quality
 
 **Tasks**:
@@ -60,7 +60,7 @@ Coefficient Analysis Report:
 **Tasks**:
 - [ ] Add coefficient comparison logging at each pipeline stage:
   - Post-DWT coefficients
-  - Post-quantization coefficients  
+  - Post-quantization coefficients
   - Post-entropy-quantization coefficients
   - Post-decode coefficients
 - [ ] Calculate cumulative PSNR loss at each stage
@@ -83,7 +83,7 @@ Coefficient Analysis Report:
 **Tasks**:
 - [ ] Modify entropy coding to use quality parameter
 - [ ] For quality > 0.9: Use minimal/no entropy quantization
-- [ ] For quality 0.5-0.9: Use moderate entropy quantization  
+- [ ] For quality 0.5-0.9: Use moderate entropy quantization
 - [ ] For quality < 0.5: Use current aggressive quantization
 - [ ] Validate PSNR scaling with quality settings
 
@@ -92,7 +92,7 @@ Coefficient Analysis Report:
 #### 3.1 Color Conversion Accuracy
 **Goal**: Ensure RGB↔YUV conversions are not introducing errors
 
-**Tasks**:  
+**Tasks**:
 - [ ] Validate ITU-R BT.601 color matrix implementation
 - [ ] Test round-trip RGB→YUV→RGB accuracy
 - [ ] Measure color conversion precision loss
@@ -103,7 +103,7 @@ Coefficient Analysis Report:
 
 **Tasks**:
 - [ ] Test YUV422→444 upsampling quality
-- [ ] Test YUV420→444 upsampling quality  
+- [ ] Test YUV420→444 upsampling quality
 - [ ] Measure chroma interpolation accuracy
 - [ ] Compare against reference upsampling algorithms
 
@@ -114,7 +114,7 @@ Coefficient Analysis Report:
 - **Day 3**: PSNR testing and impact quantification
 - **Day 4-5**: Alternative entropy coding implementation
 
-### Week 2: Validation and Integration  
+### Week 2: Validation and Integration
 - **Day 1-2**: Quality-adaptive entropy coding
 - **Day 3**: Color space validation (if needed)
 - **Day 4-5**: Integration testing and conformance validation
@@ -137,7 +137,7 @@ Coefficient Analysis Report:
 - **Entropy coding changes breaking decoder compatibility**: Mitigation via extensive testing
 - **Quality vs compression ratio trade-offs**: Careful balancing required
 
-### Medium Risk  
+### Medium Risk
 - **Performance regression from new entropy coding**: Profile and optimize
 - **ISO compliance issues**: Validate against standard requirements
 
@@ -148,7 +148,7 @@ Coefficient Analysis Report:
 ## Deliverables
 
 1. **Entropy Coding Analysis Report**: Detailed coefficient analysis and impact assessment
-2. **Fixed Entropy Implementation**: Quality-aware entropy coding system  
+2. **Fixed Entropy Implementation**: Quality-aware entropy coding system
 3. **Updated Conformance Results**: New PSNR measurements and success rates
 4. **Performance Benchmarks**: Speed and compression ratio analysis
 5. **Integration Guide**: How to configure quality vs compression trade-offs

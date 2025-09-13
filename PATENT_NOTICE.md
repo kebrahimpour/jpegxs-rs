@@ -12,7 +12,7 @@ JPEG XS (ISO/IEC 21122-1:2024) is protected by essential patents held by:
 
 - **intoPIX S.A.** (Belgium)
 - **Fraunhofer-Gesellschaft zur Förderung der angewandten Forschung e.V.** (Germany)
-- **Canon Kabushiki Kaisha** (Japan)  
+- **Canon Kabushiki Kaisha** (Japan)
 - **Additional patent holders** in the JPEG XS patent pool
 
 ---
@@ -43,7 +43,7 @@ JPEG XS (ISO/IEC 21122-1:2024) is protected by essential patents held by:
 
 ✅ **You must obtain** patent licenses for:
 - Manufacturing products with JPEG XS
-- Selling products with JPEG XS  
+- Selling products with JPEG XS
 - Distributing JPEG XS implementations
 - Operating JPEG XS services commercially
 
@@ -77,7 +77,7 @@ JPEG XS (ISO/IEC 21122-1:2024) is protected by essential patents held by:
 
 **Typical categories** (contact Vectis for current terms):
 - **Encoder products**: Royalty per encoder instance
-- **Decoder products**: Royalty per decoder instance  
+- **Decoder products**: Royalty per decoder instance
 - **Combination products**: Combined encoder/decoder rates
 - **Service providers**: Usage-based or flat fee models
 - **Geographic licensing**: Regional vs. worldwide coverage
@@ -89,7 +89,7 @@ JPEG XS (ISO/IEC 21122-1:2024) is protected by essential patents held by:
 ### Legal Risks Without Patent License
 
 ❌ **Patent infringement liability**
-❌ **Cease and desist orders**  
+❌ **Cease and desist orders**
 ❌ **Product sales injunctions**
 ❌ **Monetary damages and legal costs**
 ❌ **Customer liability exposure**
@@ -107,7 +107,7 @@ You use this software at your own legal risk regarding patent matters. We discla
 ### Q: Can I use this software without patent licenses?
 **A**: Only for non-commercial research, education, and personal use. Commercial use requires patent licenses.
 
-### Q: Does your commercial software license include patent rights?  
+### Q: Does your commercial software license include patent rights?
 **A**: NO. Our license covers only copyright in our implementation. Patent rights are separate.
 
 ### Q: Who determines if I need patent licenses?
@@ -131,7 +131,7 @@ You use this software at your own legal risk regarding patent matters. We discla
 
 ### Technical Questions About Our Implementation
 **Keyvan Ebrahimpour (Software Developer)**
-- Email: k1.ebrahimpour@gmail.com  
+- Email: k1.ebrahimpour@gmail.com
 - Subject: "JPEG XS Implementation Technical Question"
 - GitHub: https://github.com/kebrahimpour/jpegxs-rs
 

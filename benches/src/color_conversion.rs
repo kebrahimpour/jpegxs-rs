@@ -78,7 +78,7 @@ pub fn rgb_to_yuv422p(rgb_data: &[u8], width: u32, height: u32) -> Vec<u8> {
 ///
 /// # Arguments
 /// * `yuv_data` - Input YUV422p data
-/// * `width` - Image width in pixels  
+/// * `width` - Image width in pixels
 /// * `height` - Image height in pixels
 ///
 /// # Returns

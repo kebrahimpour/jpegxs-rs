@@ -99,7 +99,7 @@
 
 **Root Cause Identified**: Entropy coding system in `jpegxs_core_clean` applies aggressive multi-tier quantization:
 - Small coefficients: 2x quantization
-- Medium coefficients: 4x quantization  
+- Medium coefficients: 4x quantization
 - Large coefficients: 16x quantization
 
 This explains why PSNR remains at 8.3 dB despite fixing DWT and quantization.

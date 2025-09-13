@@ -49,10 +49,10 @@ After creating the repository, configure the following branch protection rules f
 review:
   auto_review_enabled: true
   review_level: thorough
-  
+
 suggestions:
   auto_suggest_improvements: true
-  
+
 security:
   scan_for_secrets: true
   scan_for_vulnerabilities: true
@@ -64,7 +64,7 @@ For `develop` branch:
 
 1. **Require a pull request before merging**
    - No approval required (for rapid iteration)
-   
+
 2. **Require status checks to pass**
    - Same as main branch
 

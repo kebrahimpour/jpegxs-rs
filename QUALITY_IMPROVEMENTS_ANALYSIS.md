@@ -23,7 +23,7 @@ This document details the systematic investigation and fixes applied to address 
 **Validation Results**:
 ```
 Perfect Reconstruction: ✅ PASS (error < 1e-6)
-Linearity: ✅ PASS  
+Linearity: ✅ PASS
 Boundary Handling: ✅ PASS
 ```
 
@@ -51,7 +51,7 @@ Boundary Handling: ✅ PASS
 - QP mismatch between encoder and decoder caused quality degradation
 
 **Solution Implemented**:
-- Implemented proper QP extraction using `decoder.get_qp_values()` 
+- Implemented proper QP extraction using `decoder.get_qp_values()`
 - Fixed decoder in `crates/jpegxs-core/src/lib.rs` lines 281-283
 - Decoder now uses exact QP values stored in bitstream WGT marker
 
@@ -61,13 +61,13 @@ Boundary Handling: ✅ PASS
 ```
 📊 Overall Compliance: 54.2%
 📊 Test Categories:
-   Encoder Tests:   0/22 passed (0.0%)  
+   Encoder Tests:   0/22 passed (0.0%)
    Decoder Tests:   22/22 passed (100.0%) ✅
    Bitstream Tests: 4/4 passed (100.0%) ✅
 
 ⚡ Performance Metrics:
    Encoding Speed:  44.4 Mbps
-   Decoding Speed:  52.9 Mbps  
+   Decoding Speed:  52.9 Mbps
    Avg PSNR:        8.3 dB (improved from 6.6 dB)
    Compression:     23.2:1
 ```
@@ -93,7 +93,7 @@ The issue likely resides in `jpegxs_core_clean::JpegXsBitstream::add_entropy_cod
 if abs_coeff <= 15 {
     let quantized = ((abs_coeff + 1) / 2).min(15) as u8;  // 2x quantization
 } else if abs_coeff <= 127 {
-    let quantized = (abs_coeff / 4).min(127) as u8;       // 4x quantization  
+    let quantized = (abs_coeff / 4).min(127) as u8;       // 4x quantization
 } else {
     let quantized = (abs_coeff / 16).min(63) as u8;       // 16x quantization
 }
@@ -109,7 +109,7 @@ This multi-level quantization may be too aggressive for high-quality compression
 3. **Implement lossless entropy** - Use simple run-length encoding without quantization
 4. **Measure PSNR improvement** - Quantify entropy coding impact on quality
 
-### Phase 2: Color Space Validation  
+### Phase 2: Color Space Validation
 1. **RGB↔YUV accuracy** - Validate color conversion precision
 2. **Chroma handling** - Verify 422/420 upsampling/downsampling
 3. **Bit depth preservation** - Ensure no precision loss in conversions

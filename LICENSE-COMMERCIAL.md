@@ -84,8 +84,8 @@ any existing implementation. This ensures:
 
 For commercial licensing, professional support, or custom development:
 
-**Keyvan Ebrahimpour**  
-Email: k1.ebrahimpour@gmail.com  
+**Keyvan Ebrahimpour**
+Email: k1.ebrahimpour@gmail.com
 GitHub: https://github.com/kebrahimpour/jpegxs-rs
 
 ## Warranty Disclaimer

@@ -75,7 +75,7 @@ impl<'a> BitstreamReader<'a> {
     }
 }
 
-/// Bitstream writer for VLC encoding  
+/// Bitstream writer for VLC encoding
 #[derive(Default)]
 pub struct BitstreamWriter {
     data: Vec<u8>,

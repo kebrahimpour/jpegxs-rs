@@ -1,8 +1,8 @@
 # JPEG XS Codec - Commercial License Agreement
 
-**Effective Date**: September 2025  
-**Licensor**: Keyvan Ebrahimpour  
-**Contact**: k1.ebrahimpour@gmail.com  
+**Effective Date**: September 2025
+**Licensor**: Keyvan Ebrahimpour
+**Contact**: k1.ebrahimpour@gmail.com
 
 ---
 
@@ -20,7 +20,7 @@ Subject to compliance with this Agreement and payment of applicable fees, Licens
 
 ### 1.1 Software Rights
 - **Use**: Right to use the Software in your commercial applications
-- **Modify**: Right to modify the Software for your specific needs  
+- **Modify**: Right to modify the Software for your specific needs
 - **Distribute**: Right to distribute the Software as part of your products
 - **Create Derivatives**: Right to create derivative works based on the Software
 
@@ -39,7 +39,7 @@ Subject to compliance with this Agreement and payment of applicable fees, Licens
 - Email support for 12 months
 - Source code access to clean-room implementation
 
-### 2.2 Enterprise License - $25,000  
+### 2.2 Enterprise License - $25,000
 - Unlimited applications within your organization
 - Unlimited installations/deployments
 - Priority email support for 24 months
@@ -215,7 +215,7 @@ Subject to compliance with this Agreement and payment of applicable fees, Licens
 
 By using the Software for commercial purposes, you acknowledge that you have read, understood, and agree to be bound by the terms of this Agreement.
 
-**License Version**: 1.0  
+**License Version**: 1.0
 **Last Updated**: September 2025
 
 ---
