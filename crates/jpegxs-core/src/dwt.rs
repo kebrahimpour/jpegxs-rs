@@ -223,6 +223,11 @@ pub fn dwt_53_inverse_2d_8bit(
 mod tests {
     use super::*;
 
+    /// Maximum acceptable roundtrip error for 8-bit coefficient DWT
+    /// This threshold accounts for quantization loss from f32->i8->f32 conversion
+    /// with the fixed scaling factor of 2.0
+    const MAX_8BIT_ROUNDTRIP_ERROR: f32 = 70.0;
+
     #[test]
     fn test_8bit_dwt_roundtrip_simple() {
         let input = vec![1.0, 2.0, 3.0, 4.0];
@@ -265,7 +270,7 @@ mod tests {
 
         // For 8-bit coefficients with scaling, expect reasonable precision
         assert!(
-            max_error < 70.0,
+            max_error < MAX_8BIT_ROUNDTRIP_ERROR,
             "Max roundtrip error too large: {}",
             max_error
         );

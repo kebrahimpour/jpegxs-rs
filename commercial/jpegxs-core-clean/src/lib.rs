@@ -311,6 +311,8 @@ impl JpegXsBitstream {
                     encoded_data.push(encoded);
                 } else if abs_coeff <= 15 {
                     // Small coefficients: use separate escape code + data byte
+                    // NOTE: This uses 2-byte encoding vs original 1-byte for better precision
+                    // This is a clean-room implementation focused on correctness over compatibility
                     let encoded = if coeff > 0 {
                         abs_coeff as u8
                     } else {

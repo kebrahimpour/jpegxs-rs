@@ -196,8 +196,8 @@ fn dwt_53_inverse_1d(data: &mut [f32]) {
     };
 
     // Step 1: Inverse update step (undo the forward update step)
-    // Forward update was: Y[i] = X[i] + ((Y[i-1] + Y[i+1]) / 4.0)
-    // Inverse is: X[i] = Y[i] - ((Y[i-1] + Y[i+1]) / 4.0)
+    // Forward update was: Y[i] = X[i] + ((Y[i-1] + Y[i+1] + 2.0) / 4.0)
+    // Inverse is: X[i] = Y[i] - ((Y[i-1] + Y[i+1] + 2.0) / 4.0)
     // Note: Using floating-point division since data is f32, not integer bit-shifting
     // Process even indices: i = 0, 2, 4, ...
     for i in (0..len).step_by(2) {
