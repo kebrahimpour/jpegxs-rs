@@ -1,38 +1,43 @@
-JPEG XS Codec - Proprietary License with Non-Commercial Exception
+JPEG XS Codec - Community Edition License
 
 Copyright (c) 2025 Keyvan Ebrahimpour. All rights reserved.
 
-This software is dual-licensed:
+This is the COMMUNITY EDITION of the JPEG-XS codec implementation.
 
-1. NON-COMMERCIAL USE (this license)
-   - Free for personal, educational, and research use
-   - Modifications must include this license
-   - No commercial use permitted
+COMMUNITY EDITION LICENSE:
+- Free for personal, educational, research, and commercial use
+- Basic JPEG-XS encoding/decoding functionality
+- ISO/IEC 21122-1:2024 compliant baseline implementation
+- Modifications and redistribution permitted with attribution
 
-2. COMMERCIAL USE
-   - Requires paid license
-   - See LICENSE-COMMERCIAL.md for details
-   - Contact: k1.ebrahimpour@gmail.com
+ENHANCED COMMERCIAL EDITION:
+- Advanced precision modes and premium features
+- Enhanced performance optimizations
+- Commercial support and licensing
+- Contact: k1.ebrahimpour@gmail.com
 
 --------------------------------------------------------------------------------
-NON-COMMERCIAL LICENSE TERMS
+COMMUNITY EDITION LICENSE TERMS
 --------------------------------------------------------------------------------
 
 Permission is granted, free of charge, to use, copy, modify, and distribute
-this software for NON-COMMERCIAL purposes only, provided that:
+this Community Edition software, provided that:
 
 1. This license notice and copyright notice appear in all copies
 2. Modified versions are clearly marked as modified
-3. No fee is charged for the software or its distribution
-4. The software is not used for commercial purposes
+3. Attribution is given to the original author
 
-COMMERCIAL USE IS STRICTLY PROHIBITED without a separate commercial license.
+This Community Edition includes:
+- Basic JPEG-XS encoding and decoding
+- ISO/IEC 21122-1:2024 compliant implementation
+- Standard DWT and quantization algorithms
+- Basic entropy coding
 
-Commercial use includes:
-- Use in any business or for-profit organization
-- Use in products or services that generate revenue
-- Use in proprietary or closed-source software
-- Providing paid services using this software
+Enhanced features (available in Commercial Edition):
+- Advanced precision modes for research/validation
+- Performance-optimized coefficient handling
+- Premium quantization algorithms
+- Commercial support and guarantees
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -48,6 +53,6 @@ REFERENCE IMPLEMENTATION (reference/ directory):
 The reference implementation has its own license from intoPIX SA, Fraunhofer IIS,
 and Canon Inc. See reference/jxs/LICENSE.md for details.
 
-CLEAN-ROOM IMPLEMENTATION (commercial/jpegxs-core-clean/):
-100% original implementation from ISO specification, fully licensable for
-commercial use under our commercial license terms.
+COMMUNITY EDITION FEATURES:
+This public version includes basic JPEG-XS functionality with ISO compliance.
+Enhanced precision and performance features available in Commercial Edition.

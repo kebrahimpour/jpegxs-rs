@@ -1,9 +1,9 @@
 // Copyright (c) 2025 Keyvan Ebrahimpour. All rights reserved.
 //
-// This software is proprietary and confidential. Commercial use is prohibited
-// without a valid license. See LICENSE file for full terms and conditions.
+// JPEG-XS Community Edition - Basic implementation with commercial use permitted
+// Enhanced features available in Commercial Edition. See LICENSE file for details.
 //
-// For commercial licensing: k1.ebrahimpour@gmail.com
+// For commercial edition: k1.ebrahimpour@gmail.com
 
 pub mod colors;
 pub mod dwt;
