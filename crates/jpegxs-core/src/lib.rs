@@ -152,14 +152,16 @@ pub fn encode_frame(input: ImageView8, config: &EncoderConfig) -> Result<Bitstre
     }
 
     // Log pre-DWT statistics for precision analysis
-    log::info!("DWT_ANALYSIS: Pre-DWT Y coefficients - min: {:.3}, max: {:.3}, mean: {:.3}, std: {:.3}",
-               y_plane.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
-               y_plane.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)),
-               y_plane.iter().sum::<f32>() / y_plane.len() as f32,
-               {
-                   let mean = y_plane.iter().sum::<f32>() / y_plane.len() as f32;
-                   (y_plane.iter().map(|x| (x - mean).powi(2)).sum::<f32>() / y_plane.len() as f32).sqrt()
-               });
+    log::info!(
+        "DWT_ANALYSIS: Pre-DWT Y coefficients - min: {:.3}, max: {:.3}, mean: {:.3}, std: {:.3}",
+        y_plane.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
+        y_plane.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)),
+        y_plane.iter().sum::<f32>() / y_plane.len() as f32,
+        {
+            let mean = y_plane.iter().sum::<f32>() / y_plane.len() as f32;
+            (y_plane.iter().map(|x| (x - mean).powi(2)).sum::<f32>() / y_plane.len() as f32).sqrt()
+        }
+    );
     log::info!("DWT_ANALYSIS: Pre-DWT UV coefficients - U_min: {:.3}, U_max: {:.3}, V_min: {:.3}, V_max: {:.3}",
                u_plane.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
                u_plane.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)),
@@ -176,14 +178,16 @@ pub fn encode_frame(input: ImageView8, config: &EncoderConfig) -> Result<Bitstre
     jpegxs_core_clean::dwt::dwt_53_forward_2d(&v_plane, &mut v_dwt, input.width, input.height)?;
 
     // Log post-DWT statistics for precision analysis
-    log::info!("DWT_ANALYSIS: Post-DWT Y coefficients - min: {:.3}, max: {:.3}, mean: {:.3}, std: {:.3}",
-               y_dwt.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
-               y_dwt.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)),
-               y_dwt.iter().sum::<f32>() / y_dwt.len() as f32,
-               {
-                   let mean = y_dwt.iter().sum::<f32>() / y_dwt.len() as f32;
-                   (y_dwt.iter().map(|x| (x - mean).powi(2)).sum::<f32>() / y_dwt.len() as f32).sqrt()
-               });
+    log::info!(
+        "DWT_ANALYSIS: Post-DWT Y coefficients - min: {:.3}, max: {:.3}, mean: {:.3}, std: {:.3}",
+        y_dwt.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
+        y_dwt.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)),
+        y_dwt.iter().sum::<f32>() / y_dwt.len() as f32,
+        {
+            let mean = y_dwt.iter().sum::<f32>() / y_dwt.len() as f32;
+            (y_dwt.iter().map(|x| (x - mean).powi(2)).sum::<f32>() / y_dwt.len() as f32).sqrt()
+        }
+    );
     log::info!("DWT_ANALYSIS: Post-DWT UV coefficients - U_min: {:.3}, U_max: {:.3}, V_min: {:.3}, V_max: {:.3}",
                u_dwt.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
                u_dwt.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)),
@@ -200,11 +204,13 @@ pub fn encode_frame(input: ImageView8, config: &EncoderConfig) -> Result<Bitstre
     let v_quantized = quant::quantize(&v_dwt, qp_uv)?;
 
     // Log post-quantization statistics for precision analysis
-    log::info!("DWT_ANALYSIS: Post-Quantization Y coefficients - min: {}, max: {}, mean: {:.3}, QP: {}",
-               y_quantized.iter().min().unwrap_or(&0),
-               y_quantized.iter().max().unwrap_or(&0),
-               y_quantized.iter().sum::<i32>() as f32 / y_quantized.len() as f32,
-               qp_y);
+    log::info!(
+        "DWT_ANALYSIS: Post-Quantization Y coefficients - min: {}, max: {}, mean: {:.3}, QP: {}",
+        y_quantized.iter().min().unwrap_or(&0),
+        y_quantized.iter().max().unwrap_or(&0),
+        y_quantized.iter().sum::<i32>() as f32 / y_quantized.len() as f32,
+        qp_y
+    );
     log::info!("DWT_ANALYSIS: Post-Quantization UV coefficients - U_min: {}, U_max: {}, V_min: {}, V_max: {}, QP: {}",
                u_quantized.iter().min().unwrap_or(&0),
                u_quantized.iter().max().unwrap_or(&0),
@@ -334,10 +340,12 @@ pub fn decode_frame_to_format(
     let v_dwt = quant::dequantize(&v_quantized, qp_uv)?;
 
     // Log post-dequantization statistics for precision analysis
-    log::info!("DWT_ANALYSIS: Post-Dequantization Y coefficients - min: {:.3}, max: {:.3}, mean: {:.3}",
-               y_dwt.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
-               y_dwt.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)),
-               y_dwt.iter().sum::<f32>() / y_dwt.len() as f32);
+    log::info!(
+        "DWT_ANALYSIS: Post-Dequantization Y coefficients - min: {:.3}, max: {:.3}, mean: {:.3}",
+        y_dwt.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
+        y_dwt.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)),
+        y_dwt.iter().sum::<f32>() / y_dwt.len() as f32
+    );
     log::info!("DWT_ANALYSIS: Post-Dequantization UV coefficients - U_min: {:.3}, U_max: {:.3}, V_min: {:.3}, V_max: {:.3}",
                u_dwt.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
                u_dwt.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)),

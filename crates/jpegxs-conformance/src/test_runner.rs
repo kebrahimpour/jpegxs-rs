@@ -1,11 +1,11 @@
-use anyhow::{Result, Context};
-use jpegxs_core::{encode_frame, decode_frame, EncoderConfig, DecoderConfig, ImageView8};
 use crate::{
-    test_vectors::{TestVectorGenerator, TestPattern},
     metrics::{calculate_psnr, MemoryProfiler},
-    TestReport, ConformanceResults, PerformanceResults, TestSuite, TestCase, TestStatus,
-    MemoryMetrics, SpeedMetrics, CompressionMetrics,
+    test_vectors::{TestPattern, TestVectorGenerator},
+    CompressionMetrics, ConformanceResults, MemoryMetrics, PerformanceResults, SpeedMetrics,
+    TestCase, TestReport, TestStatus, TestSuite,
 };
+use anyhow::{Context, Result};
+use jpegxs_core::{decode_frame, encode_frame, DecoderConfig, EncoderConfig, ImageView8};
 use std::time::Instant;
 
 pub struct ConformanceTestRunner {
@@ -133,11 +133,25 @@ impl ConformanceTestRunner {
         }
 
         let total = test_cases.len();
-        let passed = test_cases.iter().filter(|t| matches!(t.status, TestStatus::Pass)).count();
-        let failed = test_cases.iter().filter(|t| matches!(t.status, TestStatus::Fail)).count();
-        let skipped = test_cases.iter().filter(|t| matches!(t.status, TestStatus::Skip)).count();
+        let passed = test_cases
+            .iter()
+            .filter(|t| matches!(t.status, TestStatus::Pass))
+            .count();
+        let failed = test_cases
+            .iter()
+            .filter(|t| matches!(t.status, TestStatus::Fail))
+            .count();
+        let skipped = test_cases
+            .iter()
+            .filter(|t| matches!(t.status, TestStatus::Skip))
+            .count();
 
-        println!("📊 Encoder Tests: {}/{} passed ({:.1}%)", passed, total, (passed as f64 / total as f64) * 100.0);
+        println!(
+            "📊 Encoder Tests: {}/{} passed ({:.1}%)",
+            passed,
+            total,
+            (passed as f64 / total as f64) * 100.0
+        );
 
         Ok(TestSuite {
             total,
@@ -152,7 +166,9 @@ impl ConformanceTestRunner {
         let start = Instant::now();
 
         // Generate test image
-        let image = self.generator.generate_pattern(pattern)
+        let image = self
+            .generator
+            .generate_pattern(pattern)
             .context("Failed to generate test pattern")?;
 
         let input_view = ImageView8 {
@@ -163,12 +179,10 @@ impl ConformanceTestRunner {
         };
 
         // Encode
-        let encoded = encode_frame(input_view, &self.encoder_config)
-            .context("Encoding failed")?;
+        let encoded = encode_frame(input_view, &self.encoder_config).context("Encoding failed")?;
 
         // Decode back
-        let decoded = decode_frame(&encoded, &self.decoder_config)
-            .context("Decoding failed")?;
+        let decoded = decode_frame(&encoded, &self.decoder_config).context("Decoding failed")?;
 
         // Calculate quality metrics
         let psnr = calculate_psnr(&image.data, &decoded.data);
@@ -178,9 +192,21 @@ impl ConformanceTestRunner {
 
         // Determine test result
         let (status, message) = if psnr >= pattern.expected_psnr_threshold {
-            (TestStatus::Pass, Some(format!("PSNR: {:.2} dB, Ratio: {:.1}:1", psnr, compression_ratio)))
+            (
+                TestStatus::Pass,
+                Some(format!(
+                    "PSNR: {:.2} dB, Ratio: {:.1}:1",
+                    psnr, compression_ratio
+                )),
+            )
         } else {
-            (TestStatus::Fail, Some(format!("PSNR: {:.2} dB < {:.2} dB threshold", psnr, pattern.expected_psnr_threshold)))
+            (
+                TestStatus::Fail,
+                Some(format!(
+                    "PSNR: {:.2} dB < {:.2} dB threshold",
+                    psnr, pattern.expected_psnr_threshold
+                )),
+            )
         };
 
         Ok(TestCase {
@@ -231,11 +257,25 @@ impl ConformanceTestRunner {
         }
 
         let total = test_cases.len();
-        let passed = test_cases.iter().filter(|t| matches!(t.status, TestStatus::Pass)).count();
-        let failed = test_cases.iter().filter(|t| matches!(t.status, TestStatus::Fail)).count();
-        let skipped = test_cases.iter().filter(|t| matches!(t.status, TestStatus::Skip)).count();
+        let passed = test_cases
+            .iter()
+            .filter(|t| matches!(t.status, TestStatus::Pass))
+            .count();
+        let failed = test_cases
+            .iter()
+            .filter(|t| matches!(t.status, TestStatus::Fail))
+            .count();
+        let skipped = test_cases
+            .iter()
+            .filter(|t| matches!(t.status, TestStatus::Skip))
+            .count();
 
-        println!("📊 Decoder Tests: {}/{} passed ({:.1}%)", passed, total, (passed as f64 / total as f64) * 100.0);
+        println!(
+            "📊 Decoder Tests: {}/{} passed ({:.1}%)",
+            passed,
+            total,
+            (passed as f64 / total as f64) * 100.0
+        );
 
         Ok(TestSuite {
             total,
@@ -268,10 +308,21 @@ impl ConformanceTestRunner {
         let duration = start.elapsed().as_millis() as f64;
 
         let (status, message) = if decoded.width == image.width && decoded.height == image.height {
-            (TestStatus::Pass, Some(format!("{}x{} decoded correctly", decoded.width, decoded.height)))
+            (
+                TestStatus::Pass,
+                Some(format!(
+                    "{}x{} decoded correctly",
+                    decoded.width, decoded.height
+                )),
+            )
         } else {
-            (TestStatus::Fail, Some(format!("Size mismatch: expected {}x{}, got {}x{}",
-                image.width, image.height, decoded.width, decoded.height)))
+            (
+                TestStatus::Fail,
+                Some(format!(
+                    "Size mismatch: expected {}x{}, got {}x{}",
+                    image.width, image.height, decoded.width, decoded.height
+                )),
+            )
         };
 
         Ok(TestCase {
@@ -288,12 +339,24 @@ impl ConformanceTestRunner {
         println!("─────────────────────────────────────");
 
         let mut test_cases = Vec::new();
-        let test_patterns = ["solid_red", "horizontal_gradient", "checker_8x8", "random_noise"];
+        let test_patterns = [
+            "solid_red",
+            "horizontal_gradient",
+            "checker_8x8",
+            "random_noise",
+        ];
 
         for (i, pattern_name) in test_patterns.iter().enumerate() {
-            print!("  [{}/{}] bitstream_{} ... ", i + 1, test_patterns.len(), pattern_name);
+            print!(
+                "  [{}/{}] bitstream_{} ... ",
+                i + 1,
+                test_patterns.len(),
+                pattern_name
+            );
 
-            let pattern = self.generator.get_pattern(pattern_name)
+            let pattern = self
+                .generator
+                .get_pattern(pattern_name)
                 .ok_or_else(|| anyhow::anyhow!("Pattern not found: {}", pattern_name))?;
 
             let result = self.run_single_bitstream_test(pattern);
@@ -325,11 +388,25 @@ impl ConformanceTestRunner {
         }
 
         let total = test_cases.len();
-        let passed = test_cases.iter().filter(|t| matches!(t.status, TestStatus::Pass)).count();
-        let failed = test_cases.iter().filter(|t| matches!(t.status, TestStatus::Fail)).count();
-        let skipped = test_cases.iter().filter(|t| matches!(t.status, TestStatus::Skip)).count();
+        let passed = test_cases
+            .iter()
+            .filter(|t| matches!(t.status, TestStatus::Pass))
+            .count();
+        let failed = test_cases
+            .iter()
+            .filter(|t| matches!(t.status, TestStatus::Fail))
+            .count();
+        let skipped = test_cases
+            .iter()
+            .filter(|t| matches!(t.status, TestStatus::Skip))
+            .count();
 
-        println!("📊 Bitstream Tests: {}/{} passed ({:.1}%)", passed, total, (passed as f64 / total as f64) * 100.0);
+        println!(
+            "📊 Bitstream Tests: {}/{} passed ({:.1}%)",
+            passed,
+            total,
+            (passed as f64 / total as f64) * 100.0
+        );
 
         Ok(TestSuite {
             total,
@@ -360,9 +437,15 @@ impl ConformanceTestRunner {
         // Check minimum bitstream size
         let min_expected_size = 100; // Minimum reasonable size for headers
         let (status, message) = if encoded.data.len() >= min_expected_size {
-            (TestStatus::Pass, Some(format!("{} bytes, valid size", encoded.data.len())))
+            (
+                TestStatus::Pass,
+                Some(format!("{} bytes, valid size", encoded.data.len())),
+            )
         } else {
-            (TestStatus::Fail, Some(format!("Bitstream too small: {} bytes", encoded.data.len())))
+            (
+                TestStatus::Fail,
+                Some(format!("Bitstream too small: {} bytes", encoded.data.len())),
+            )
         };
 
         Ok(TestCase {
@@ -391,7 +474,10 @@ impl ConformanceTestRunner {
         // Quality benchmark
         print!("  Compression quality ... ");
         let compression_metrics = self.run_quality_benchmark()?;
-        println!("✅ {:.1}:1 ratio, {:.1} dB PSNR", compression_metrics.avg_ratio, compression_metrics.avg_psnr_db);
+        println!(
+            "✅ {:.1}:1 ratio, {:.1} dB PSNR",
+            compression_metrics.avg_ratio, compression_metrics.avg_psnr_db
+        );
 
         Ok(PerformanceResults {
             memory: memory_metrics,
@@ -405,7 +491,9 @@ impl ConformanceTestRunner {
         profiler.start();
 
         // Test with a representative image (HD resolution)
-        let pattern = self.generator.get_pattern("hd_gradient")
+        let pattern = self
+            .generator
+            .get_pattern("hd_gradient")
             .ok_or_else(|| anyhow::anyhow!("HD gradient pattern not found"))?;
 
         let image = self.generator.generate_pattern(pattern)?;
@@ -425,13 +513,15 @@ impl ConformanceTestRunner {
         Ok(MemoryMetrics {
             peak_heap_mb: report.peak_mb(),
             peak_stack_kb: 0.0, // Would need platform-specific code
-            allocations: 0, // Would need custom allocator
+            allocations: 0,     // Would need custom allocator
             working_set_4k_mb: report.peak_mb(), // Approximation
         })
     }
 
     fn run_speed_benchmark(&self) -> Result<SpeedMetrics> {
-        let pattern = self.generator.get_pattern("horizontal_gradient")
+        let pattern = self
+            .generator
+            .get_pattern("horizontal_gradient")
             .ok_or_else(|| anyhow::anyhow!("Gradient pattern not found"))?;
 
         let image = self.generator.generate_pattern(pattern)?;
@@ -472,7 +562,11 @@ impl ConformanceTestRunner {
             encode_mbps,
             decode_mbps,
             latency_ms: avg_encode_time * 1000.0,
-            throughput_4k_fps: if image.width >= 3840 { 1.0 / avg_encode_time } else { 0.0 },
+            throughput_4k_fps: if image.width >= 3840 {
+                1.0 / avg_encode_time
+            } else {
+                0.0
+            },
         })
     }
 
@@ -483,7 +577,9 @@ impl ConformanceTestRunner {
         let mut ssims = Vec::new();
 
         for pattern_name in &test_patterns {
-            let pattern = self.generator.get_pattern(pattern_name)
+            let pattern = self
+                .generator
+                .get_pattern(pattern_name)
                 .ok_or_else(|| anyhow::anyhow!("Pattern not found: {}", pattern_name))?;
 
             let image = self.generator.generate_pattern(pattern)?;
@@ -499,7 +595,12 @@ impl ConformanceTestRunner {
 
             let ratio = image.data.len() as f64 / encoded.data.len() as f64;
             let psnr = calculate_psnr(&image.data, &decoded.data);
-            let ssim = crate::metrics::calculate_ssim(&image.data, &decoded.data, image.width as usize, image.height as usize);
+            let ssim = crate::metrics::calculate_ssim(
+                &image.data,
+                &decoded.data,
+                image.width as usize,
+                image.height as usize,
+            );
 
             ratios.push(ratio);
             psnrs.push(psnr);

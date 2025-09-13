@@ -1,9 +1,9 @@
-pub mod metrics;
-pub mod conformance;
 pub mod benchmarks;
+pub mod conformance;
+pub mod metrics;
 pub mod reference;
-pub mod test_vectors;
 pub mod test_runner;
+pub mod test_vectors;
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
@@ -85,10 +85,10 @@ pub struct CompressionMetrics {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ComparisonResults {
     pub reference_implementation: String,
-    pub compression_delta: f64,  // Percentage better/worse
-    pub speed_delta: f64,        // Percentage faster/slower
-    pub memory_delta: f64,        // Percentage more/less
-    pub quality_delta: f64,       // PSNR difference in dB
+    pub compression_delta: f64, // Percentage better/worse
+    pub speed_delta: f64,       // Percentage faster/slower
+    pub memory_delta: f64,      // Percentage more/less
+    pub quality_delta: f64,     // PSNR difference in dB
 }
 
 pub trait ConformanceTest {

@@ -276,16 +276,23 @@ impl JpegXsBitstream {
                 let abs_coeff = coeff.abs();
 
                 // Log coefficient analysis for debugging
-                log::info!("Coefficient analysis - abs_coeff: {}, tier: {}",
-                           abs_coeff,
-                           if abs_coeff <= 3 { "direct" }
-                           else if abs_coeff <= 15 { "2x_quant" }
-                           else if abs_coeff <= 127 { "4x_quant" }
-                           else { "16x_quant" });
+                log::info!(
+                    "Coefficient analysis - abs_coeff: {}, tier: {}",
+                    abs_coeff,
+                    if abs_coeff <= 3 {
+                        "direct"
+                    } else if abs_coeff <= 15 {
+                        "2x_quant"
+                    } else if abs_coeff <= 127 {
+                        "4x_quant"
+                    } else {
+                        "16x_quant"
+                    }
+                );
 
                 if bypass_entropy_quantization {
                     // EXPERIMENTAL: Store coefficient with minimal loss for quality testing
-                    let stored_coeff = abs_coeff.min(255) as u8;  // Simple clamp instead of quantization
+                    let stored_coeff = abs_coeff.min(255) as u8; // Simple clamp instead of quantization
                     let encoded = if coeff > 0 {
                         stored_coeff
                     } else {
@@ -668,7 +675,11 @@ impl JpegXsDecoder {
                 }
                 let encoded = entropy_data[i];
                 let abs_coeff = (encoded & 0x7F) as i32;
-                coefficients.push(if (encoded & 0x80) != 0 { -abs_coeff } else { abs_coeff });
+                coefficients.push(if (encoded & 0x80) != 0 {
+                    -abs_coeff
+                } else {
+                    abs_coeff
+                });
                 i += 1;
             } else {
                 // Direct encoded small coefficient (1-3)

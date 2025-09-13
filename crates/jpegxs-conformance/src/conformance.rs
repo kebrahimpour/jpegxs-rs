@@ -1,12 +1,11 @@
-use anyhow::{Result, Context};
-use jpegxs_core::{
-    encode_frame, decode_frame,
-    EncoderConfig, DecoderConfig,
-    ImageView8, ImageOwned8, PixelFormat, Bitstream
-};
 use crate::{ConformanceTest, TestCase, TestStatus};
-use std::path::{Path, PathBuf};
+use anyhow::{Context, Result};
+use jpegxs_core::{
+    decode_frame, encode_frame, Bitstream, DecoderConfig, EncoderConfig, ImageOwned8, ImageView8,
+    PixelFormat,
+};
 use std::fs;
+use std::path::{Path, PathBuf};
 
 pub struct DecoderConformanceTest {
     name: String,
@@ -44,8 +43,7 @@ impl ConformanceTest for DecoderConformanceTest {
         let start = std::time::Instant::now();
 
         // Read the bitstream
-        let bitstream_data = fs::read(&self.bitstream_path)
-            .context("Failed to read bitstream")?;
+        let bitstream_data = fs::read(&self.bitstream_path).context("Failed to read bitstream")?;
 
         // Create Bitstream struct
         let bitstream = Bitstream {
@@ -62,8 +60,8 @@ impl ConformanceTest for DecoderConformanceTest {
                 // If we have expected output, compare
                 if let Some(ref expected_path) = self.expected_output {
                     if expected_path.exists() {
-                        let expected = fs::read(expected_path)
-                            .context("Failed to read expected output")?;
+                        let expected =
+                            fs::read(expected_path).context("Failed to read expected output")?;
 
                         if decoded.data == expected {
                             (TestStatus::Pass, None)
@@ -72,14 +70,20 @@ impl ConformanceTest for DecoderConformanceTest {
                             if psnr > 30.0 {
                                 (TestStatus::Pass, Some(format!("PSNR: {:.2} dB", psnr)))
                             } else {
-                                (TestStatus::Fail, Some(format!("PSNR too low: {:.2} dB", psnr)))
+                                (
+                                    TestStatus::Fail,
+                                    Some(format!("PSNR too low: {:.2} dB", psnr)),
+                                )
                             }
                         }
                     } else {
                         (TestStatus::Pass, Some("No reference output".to_string()))
                     }
                 } else {
-                    (TestStatus::Pass, Some(format!("Decoded {}x{}", decoded.width, decoded.height)))
+                    (
+                        TestStatus::Pass,
+                        Some(format!("Decoded {}x{}", decoded.width, decoded.height)),
+                    )
                 }
             }
             Err(e) => (TestStatus::Fail, Some(e.to_string())),
@@ -117,7 +121,7 @@ impl EncoderConformanceTest {
 
     pub fn with_reference_decoder<F>(mut self, decoder: F) -> Self
     where
-        F: Fn(&[u8]) -> Result<ImageOwned8> + 'static
+        F: Fn(&[u8]) -> Result<ImageOwned8> + 'static,
     {
         self.reference_decoder = Some(Box::new(decoder));
         self
@@ -158,29 +162,37 @@ impl ConformanceTest for EncoderConformanceTest {
 
                 match our_decode {
                     Ok(decoded) => {
-                        let psnr = crate::metrics::calculate_psnr(
-                            &self.input_image.data,
-                            &decoded.data
-                        );
+                        let psnr =
+                            crate::metrics::calculate_psnr(&self.input_image.data, &decoded.data);
 
                         // If we have a reference decoder, test with it too
                         if let Some(ref ref_decoder) = self.reference_decoder {
                             match ref_decoder(&bitstream.data) {
                                 Ok(_) => {
                                     if psnr > 30.0 {
-                                        (TestStatus::Pass, Some(format!("PSNR: {:.2} dB, Reference: OK", psnr)))
+                                        (
+                                            TestStatus::Pass,
+                                            Some(format!("PSNR: {:.2} dB, Reference: OK", psnr)),
+                                        )
                                     } else {
-                                        (TestStatus::Fail, Some(format!("PSNR too low: {:.2} dB", psnr)))
+                                        (
+                                            TestStatus::Fail,
+                                            Some(format!("PSNR too low: {:.2} dB", psnr)),
+                                        )
                                     }
                                 }
-                                Err(e) => {
-                                    (TestStatus::Fail, Some(format!("Reference decoder failed: {}", e)))
-                                }
+                                Err(e) => (
+                                    TestStatus::Fail,
+                                    Some(format!("Reference decoder failed: {}", e)),
+                                ),
                             }
                         } else if psnr > 30.0 {
                             (TestStatus::Pass, Some(format!("PSNR: {:.2} dB", psnr)))
                         } else {
-                            (TestStatus::Fail, Some(format!("PSNR too low: {:.2} dB", psnr)))
+                            (
+                                TestStatus::Fail,
+                                Some(format!("PSNR too low: {:.2} dB", psnr)),
+                            )
                         }
                     }
                     Err(e) => (TestStatus::Fail, Some(format!("Self-decode failed: {}", e))),
@@ -214,9 +226,7 @@ impl BitstreamConformanceTest {
 
     fn validate_markers(&self) -> Result<()> {
         // Check for SOC marker (0xFF10)
-        if self.bitstream.len() < 2 ||
-           self.bitstream[0] != 0xFF ||
-           self.bitstream[1] != 0x10 {
+        if self.bitstream.len() < 2 || self.bitstream[0] != 0xFF || self.bitstream[1] != 0x10 {
             return Err(anyhow::anyhow!("Missing SOC marker"));
         }
 
@@ -266,17 +276,23 @@ pub fn create_iso_test_suite() -> Vec<Box<dyn ConformanceTest>> {
     };
 
     // Add encoder tests
-    tests.push(Box::new(
-        EncoderConformanceTest::new("encode_quality_high", test_image.clone(), 0.95)
-    ));
+    tests.push(Box::new(EncoderConformanceTest::new(
+        "encode_quality_high",
+        test_image.clone(),
+        0.95,
+    )));
 
-    tests.push(Box::new(
-        EncoderConformanceTest::new("encode_quality_medium", test_image.clone(), 0.5)
-    ));
+    tests.push(Box::new(EncoderConformanceTest::new(
+        "encode_quality_medium",
+        test_image.clone(),
+        0.5,
+    )));
 
-    tests.push(Box::new(
-        EncoderConformanceTest::new("encode_quality_low", test_image, 0.1)
-    ));
+    tests.push(Box::new(EncoderConformanceTest::new(
+        "encode_quality_low",
+        test_image,
+        0.1,
+    )));
 
     // Decoder tests would be added here once we have test vectors
     // tests.push(Box::new(

@@ -3,14 +3,14 @@ use jpegxs_conformance::benchmarks::SpeedBenchmark;
 
 fn speed_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("speed");
-    
+
     group.bench_function("encode_decode_cycle", |b| {
         b.iter(|| {
             let mut bench = SpeedBenchmark::new();
             bench.run().expect("Speed benchmark failed");
         });
     });
-    
+
     group.finish();
 }
 

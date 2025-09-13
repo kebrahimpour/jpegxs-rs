@@ -32,7 +32,8 @@ fn test_dwt_roundtrip_precision() {
 
     // Test DWT roundtrip through the full pipeline
     let bitstream = jpegxs_core::encode_frame(input, &encoder_config).expect("Encoding failed");
-    let decoded = jpegxs_core::decode_frame(&bitstream, &Default::default()).expect("Decoding failed");
+    let decoded =
+        jpegxs_core::decode_frame(&bitstream, &Default::default()).expect("Decoding failed");
 
     // Calculate pixel-level differences
     let mut max_error = 0i32;
@@ -66,5 +67,8 @@ fn test_dwt_roundtrip_precision() {
     // TODO: Fix DWT implementation - currently fails due to inverse DWT range explosion
     // This should be >20 dB but currently only achieves ~9.4 dB due to DWT issue
     // assert!(psnr > 20.0, "PSNR too low: {:.2} dB", psnr);
-    println!("NOTE: Test confirms DWT issue - PSNR should be >20 dB but is {:.2} dB", psnr);
+    println!(
+        "NOTE: Test confirms DWT issue - PSNR should be >20 dB but is {:.2} dB",
+        psnr
+    );
 }

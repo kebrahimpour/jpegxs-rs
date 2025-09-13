@@ -1,11 +1,9 @@
+use crate::metrics::{MemoryProfiler, SpeedProfiler};
+use crate::{CompressionMetrics, MemoryMetrics, SpeedMetrics};
 use anyhow::Result;
 use jpegxs_core::{
-    encode_frame, decode_frame,
-    EncoderConfig, DecoderConfig,
-    ImageView8, ImageOwned8, PixelFormat
+    decode_frame, encode_frame, DecoderConfig, EncoderConfig, ImageOwned8, ImageView8, PixelFormat,
 };
-use crate::metrics::{MemoryProfiler, SpeedProfiler};
-use crate::{MemoryMetrics, SpeedMetrics, CompressionMetrics};
 
 pub struct MemoryBenchmark {
     resolutions: Vec<(u32, u32)>,
@@ -71,7 +69,7 @@ impl MemoryBenchmark {
         Ok(MemoryMetrics {
             peak_heap_mb: report.peak_mb(),
             peak_stack_kb: 0.0, // Would need platform-specific code
-            allocations: 0, // Would need custom allocator
+            allocations: 0,     // Would need custom allocator
             working_set_4k_mb: if width == 3840 && height == 2160 {
                 report.peak_mb()
             } else {
@@ -95,11 +93,7 @@ impl Default for SpeedBenchmark {
 impl SpeedBenchmark {
     pub fn new() -> Self {
         Self {
-            test_sizes: vec![
-                (640, 480, 100),
-                (1920, 1080, 20),
-                (3840, 2160, 5),
-            ],
+            test_sizes: vec![(640, 480, 100), (1920, 1080, 20), (3840, 2160, 5)],
             results: Vec::new(),
         }
     }
@@ -205,7 +199,7 @@ impl QualityBenchmark {
         });
 
         // Random noise
-        let noise: Vec<u8> = (0..256*256*3).map(|i| (i * 7 % 256) as u8).collect();
+        let noise: Vec<u8> = (0..256 * 256 * 3).map(|i| (i * 7 % 256) as u8).collect();
         test_images.push(ImageOwned8 {
             data: noise,
             width: 256,
@@ -260,7 +254,7 @@ impl QualityBenchmark {
                 &image.data,
                 &decoded.data,
                 image.width as usize,
-                image.height as usize
+                image.height as usize,
             );
 
             ratios.push(ratio);
