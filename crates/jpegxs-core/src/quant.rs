@@ -28,6 +28,21 @@ pub fn dequantize(coeffs: &[i32], qp: u8) -> Result<Vec<f32>> {
     Ok(result)
 }
 
+// Quality-to-QP mapping table for cleaner maintenance and testing
+// Each entry: (min_quality, qp, description)
+const QUALITY_TO_QP_TABLE: &[(f32, u8, &str)] = &[
+    (0.9, 1, "High quality: virtually lossless for 0.9+ quality"),
+    (0.8, 2, "Very high quality (moderate compression ~2:1)"),
+    (0.7, 3, "High quality (good compression ~3:1)"),
+    (0.6, 4, "Good quality (significant compression ~4:1)"),
+    (0.5, 6, "Medium-high quality (~5:1)"),
+    (0.4, 8, "Medium quality (strong compression ~6:1)"),
+    (0.3, 12, "Medium-low quality (~8:1)"),
+    (0.2, 16, "Low quality (high compression ~10:1)"),
+    (0.1, 24, "Very low quality (~12:1)"),
+    (0.0, 32, "Minimum quality (maximum compression ~15:1)"),
+];
+
 pub fn compute_quantization_parameters(quality: f32) -> Result<Vec<u8>> {
     if quality <= 0.0 || quality > 1.0 {
         return Err(anyhow::anyhow!(
@@ -36,30 +51,14 @@ pub fn compute_quantization_parameters(quality: f32) -> Result<Vec<u8>> {
         ));
     }
 
-    // Proper quality-to-quantization parameter mapping
+    // Find the appropriate QP using the lookup table
     // Higher quality -> Lower QP -> Less compression loss
     // Lower quality -> Higher QP -> More compression gain
-    let base_qp = if quality >= 0.95 {
-        1 // Virtually lossless (minimal compression)
-    } else if quality >= 0.9 {
-        2 // Very high quality (moderate compression ~2:1)
-    } else if quality >= 0.8 {
-        3 // High quality (good compression ~3:1)
-    } else if quality >= 0.7 {
-        4 // Good quality (significant compression ~4:1)
-    } else if quality >= 0.6 {
-        6 // Medium-high quality (~5:1)
-    } else if quality >= 0.5 {
-        8 // Medium quality (strong compression ~6:1)
-    } else if quality >= 0.4 {
-        12 // Medium-low quality (~8:1)
-    } else if quality >= 0.3 {
-        16 // Low quality (high compression ~10:1)
-    } else if quality >= 0.2 {
-        24 // Very low quality (~12:1)
-    } else {
-        32 // Minimum quality (maximum compression ~15:1)
-    };
+    let base_qp = QUALITY_TO_QP_TABLE
+        .iter()
+        .find(|(min_quality, _, _)| quality >= *min_quality)
+        .map(|(_, qp, _)| *qp)
+        .unwrap_or(32); // Fallback to maximum compression
 
     // Return quantization parameters for DWT subbands
     // Real JPEG XS would have different QPs for different subbands:
@@ -72,4 +71,44 @@ pub fn compute_quantization_parameters(quality: f32) -> Result<Vec<u8>> {
     const NUM_SUBBANDS: usize = 3 * DWT_LEVELS + 1; // 3 detail bands per level + 1 final LL subband
 
     Ok(vec![base_qp; NUM_SUBBANDS])
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_quality_to_qp_mapping() {
+        // Test specific quality thresholds
+        assert_eq!(compute_quantization_parameters(0.95).unwrap()[0], 1);
+        assert_eq!(compute_quantization_parameters(0.9).unwrap()[0], 1);
+        assert_eq!(compute_quantization_parameters(0.89).unwrap()[0], 2);
+        assert_eq!(compute_quantization_parameters(0.8).unwrap()[0], 2);
+        assert_eq!(compute_quantization_parameters(0.79).unwrap()[0], 3);
+        assert_eq!(compute_quantization_parameters(0.5).unwrap()[0], 6);
+        assert_eq!(compute_quantization_parameters(0.1).unwrap()[0], 24);
+        assert_eq!(compute_quantization_parameters(0.05).unwrap()[0], 32);
+    }
+
+    #[test]
+    fn test_invalid_quality_parameters() {
+        assert!(compute_quantization_parameters(0.0).is_err());
+        assert!(compute_quantization_parameters(-0.1).is_err());
+        assert!(compute_quantization_parameters(1.1).is_err());
+    }
+
+    #[test]
+    fn test_qp_lookup_table_completeness() {
+        // Verify the lookup table covers expected quality ranges
+        for &(min_quality, qp, _) in QUALITY_TO_QP_TABLE {
+            if min_quality > 0.0 {
+                let result = compute_quantization_parameters(min_quality).unwrap();
+                assert_eq!(
+                    result[0], qp,
+                    "Quality {} should map to QP {}",
+                    min_quality, qp
+                );
+            }
+        }
+    }
 }

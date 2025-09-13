@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-13T06:13:24.311220+00:00",
+  "timestamp": "2025-09-13T06:22:00.691858+00:00",
   "version": "0.2.0-alpha",
   "conformance": {
     "decoder_tests": {
@@ -13,14 +13,14 @@
           "category": "Decoder",
           "status": "Pass",
           "message": "256x256 decoded correctly",
-          "duration_ms": 4.0
+          "duration_ms": 3.0
         },
         {
           "name": "decoder_solid_green",
           "category": "Decoder",
           "status": "Pass",
           "message": "256x256 decoded correctly",
-          "duration_ms": 4.0
+          "duration_ms": 3.0
         },
         {
           "name": "decoder_solid_blue",
@@ -34,21 +34,21 @@
           "category": "Decoder",
           "status": "Pass",
           "message": "512x512 decoded correctly",
-          "duration_ms": 17.0
+          "duration_ms": 16.0
         },
         {
           "name": "decoder_white_image",
           "category": "Decoder",
           "status": "Pass",
           "message": "512x512 decoded correctly",
-          "duration_ms": 18.0
+          "duration_ms": 17.0
         },
         {
           "name": "decoder_horizontal_gradient",
           "category": "Decoder",
           "status": "Pass",
           "message": "512x256 decoded correctly",
-          "duration_ms": 8.0
+          "duration_ms": 7.0
         },
         {
           "name": "decoder_vertical_gradient",
@@ -62,14 +62,14 @@
           "category": "Decoder",
           "status": "Pass",
           "message": "256x256 decoded correctly",
-          "duration_ms": 4.0
+          "duration_ms": 3.0
         },
         {
           "name": "decoder_checker_8x8",
           "category": "Decoder",
           "status": "Pass",
           "message": "256x256 decoded correctly",
-          "duration_ms": 5.0
+          "duration_ms": 3.0
         },
         {
           "name": "decoder_checker_4x4",
@@ -83,7 +83,7 @@
           "category": "Decoder",
           "status": "Pass",
           "message": "256x256 decoded correctly",
-          "duration_ms": 4.0
+          "duration_ms": 3.0
         },
         {
           "name": "decoder_sine_wave_low",
@@ -97,7 +97,7 @@
           "category": "Decoder",
           "status": "Pass",
           "message": "256x256 decoded correctly",
-          "duration_ms": 4.0
+          "duration_ms": 3.0
         },
         {
           "name": "decoder_impulse_center",
@@ -125,42 +125,42 @@
           "category": "Decoder",
           "status": "Pass",
           "message": "256x256 decoded correctly",
-          "duration_ms": 7.0
+          "duration_ms": 4.0
         },
         {
           "name": "decoder_hd_gradient",
           "category": "Decoder",
           "status": "Pass",
           "message": "1920x1080 decoded correctly",
-          "duration_ms": 131.0
+          "duration_ms": 125.0
         },
         {
           "name": "decoder_4k_solid",
           "category": "Decoder",
           "status": "Pass",
           "message": "3840x2160 decoded correctly",
-          "duration_ms": 465.0
+          "duration_ms": 473.0
         },
         {
           "name": "decoder_yuv444_gradient",
           "category": "Decoder",
           "status": "Pass",
           "message": "512x384 decoded correctly",
-          "duration_ms": 13.0
+          "duration_ms": 14.0
         },
         {
           "name": "decoder_yuv422_bars",
           "category": "Decoder",
           "status": "Pass",
           "message": "640x480 decoded correctly",
-          "duration_ms": 23.0
+          "duration_ms": 25.0
         },
         {
           "name": "decoder_yuv420_natural",
           "category": "Decoder",
           "status": "Pass",
           "message": "352x288 decoded correctly",
-          "duration_ms": 8.0
+          "duration_ms": 7.0
         }
       ]
     },
@@ -189,28 +189,28 @@
           "category": "Encoder",
           "status": "Fail",
           "message": "PSNR: 5.58 dB < 40.00 dB threshold",
-          "duration_ms": 4.0
+          "duration_ms": 3.0
         },
         {
           "name": "encoder_black_image",
           "category": "Encoder",
           "status": "Fail",
           "message": "PSNR: 6.27 dB < 50.00 dB threshold",
-          "duration_ms": 20.0
+          "duration_ms": 16.0
         },
         {
           "name": "encoder_white_image",
           "category": "Encoder",
           "status": "Fail",
           "message": "PSNR: 6.35 dB < 50.00 dB threshold",
-          "duration_ms": 18.0
+          "duration_ms": 17.0
         },
         {
           "name": "encoder_horizontal_gradient",
           "category": "Encoder",
           "status": "Fail",
           "message": "PSNR: 10.23 dB < 35.00 dB threshold",
-          "duration_ms": 10.0
+          "duration_ms": 8.0
         },
         {
           "name": "encoder_vertical_gradient",
@@ -231,7 +231,7 @@
           "category": "Encoder",
           "status": "Fail",
           "message": "PSNR: 5.45 dB < 25.00 dB threshold",
-          "duration_ms": 4.0
+          "duration_ms": 3.0
         },
         {
           "name": "encoder_checker_4x4",
@@ -266,14 +266,14 @@
           "category": "Encoder",
           "status": "Fail",
           "message": "PSNR: 6.22 dB < 30.00 dB threshold",
-          "duration_ms": 0.0
+          "duration_ms": 1.0
         },
         {
           "name": "encoder_random_noise",
           "category": "Encoder",
           "status": "Fail",
           "message": "PSNR: 9.01 dB < 10.00 dB threshold",
-          "duration_ms": 5.0
+          "duration_ms": 6.0
         },
         {
           "name": "encoder_color_bars",
@@ -294,14 +294,14 @@
           "category": "Encoder",
           "status": "Fail",
           "message": "PSNR: 10.31 dB < 35.00 dB threshold",
-          "duration_ms": 131.0
+          "duration_ms": 135.0
         },
         {
           "name": "encoder_4k_solid",
           "category": "Encoder",
           "status": "Fail",
           "message": "PSNR: 47.46 dB < 50.00 dB threshold",
-          "duration_ms": 517.0
+          "duration_ms": 507.0
         },
         {
           "name": "encoder_yuv444_gradient",
@@ -315,14 +315,14 @@
           "category": "Encoder",
           "status": "Fail",
           "message": "PSNR: 6.27 dB < 30.00 dB threshold",
-          "duration_ms": 24.0
+          "duration_ms": 25.0
         },
         {
           "name": "encoder_yuv420_natural",
           "category": "Encoder",
           "status": "Fail",
           "message": "PSNR: 11.24 dB < 25.00 dB threshold",
-          "duration_ms": 8.0
+          "duration_ms": 7.0
         }
       ]
     },
@@ -337,7 +337,7 @@
           "category": "Bitstream",
           "status": "Pass",
           "message": "3159 bytes, valid size",
-          "duration_ms": 3.0
+          "duration_ms": 4.0
         },
         {
           "name": "bitstream_horizontal_gradient",
@@ -372,9 +372,9 @@
       "working_set_4k_mb": 0.0
     },
     "speed": {
-      "encode_mbps": 698.5914126719761,
-      "decode_mbps": 871.9261702387086,
-      "latency_ms": 4.5029583,
+      "encode_mbps": 636.0541916501954,
+      "decode_mbps": 872.1014466436521,
+      "latency_ms": 4.9456918,
       "throughput_4k_fps": 0.0
     },
     "compression": {

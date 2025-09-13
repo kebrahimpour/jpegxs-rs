@@ -237,6 +237,8 @@ impl JpegXsBitstream {
     /// Add entropy coded data (enhanced implementation)
     /// Per ISO Annex C: Quantized coefficients are entropy coded for compression
     pub fn add_entropy_coded_data(&mut self, coefficients: &[i32]) {
+        // EXPERIMENTAL: Bypass aggressive quantization for quality testing
+        let bypass_entropy_quantization = std::env::var("JPEGXS_BYPASS_ENTROPY").is_ok();
         let mut encoded_data = Vec::new();
 
         // Enhanced entropy coding with better compression techniques
@@ -273,7 +275,33 @@ impl JpegXsBitstream {
                 // Enhanced coefficient quantization with better precision control
                 let abs_coeff = coeff.abs();
 
-                if abs_coeff <= 3 {
+                // Log coefficient analysis for debugging
+                log::info!(
+                    "Coefficient analysis - abs_coeff: {}, tier: {}",
+                    abs_coeff,
+                    if abs_coeff <= 3 {
+                        "direct"
+                    } else if abs_coeff <= 15 {
+                        "2x_quant"
+                    } else if abs_coeff <= 127 {
+                        "4x_quant"
+                    } else {
+                        "16x_quant"
+                    }
+                );
+
+                if bypass_entropy_quantization {
+                    // EXPERIMENTAL: Store coefficient with minimal loss for quality testing
+                    let stored_coeff = abs_coeff.min(255) as u8; // Simple clamp instead of quantization
+                    let encoded = if coeff > 0 {
+                        stored_coeff
+                    } else {
+                        stored_coeff | 0x80
+                    };
+                    // Use a special marker to distinguish bypass mode
+                    encoded_data.push(0x40); // Bypass marker
+                    encoded_data.push(encoded);
+                } else if abs_coeff <= 3 {
                     // Very small coefficients: direct encoding (1-3)
                     let encoded = if coeff > 0 {
                         abs_coeff as u8
@@ -638,6 +666,20 @@ impl JpegXsDecoder {
                 let quantized = (encoded & 0x7F) as i32;
                 let coeff = quantized * 16;
                 coefficients.push(if (encoded & 0x80) != 0 { -coeff } else { coeff });
+                i += 1;
+            } else if byte == 0x40 {
+                // EXPERIMENTAL: Bypass mode - direct coefficient storage
+                i += 1;
+                if i >= entropy_data.len() {
+                    break;
+                }
+                let encoded = entropy_data[i];
+                let abs_coeff = (encoded & 0x7F) as i32;
+                coefficients.push(if (encoded & 0x80) != 0 {
+                    -abs_coeff
+                } else {
+                    abs_coeff
+                });
                 i += 1;
             } else {
                 // Direct encoded small coefficient (1-3)
