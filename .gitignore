@@ -54,7 +54,14 @@ SESSION-*.md
 NEXT-SESSION-*.md
 *-TODO*.md
 validation-results/
+
+# Claude session management (local only)
 CLAUDE.md
+NEXT_SESSION.md
+STATUS.md
+BLOG_MATERIAL.md
+*_SESSION.md
+*_STATUS.md
 
 # ISO standard documents (copyrighted material - local use only)
 /docs/
