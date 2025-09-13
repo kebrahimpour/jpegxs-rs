@@ -51,7 +51,7 @@
 ### Scenario 1: "I'm building a video editing app"
 **You need**:
 - Our **Single App License** ($5K) if under 100K users
-- Our **Enterprise License** ($25K) if over 100K users  
+- Our **Enterprise License** ($25K) if over 100K users
 - **Vectis patent pool license** for encoder/decoder functionality
 
 ### Scenario 2: "I'm a camera manufacturer"
@@ -66,7 +66,7 @@
 - **Vectis patent pool license** for service operations
 - Service-specific patent terms (contact Vectis)
 
-### Scenario 4: "I want to compete with your implementation"  
+### Scenario 4: "I want to compete with your implementation"
 **You need**:
 - Our **Source License** ($100K) for full code access
 - **Independent patent licensing** from Vectis
@@ -77,7 +77,7 @@
 ## ⚖️ **What exactly does each license include?**
 
 ### Our Software License Includes:
-✅ **Copyright permission** for our Rust code  
+✅ **Copyright permission** for our Rust code
 ✅ **Clean-room DWT implementation** (ISO/IEC 21122-1:2024 compliant)
 ✅ **Encoder/decoder algorithms** and optimizations
 ✅ **CLI tools and libraries**
@@ -85,7 +85,7 @@
 
 ### Our Software License Does NOT Include:
 ❌ **JPEG XS essential patents** (separate licensing required)
-❌ **Patent indemnification** or legal protection  
+❌ **Patent indemnification** or legal protection
 ❌ **Reference implementation code** (third-party licensed)
 ❌ **Warranty beyond 90 days** (standard commercial terms)
 
@@ -112,7 +112,7 @@
 - **Include**: Your use case, volume estimates, territories
 
 ### Step 3: Contact Us for Software License
-- **Email**: k1.ebrahimpour@gmail.com  
+- **Email**: k1.ebrahimpour@gmail.com
 - **Subject**: "JPEG XS Commercial Software License - [TIER]"
 - **Include**: Use case details, patent pool discussions progress
 
@@ -200,7 +200,7 @@
 
 ### Patent Pool Contact:
 **Vectis (Patent Pool Administrator)**
-- **Email**: info@vectis.com  
+- **Email**: info@vectis.com
 - **Website**: https://www.vectis.com/
 - **Phone**: +1 (650) 464-8000
 
@@ -218,7 +218,7 @@
 
 This FAQ is for informational purposes only and does not constitute legal advice. Patent landscape and licensing terms may change. Always consult qualified legal counsel for guidance regarding your specific use case and licensing requirements.
 
-**Last Updated**: September 2025  
+**Last Updated**: September 2025
 **Document Version**: 1.0
 
 ---

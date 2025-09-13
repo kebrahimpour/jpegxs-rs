@@ -21,35 +21,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Verify No Reference Code Dependencies
         run: |
           echo "=== Checking for reference code contamination ==="
-          
+
           # Check that commercial code doesn't import from reference
           if grep -r "reference::" commercial/ --include="*.rs" 2>/dev/null; then
             echo "ERROR: Commercial code imports from reference module"
             exit 1
           fi
-          
+
           # Check Cargo.toml doesn't reference the reference crate
           if grep -r "path.*reference" commercial/ --include="Cargo.toml" 2>/dev/null; then
             echo "ERROR: Commercial Cargo.toml references reference code"
             exit 1
           fi
-          
+
           echo "✓ No reference code dependencies found"
-      
+
       - name: Verify Clean-Room Markers
         run: |
           echo "=== Verifying clean-room implementation markers ==="
-          
+
           # Check for clean-room header in DWT implementation
           if ! grep -q "Clean-room implementation" commercial/jpegxs-core-clean/src/dwt.rs; then
             echo "ERROR: Missing clean-room marker in DWT implementation"
             exit 1
           fi
-          
+
           echo "✓ Clean-room markers verified"
 
   build-commercial:
@@ -70,44 +70,44 @@ jobs:
           - target: x86_64-pc-windows-msvc
             os: windows-latest
             artifact: jpegxs-windows-x64
-    
+
     runs-on: ${{ matrix.os }}
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
-      
+
       - name: Build Commercial Binary
         run: |
           cd commercial/jpegxs-core-clean
           cargo build --release --target ${{ matrix.target }}
-          
+
           # Build CLI with commercial backend only
           cd ../../crates/jpegxs-cli
           cargo build --release --target ${{ matrix.target }} --features commercial-only
-      
+
       - name: Package Commercial Artifact
         shell: bash
         run: |
           mkdir -p dist/${{ matrix.artifact }}
-          
+
           # Copy binary
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             cp target/${{ matrix.target }}/release/jpegxs.exe dist/${{ matrix.artifact }}/
           else
             cp target/${{ matrix.target }}/release/jpegxs dist/${{ matrix.artifact }}/
           fi
-          
+
           # Copy legal documents
           cp LICENSE dist/${{ matrix.artifact }}/
           cp COMMERCIAL_LICENSE.md dist/${{ matrix.artifact }}/
           cp PATENT_NOTICE.md dist/${{ matrix.artifact }}/
           cp COMPLIANCE_REPORT.md dist/${{ matrix.artifact }}/
-          
+
           # Create manifest
           cat > dist/${{ matrix.artifact }}/MANIFEST.txt << EOF
           JPEG XS Commercial Release
@@ -118,12 +118,12 @@ jobs:
           Reference Code Included: NO
           Patent License Required: YES (See PATENT_NOTICE.md)
           EOF
-      
+
       - name: Verify No Reference Code in Artifact
         shell: bash
         run: |
           echo "=== Scanning for reference code contamination ==="
-          
+
           # Check binary doesn't contain reference symbols
           if [[ "${{ matrix.os }}" != "windows-latest" ]]; then
             if strings dist/${{ matrix.artifact }}/jpegxs* | grep -q "reference_implementation\|fraunhofer\|intopix"; then
@@ -131,9 +131,9 @@ jobs:
               exit 1
             fi
           fi
-          
+
           echo "✓ No reference code found in artifact"
-      
+
       - name: Generate SBOM
         shell: bash
         run: |
@@ -141,13 +141,13 @@ jobs:
           if ! command -v cargo-sbom &> /dev/null; then
             cargo install cargo-sbom
           fi
-          
+
           # Generate SBOM
           cd commercial/jpegxs-core-clean
           cargo sbom > ../../dist/${{ matrix.artifact }}/sbom.json
-          
+
           echo "✓ SBOM generated"
-      
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -159,15 +159,15 @@ jobs:
     needs: build-commercial
     runs-on: ubuntu-latest
     if: github.event.inputs.release_type == 'release'
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Download All Artifacts
         uses: actions/download-artifact@v4
         with:
           path: release-artifacts
-      
+
       - name: Create Release Archives
         run: |
           cd release-artifacts
@@ -175,24 +175,24 @@ jobs:
             tar czf "${dir%/}.tar.gz" "$dir"
             zip -r "${dir%/}.zip" "$dir"
           done
-      
+
       - name: Create Release Notes
         run: |
           cat > RELEASE_NOTES.md << EOF
           # JPEG XS Commercial Release ${{ github.event.inputs.version }}
-          
+
           ## 🚀 Clean-Room Commercial Implementation
-          
+
           This release contains the commercial-grade JPEG XS codec implementation built entirely from clean-room code.
-          
+
           ### ⚖️ Licensing
-          
+
           - **Code License**: Dual-licensed (Non-commercial free / Commercial paid)
           - **Patent License**: Required separately from Vectis IP
           - **Support**: Available with commercial license tiers
-          
+
           ### 📦 Package Contents
-          
+
           - \`jpegxs\` - Commercial JPEG XS encoder/decoder binary
           - \`LICENSE\` - Dual licensing terms
           - \`COMMERCIAL_LICENSE.md\` - Commercial license agreement
@@ -200,29 +200,29 @@ jobs:
           - \`COMPLIANCE_REPORT.md\` - ISO/IEC 21122-1:2024 compliance
           - \`MANIFEST.txt\` - Build information
           - \`sbom.json\` - Software Bill of Materials
-          
+
           ### ⚠️ Important Notice
-          
+
           **Patent License Required**: This software implements the JPEG XS standard which is covered by essential patents. Commercial use requires a separate patent license from the JPEG XS patent pool administered by Vectis IP.
-          
+
           ### 🛡️ Clean-Room Guarantee
-          
+
           This release contains NO derivative code from reference implementations. Built entirely from ISO/IEC 21122-1:2024 specification.
-          
+
           ### 📞 Commercial Licensing
-          
+
           For commercial licensing inquiries:
           - Email: licensing@jpegxs-commercial.com
           - Include your use case and deployment scale
-          
+
           ### ✅ Compliance
-          
+
           - ISO/IEC 21122-1:2024 compliant
           - Supports Main Profile Level 2
           - Bit depths: 8-16 bits
           - Color spaces: RGB, YUV 4:4:4, 4:2:2, 4:2:0
           EOF
-      
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
@@ -240,7 +240,7 @@ jobs:
     needs: create-release
     runs-on: ubuntu-latest
     if: github.event.inputs.release_type == 'release'
-    
+
     steps:
       - name: Send Release Notification
         run: |

@@ -48,7 +48,7 @@ pub fn dwt_53_forward_2d(input: &[f32], output: &mut [f32], width: u32, height: 
     Ok(())
 }
 
-/// Clean-room implementation of 5/3 reversible DWT inverse transform from ISO specification  
+/// Clean-room implementation of 5/3 reversible DWT inverse transform from ISO specification
 /// Source: ISO/IEC 21122-1:2024, Annex E.7, Table E.6
 /// Mathematical equations implemented exactly as specified in ISO standard
 pub fn dwt_53_inverse_2d(input: &[f32], output: &mut [f32], width: u32, height: u32) -> Result<()> {
@@ -159,7 +159,7 @@ fn dwt_53_forward_1d(data: &mut [f32]) {
 /// Source: ISO/IEC 21122-1:2024, Annex E.7, Table E.6
 ///
 /// Inverse Transform Mathematical Equations (from ISO specification):
-/// Step 1 - Predict Step (Even samples): Y[i] = X[i] - ((X[i-1] + X[i+1] + 2) >> 2)  
+/// Step 1 - Predict Step (Even samples): Y[i] = X[i] - ((X[i-1] + X[i+1] + 2) >> 2)
 /// Step 2 - Update Step (Odd samples):   Y[i] = X[i] + ((Y[i-1] + Y[i+1]) >> 1)
 fn dwt_53_inverse_1d(data: &mut [f32]) {
     let len = data.len();

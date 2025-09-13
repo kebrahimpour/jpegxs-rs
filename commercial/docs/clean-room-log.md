@@ -25,11 +25,11 @@ Each entry should include:
 ```
 ### YYYY-MM-DD: Component Name
 - **Component**: What you're implementing
-- **Resources**: 
+- **Resources**:
   - ISO/IEC 21122-1:2019 Section X.X
   - Paper: "Title" by Authors
   - Book: "Title" Chapter X
-- **Notes**: 
+- **Notes**:
   - Key insights from spec
   - Design decisions made
   - Challenges encountered

@@ -3,7 +3,7 @@
 ## ⚠️ CRITICAL LEGAL NOTICE
 
 This directory contains clean-room implementations developed ONLY from:
-- ISO/IEC 21122 specifications 
+- ISO/IEC 21122 specifications
 - Academic papers and textbooks
 - Mathematical equations and algorithms
 
@@ -12,12 +12,12 @@ This directory contains clean-room implementations developed ONLY from:
 ## Clean-Room Development Rules
 
 ### ✅ ALLOWED Resources
-- ISO/IEC 21122-1:2019 (Core coding system) 
+- ISO/IEC 21122-1:2019 (Core coding system)
 - ISO/IEC 21122-2:2019 (Profiles and buffer models)
 - Academic papers on wavelet transforms
 - Mathematical specifications
 
-### ❌ FORBIDDEN Resources  
+### ❌ FORBIDDEN Resources
 - Any code in `reference/jxs/` directory
 - Any code in `crates/` directory (except I/O utilities marked as original)
 - GitHub repositories with JPEG XS implementations

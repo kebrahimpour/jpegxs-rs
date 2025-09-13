@@ -4,22 +4,22 @@ Thank you for your interest in licensing the JPEG XS codec for commercial use. P
 
 ## Organization Information
 
-**Company Name:**  
+**Company Name:**
 [Your company name]
 
-**Contact Person:**  
+**Contact Person:**
 [Full name]
 
-**Email:**  
+**Email:**
 [Business email address]
 
-**Phone:**  
+**Phone:**
 [Business phone number]
 
-**Company Website:**  
+**Company Website:**
 [URL]
 
-**Company Address:**  
+**Company Address:**
 [Full business address]
 
 ## Use Case Information

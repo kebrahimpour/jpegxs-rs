@@ -26,7 +26,7 @@ This document summarizes the complete development of a JPEG XS codec implementat
 
 ### Session 4: Reference Parity (Night)
 - CDT (Component Table) marker - 0xFF13
-- WGT (Weights Table) marker - 0xFF14  
+- WGT (Weights Table) marker - 0xFF14
 - Enhanced entropy coding with multi-level quantization
 - **Achieved 22.9KB vs 24KB reference (4.8% better)**
 - Full 5/5 marker compliance
@@ -150,7 +150,7 @@ pub struct JpegXsDecoder {
 // Encoder
 pub fn encode_frame(image: ImageView8, config: &EncoderConfig) -> Result<Bitstream>
 
-// Decoder  
+// Decoder
 pub fn decode_frame(bitstream: &Bitstream, config: &DecoderConfig) -> Result<ImageOwned8>
 
 // Marker Writing
@@ -203,19 +203,19 @@ let qp_uv = (12.0 - quality * 10.0) as u8; // Chroma
 ## 🐛 Challenges & Solutions
 
 ### Challenge 1: Marker Format Compliance
-**Problem**: Initial markers not recognized by validator  
+**Problem**: Initial markers not recognized by validator
 **Solution**: Implemented proper ISO format with correct byte ordering and length fields
 
 ### Challenge 2: Compression Gap
-**Problem**: 12.3KB larger than reference (36.3KB vs 24KB)  
+**Problem**: 12.3KB larger than reference (36.3KB vs 24KB)
 **Solution**: Enhanced entropy coding with multi-level quantization and pattern compression
 
 ### Challenge 3: Decoder Parsing
-**Problem**: Length field interpretation errors  
+**Problem**: Length field interpretation errors
 **Solution**: Proper handling of length fields that include themselves but not markers
 
 ### Challenge 4: Build Dependencies
-**Problem**: Slow network preventing image crate download  
+**Problem**: Slow network preventing image crate download
 **Solution**: Created simplified CLI for core YUV functionality
 
 ## 📊 Validation Results
@@ -308,6 +308,6 @@ The rapid development was enabled by:
 
 ---
 
-**Final Status**: ✅ COMPLETE AND EXCEEDING REFERENCE PERFORMANCE  
-**Next Priority**: Add image format support when network permits  
+**Final Status**: ✅ COMPLETE AND EXCEEDING REFERENCE PERFORMANCE
+**Next Priority**: Add image format support when network permits
 **Commercial Ready**: Yes, with proprietary license

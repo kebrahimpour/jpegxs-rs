@@ -1,8 +1,8 @@
 # JPEG XS Codec - ISO/IEC 21122-1:2024 Compliance Report
 
-**Generated**: September 2025  
-**Implementation Version**: 1.0  
-**Standard Compliance**: ISO/IEC 21122-1:2024  
+**Generated**: September 2025
+**Implementation Version**: 1.0
+**Standard Compliance**: ISO/IEC 21122-1:2024
 **Test Status**: ✅ COMPLIANT
 
 ---
@@ -99,7 +99,7 @@ Step 2 - Update:  Y[i] = X[i] + ((Y[i-1] + Y[i+1] + 2) >> 2)
 ```
 
 **Inverse Transform Equations Verified**:
-```  
+```
 Step 1 - Predict: Y[i] = X[i] - ((X[i-1] + X[i+1] + 2) >> 2)
 Step 2 - Update:  Y[i] = X[i] + ((Y[i-1] + Y[i+1]) >> 1)
 ```
@@ -124,7 +124,7 @@ q[p,λ,b,x] = floor(c'[p,λ,b,x] / 2^Q[p])
 
 **Dequantization Formula (ISO D.3)**:
 ```
-c[p,λ,b,x] = q[p,λ,b,x] × 2^Q[p]  
+c[p,λ,b,x] = q[p,λ,b,x] × 2^Q[p]
 ```
 
 **Test Results**:
@@ -141,7 +141,7 @@ c[p,λ,b,x] = q[p,λ,b,x] × 2^Q[p]
 **Codestream Structure (ISO Table A.1)**:
 ```
 SOC_marker()           ✅ PASS
-capabilities_marker()  ✅ PASS  
+capabilities_marker()  ✅ PASS
 picture_header()       ✅ PASS
 component_table()      ✅ PASS
 weights_table()        ✅ PASS
@@ -151,7 +151,7 @@ EOC_marker()           ✅ PASS
 
 **Marker Validation Results**:
 - ✅ **SOC Marker**: Correct 0xFF10 placement and parameters
-- ✅ **CAP Marker**: Valid capability flags and profile indication  
+- ✅ **CAP Marker**: Valid capability flags and profile indication
 - ✅ **PIH Marker**: Correct image dimensions and component count
 - ✅ **CDT Marker**: Valid component precision and sampling factors
 - ✅ **WGT Marker**: Proper quantization weight parameters
@@ -160,7 +160,7 @@ EOC_marker()           ✅ PASS
 
 **Entropy Coding (ISO Annex C)**:
 - ✅ **Coefficient Encoding**: Multi-level quantization strategy
-- ✅ **Pattern Compression**: Repeating sequence optimization  
+- ✅ **Pattern Compression**: Repeating sequence optimization
 - ✅ **Bitstream Syntax**: Compliant packet structure
 - ✅ **Decoding Validation**: Perfect reconstruction verified
 
@@ -185,7 +185,7 @@ EOC_marker()           ✅ PASS
 | Metric | Target | Achieved | Status |
 |--------|--------|----------|--------|
 | **Lossless Reconstruction** | Perfect | < 1e-6 error | ✅ EXCEEDS |
-| **Bitstream Size** | Competitive | 4.8% smaller | ✅ EXCEEDS |  
+| **Bitstream Size** | Competitive | 4.8% smaller | ✅ EXCEEDS |
 | **Format Compliance** | 100% | 100% | ✅ MEETS |
 | **Processing Speed** | Reasonable | ~300ms/256×256 | ✅ ACCEPTABLE |
 
@@ -201,18 +201,18 @@ EOC_marker()           ✅ PASS
 
 #### Clean-Room DWT Tests (4 tests)
 - ✅ `test_dwt_53_roundtrip_1d`: 1D transform roundtrip accuracy
-- ✅ `test_dwt_53_roundtrip_2d`: 2D transform roundtrip accuracy  
+- ✅ `test_dwt_53_roundtrip_2d`: 2D transform roundtrip accuracy
 - ✅ `test_dwt_53_properties`: Mathematical properties validation
 - ✅ `test_dwt_boundary_conditions`: Edge case handling
 
-#### Integration Tests (3 tests)  
+#### Integration Tests (3 tests)
 - ✅ `test_encode_decode_roundtrip`: Full codec pipeline
 - ✅ `test_dwt_roundtrip`: DWT integration validation
 - ✅ `test_quantization_roundtrip`: Quantization accuracy
 
 #### Marker Compliance Tests (6 tests)
 - ✅ `test_soc_marker_creation`: SOC marker format
-- ✅ `test_cap_marker`: CAP marker structure  
+- ✅ `test_cap_marker`: CAP marker structure
 - ✅ `test_pih_marker`: PIH marker validation
 - ✅ `test_cdt_marker`: CDT marker compliance
 - ✅ `test_wgt_marker`: WGT marker format
@@ -226,9 +226,9 @@ EOC_marker()           ✅ PASS
 
 ### Continuous Integration Validation
 
-**Platform Testing Matrix**: 
+**Platform Testing Matrix**:
 - ✅ **Linux** (Ubuntu Latest)
-- ✅ **macOS Intel** (x86_64)  
+- ✅ **macOS Intel** (x86_64)
 - ✅ **macOS Apple Silicon** (ARM64)
 - ✅ **Windows** (Latest)
 
@@ -245,7 +245,7 @@ EOC_marker()           ✅ PASS
 
 **Clean-Room Development**:
 - ✅ **Zero derivative code** from reference implementations
-- ✅ **ISO specification only** as implementation source  
+- ✅ **ISO specification only** as implementation source
 - ✅ **Complete source traceability** documented
 - ✅ **Legal audit trail** maintained
 
@@ -265,7 +265,7 @@ EOC_marker()           ✅ PASS
 5. ✅ **Passes comprehensive test suite** covering all standard requirements
 
 **Certification Authority**: Keyvan Ebrahimpour (Implementation Developer)
-**Certification Date**: September 2025  
+**Certification Date**: September 2025
 **Implementation Version**: 1.0
 **Standard Version**: ISO/IEC 21122-1:2024
 
@@ -302,14 +302,14 @@ EOC_marker()           ✅ PASS
 - **Website**: https://www.iso.org/
 
 **Patent Pool Administrator**:
-- **Organization**: Vectis  
+- **Organization**: Vectis
 - **Website**: https://www.vectis.com/
 - **Email**: info@vectis.com
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: September 2025  
+**Document Version**: 1.0
+**Last Updated**: September 2025
 **Next Review**: December 2025
 
 ---
