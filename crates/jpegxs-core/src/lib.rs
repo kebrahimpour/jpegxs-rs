@@ -279,7 +279,7 @@ pub fn decode_frame_to_format(
 
     // Dequantize - Extract QP from WGT marker
     let qp_values = decoder.get_qp_values();
-    let qp_y = qp_values.get(0).copied().unwrap_or(8); // Default fallback
+    let qp_y = qp_values.first().copied().unwrap_or(8); // Default fallback
     let qp_uv = qp_values.get(1).copied().unwrap_or(qp_y);
 
     let y_dwt = quant::dequantize(&y_quantized, qp_y)?;

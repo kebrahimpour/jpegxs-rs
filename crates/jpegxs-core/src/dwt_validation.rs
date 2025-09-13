@@ -24,8 +24,8 @@ mod tests {
 
         // After DWT, DC should be 128, all AC should be 0
         assert_abs_diff_eq!(output[0], 128.0, epsilon = 1e-6);
-        for i in 1..64 {
-            assert_abs_diff_eq!(output[i], 0.0, epsilon = 1e-6);
+        for &value in output.iter().skip(1) {
+            assert_abs_diff_eq!(value, 0.0, epsilon = 1e-6);
         }
     }
 
@@ -41,7 +41,7 @@ mod tests {
 
         // Expected coefficients for 4x4 impulse (from ISO spec)
         // These are the exact values that should be produced
-        let expected = vec![
+        let expected = [
             16.0, 16.0, 16.0, 16.0, // LL, LH bands
             16.0, 16.0, 16.0, 16.0, // HL, HH bands
             16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0,
@@ -154,7 +154,7 @@ mod tests {
             .map(|(&xi, &yi)| a * xi + b * yi)
             .collect();
 
-        for (_i, (&actual, &expected)) in dwt_combined.iter().zip(expected.iter()).enumerate() {
+        for (&actual, &expected) in dwt_combined.iter().zip(expected.iter()) {
             assert_abs_diff_eq!(actual, expected, epsilon = 1e-6);
         }
     }
