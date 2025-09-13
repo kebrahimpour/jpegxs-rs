@@ -83,11 +83,11 @@ pub fn quantize_8bit(coeffs: &[i8], qp: u8) -> Result<Vec<i8>> {
     let mut result = Vec::with_capacity(coeffs.len());
 
     for &coeff in coeffs {
-        // For 8-bit coefficients, quantization is simpler integer division
+        // For 8-bit coefficients, use rounding division to match float behavior
         let quantized = if qp == 1 {
             coeff // No quantization for QP=1
         } else {
-            coeff / (qp as i8)
+            ((coeff as f32) / (qp as f32)).round() as i8
         };
         result.push(quantized);
     }

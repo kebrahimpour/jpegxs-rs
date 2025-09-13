@@ -166,6 +166,10 @@ fn dwt_53_inverse_1d(data: &mut [f32]) {
 // 8-bit coefficient DWT implementation
 // Uses fixed scaling for deterministic behavior
 
+/// Scaling factor for converting f32 DWT coefficients to i8 range
+/// Chosen to work well with typical image coefficient magnitudes
+const COEFF_8BIT_SCALE: f32 = 2.0;
+
 pub fn dwt_53_forward_2d_8bit(
     input: &[f32],
     output: &mut [i8],
@@ -181,11 +185,12 @@ pub fn dwt_53_forward_2d_8bit(
     dwt_53_forward_2d(input, &mut float_output, width, height)?;
 
     // Convert to 8-bit with fixed scaling
-    // Scale factor chosen to work well with typical image values
-    let scale = 2.0f32;
+    let scale = COEFF_8BIT_SCALE;
+    let min_i8_f32 = i8::MIN as f32;
+    let max_i8_f32 = i8::MAX as f32;
 
     for (i, &val) in float_output.iter().enumerate() {
-        output[i] = (val * scale).round().clamp(i8::MIN as f32, i8::MAX as f32) as i8;
+        output[i] = (val * scale).round().clamp(min_i8_f32, max_i8_f32) as i8;
     }
 
     Ok(())
@@ -202,7 +207,7 @@ pub fn dwt_53_inverse_2d_8bit(
     }
 
     // Convert i8 back to f32 with fixed scaling
-    let scale = 2.0f32;
+    let scale = COEFF_8BIT_SCALE;
     let mut float_coeffs = vec![0.0f32; input.len()];
     for (i, &val) in input.iter().enumerate() {
         float_coeffs[i] = val as f32 / scale;
