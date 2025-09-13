@@ -16,6 +16,10 @@ pub mod types;
 use anyhow::Result;
 pub use types::{Bitstream, DecoderConfig, EncoderConfig, ImageOwned8, ImageView8, PixelFormat};
 
+/// Default quantization parameter used when QP values cannot be extracted from bitstream
+/// This provides a moderate quality fallback that balances compression and visual quality
+const DEFAULT_FALLBACK_QP: u8 = 8;
+
 /// Encode an image frame using JPEG XS compression
 ///
 /// This function supports multiple pixel formats and automatically handles format conversion
@@ -279,7 +283,7 @@ pub fn decode_frame_to_format(
 
     // Dequantize - Extract QP from WGT marker
     let qp_values = decoder.get_qp_values();
-    let qp_y = qp_values.first().copied().unwrap_or(8); // Default fallback
+    let qp_y = qp_values.first().copied().unwrap_or(DEFAULT_FALLBACK_QP);
     let qp_uv = qp_values.get(1).copied().unwrap_or(qp_y);
 
     let y_dwt = quant::dequantize(&y_quantized, qp_y)?;
