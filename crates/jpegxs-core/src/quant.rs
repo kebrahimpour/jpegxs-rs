@@ -73,3 +73,41 @@ pub fn compute_quantization_parameters(quality: f32) -> Result<Vec<u8>> {
 
     Ok(vec![base_qp; NUM_SUBBANDS])
 }
+
+// 8-bit coefficient quantization functions
+
+pub fn quantize_8bit(coeffs: &[i8], qp: u8) -> Result<Vec<i8>> {
+    if qp == 0 {
+        return Err(anyhow::anyhow!("Quantization parameter cannot be zero"));
+    }
+
+    let mut result = Vec::with_capacity(coeffs.len());
+
+    for &coeff in coeffs {
+        // For 8-bit coefficients, quantization is simpler integer division
+        let quantized = if qp == 1 {
+            coeff // No quantization for QP=1
+        } else {
+            coeff / (qp as i8)
+        };
+        result.push(quantized);
+    }
+
+    Ok(result)
+}
+
+pub fn dequantize_8bit(coeffs: &[i8], qp: u8) -> Result<Vec<i8>> {
+    let mut result = Vec::with_capacity(coeffs.len());
+
+    for &coeff in coeffs {
+        // Dequantization multiplies by QP
+        let dequantized = if qp == 1 {
+            coeff // No dequantization for QP=1
+        } else {
+            coeff.saturating_mul(qp as i8)
+        };
+        result.push(dequantized);
+    }
+
+    Ok(result)
+}
