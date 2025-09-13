@@ -8,6 +8,7 @@ COMMUNITY EDITION LICENSE:
 - Free for personal, educational, research, and commercial use
 - Basic JPEG-XS encoding/decoding functionality
 - ISO/IEC 21122-1:2024 compliant baseline implementation
+- Clean-room implementation based solely on ISO specification
 - Modifications and redistribution permitted with attribution
 
 ENHANCED COMMERCIAL EDITION:
@@ -30,7 +31,8 @@ this Community Edition software, provided that:
 This Community Edition includes:
 - Basic JPEG-XS encoding and decoding
 - ISO/IEC 21122-1:2024 compliant implementation
-- Standard DWT and quantization algorithms
+- Clean-room DWT implementation from ISO specification
+- Standard quantization algorithms
 - Basic entropy coding
 
 Enhanced features (available in Commercial Edition):

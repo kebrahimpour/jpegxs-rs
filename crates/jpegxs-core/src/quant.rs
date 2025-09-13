@@ -73,7 +73,6 @@ pub fn compute_quantization_parameters(quality: f32) -> Result<Vec<u8>> {
     Ok(vec![base_qp; NUM_SUBBANDS])
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -112,5 +111,4 @@ mod tests {
             }
         }
     }
-
 }
