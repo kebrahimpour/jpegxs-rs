@@ -105,7 +105,6 @@ fn dwt_53_forward_1d(data: &mut [f32]) {
         data[i] += (left + right) / 4.0;
     }
 
-
     // Separate low and high frequencies
     let mut temp = vec![0.0f32; len];
     let mut low_idx = 0;
@@ -144,7 +143,6 @@ fn dwt_53_inverse_1d(data: &mut [f32]) {
     }
 
     data.copy_from_slice(&temp);
-
 
     // Reverse update step
     for i in (0..len).step_by(2) {

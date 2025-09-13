@@ -403,7 +403,6 @@ pub fn decode_frame_to_format(
     })
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
