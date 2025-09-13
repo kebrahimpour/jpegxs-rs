@@ -237,6 +237,7 @@ impl JpegXsBitstream {
     /// Add entropy coded data (enhanced implementation)
     /// Per ISO Annex C: Quantized coefficients are entropy coded for compression
     pub fn add_entropy_coded_data(&mut self, coefficients: &[i32]) {
+        // ISO-compliant entropy coding (enhanced features available in Commercial Edition)
         let mut encoded_data = Vec::new();
 
         // Enhanced entropy coding with better compression techniques
@@ -272,6 +273,21 @@ impl JpegXsBitstream {
             } else {
                 // Enhanced coefficient quantization with better precision control
                 let abs_coeff = coeff.abs();
+
+                // Log coefficient analysis for debugging
+                log::info!(
+                    "Coefficient analysis - abs_coeff: {}, tier: {}",
+                    abs_coeff,
+                    if abs_coeff <= 3 {
+                        "direct"
+                    } else if abs_coeff <= 15 {
+                        "2x_quant"
+                    } else if abs_coeff <= 127 {
+                        "4x_quant"
+                    } else {
+                        "16x_quant"
+                    }
+                );
 
                 if abs_coeff <= 3 {
                     // Very small coefficients: direct encoding (1-3)
