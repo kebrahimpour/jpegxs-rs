@@ -23,8 +23,9 @@ A high-performance, clean-room implementation of the JPEG XS (ISO/IEC 21122-1:20
 If you benefit from this clean-room JPEG XS implementation, please consider supporting continued development:
 
 - **GitHub Sponsors**: [Become a sponsor](https://github.com/sponsors/kebrahimpour)
-- **Patreon**: [Support monthly](https://patreon.com/kebrahimpour)
-- **Ko-fi**: [Buy me a coffee](https://ko-fi.com/kebrahimpour)
+- **Patreon**: [Support monthly](https://www.patreon.com/k1ebrahimpour/)
+- **Ko-fi**: [Buy me a coffee](https://ko-fi.com/k1ebrahimpour)
+- **Buy Me a Coffee**: [One-time support](https://buymeacoffee.com/k1ebrahimpour)
 
 [![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/k1ebrahimpour)
 
