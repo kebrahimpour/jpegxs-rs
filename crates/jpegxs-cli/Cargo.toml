@@ -24,4 +24,4 @@ image = { workspace = true }
 indicatif = { workspace = true }
 jpegxs-core = { path = "../jpegxs-core" }
 jpegxs-io = { path = "../jpegxs-io" }
-jpegxs-core-clean = { path = "../../commercial/jpegxs-core-clean" }
+jpegxs-core-clean = { path = "../../clean-room/jpegxs-core-clean" }

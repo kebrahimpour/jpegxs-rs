@@ -12,8 +12,8 @@ This directory contains clean-room implementations developed ONLY from:
 ## Clean-Room Development Rules
 
 ### ✅ ALLOWED Resources
-- ISO/IEC 21122-1:2019 (Core coding system)
-- ISO/IEC 21122-2:2019 (Profiles and buffer models)
+- ISO/IEC 21122-1:2024 (Core coding system)
+- ISO/IEC 21122-2:2024 (Profiles and buffer models)
 - Academic papers on wavelet transforms
 - Mathematical specifications
 

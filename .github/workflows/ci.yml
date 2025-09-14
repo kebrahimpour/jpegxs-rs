@@ -130,7 +130,7 @@ jobs:
       - name: Test Clean-Room DWT Implementation
         run: |
           echo "🧪 Testing Clean-Room DWT Implementation"
-          cd commercial/jpegxs-core-clean
+          cd clean-room/jpegxs-core-clean
           cargo test --verbose
           echo "✅ Clean-Room DWT: All tests passed"
 
@@ -208,16 +208,16 @@ jobs:
         run: |
           echo "🔒 Validating clean-room code separation"
 
-          # Check that commercial/ directory exists and has clean-room implementation
-          if [[ ! -d "commercial/jpegxs-core-clean" ]]; then
+          # Check that clean-room/ directory exists and has clean-room implementation
+          if [[ ! -d "clean-room/jpegxs-core-clean" ]]; then
             echo "❌ CRITICAL: Clean-room implementation directory missing!"
             exit 1
           fi
 
-          # Verify no cross-references between commercial and reference code (exclude documentation)
-          CROSS_REFS=$(grep -r "reference/" commercial/ --include="*.rs" --include="*.toml" 2>/dev/null || true)
+          # Verify no cross-references between clean-room and reference code (exclude documentation)
+          CROSS_REFS=$(grep -r "reference/" clean-room/ --include="*.rs" --include="*.toml" 2>/dev/null || true)
           if [ -n "$CROSS_REFS" ]; then
-            echo "❌ CRITICAL: Commercial code references derivative implementation!"
+            echo "❌ CRITICAL: Clean-room code references derivative implementation!"
             echo "References found: $CROSS_REFS"
             exit 1
           fi
@@ -237,8 +237,8 @@ jobs:
           ## Included Files (Commercial Use Authorized):
           EOF
 
-          # List all files in commercial distribution
-          find commercial/ -type f -name "*.rs" -o -name "*.toml" -o -name "*.md" | sort >> ARTIFACT_MANIFEST.txt
+          # List all files in clean-room distribution
+          find clean-room/ -type f -name "*.rs" -o -name "*.toml" -o -name "*.md" | sort >> ARTIFACT_MANIFEST.txt
           find crates/ -type f -name "*.rs" -o -name "*.toml" | grep -v "dwt.rs" | sort >> ARTIFACT_MANIFEST.txt
           find . -maxdepth 1 -name "*.md" -o -name "LICENSE*" -o -name "Cargo.*" | sort >> ARTIFACT_MANIFEST.txt
 
