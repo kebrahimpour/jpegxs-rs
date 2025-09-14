@@ -14,7 +14,7 @@ use std::time::{Duration, Instant};
 #[command(about = "Simple JPEG XS performance benchmark")]
 struct Args {
     /// Input directory containing test images
-    #[arg(short, long, default_value = "test_images")]
+    #[arg(short, long, default_value = "testing/fixtures")]
     input_dir: PathBuf,
 
     /// Output directory for results

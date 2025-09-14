@@ -14,7 +14,7 @@ use std::time::Instant;
 #[command(about = "Test JPEG XS quality parameter mapping")]
 struct Args {
     /// Input image to test
-    #[arg(short, long, default_value = "test_images/gradient_512x512.png")]
+    #[arg(short, long, default_value = "testing/fixtures/gradient_512x512.png")]
     input: PathBuf,
 
     /// Output directory for results

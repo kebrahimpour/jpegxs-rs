@@ -13,12 +13,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     let dynamic_img = DynamicImage::ImageRgb8(img);
-    dynamic_img.save("test-data/test_256x256.png")?;
-    println!("✅ Created test PNG: test-data/test_256x256.png");
+    dynamic_img.save("testing/fixtures/test_256x256.png")?;
+    println!("✅ Created test PNG: testing/fixtures/test_256x256.png");
 
     // Also create a JPEG version
-    dynamic_img.save("test-data/test_256x256.jpg")?;
-    println!("✅ Created test JPEG: test-data/test_256x256.jpg");
+    dynamic_img.save("testing/fixtures/test_256x256.jpg")?;
+    println!("✅ Created test JPEG: testing/fixtures/test_256x256.jpg");
 
     Ok(())
 }

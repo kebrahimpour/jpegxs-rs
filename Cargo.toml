@@ -7,7 +7,7 @@ members = [
     "crates/jpegxs-ffi",
     "crates/jpegxs-conformance",
     "commercial/jpegxs-core-clean",
-    "benches",
+    "testing/benchmarks",
 ]
 
 [workspace.package]
