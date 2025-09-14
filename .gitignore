@@ -67,3 +67,4 @@ BLOG_MATERIAL.md
 /docs/
 # Keep docs folder locally but exclude from public repo
 # Contains extracted ISO/IEC 21122-1:2024 standard documentation
+.claude-sessions/
