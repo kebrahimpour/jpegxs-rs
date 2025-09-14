@@ -10,6 +10,7 @@ pub mod dwt;
 pub mod dwt_validation;
 pub mod entropy;
 pub mod packet;
+pub mod profile;
 pub mod quant;
 pub mod types;
 
@@ -488,6 +489,84 @@ pub fn decode_frame_to_format(
 mod tests {
     use super::*;
     use types::{DecoderConfig, EncoderConfig, ImageView8, Level, PixelFormat, Profile};
+
+    #[test]
+    fn test_profile_level_combinations() {
+        // Test valid combinations
+        use crate::profile::validate_profile_level_combination;
+
+        // Light profile valid combinations
+        assert!(validate_profile_level_combination(Profile::Light, Level::Level1).is_ok());
+        assert!(validate_profile_level_combination(Profile::Light, Level::Level2).is_ok());
+
+        // Light profile invalid combinations
+        assert!(validate_profile_level_combination(Profile::Light, Level::Level3).is_err());
+        assert!(validate_profile_level_combination(Profile::Light, Level::Level4).is_err());
+        assert!(validate_profile_level_combination(Profile::Light, Level::Level5).is_err());
+
+        // Main profile valid combinations
+        assert!(validate_profile_level_combination(Profile::Main, Level::Level1).is_ok());
+        assert!(validate_profile_level_combination(Profile::Main, Level::Level4).is_ok());
+
+        // Main profile invalid combination
+        assert!(validate_profile_level_combination(Profile::Main, Level::Level5).is_err());
+
+        // High profile - all levels valid
+        assert!(validate_profile_level_combination(Profile::High, Level::Level1).is_ok());
+        assert!(validate_profile_level_combination(Profile::High, Level::Level5).is_ok());
+    }
+
+    #[test]
+    fn test_encode_with_different_profiles() {
+        let width = 64u32;
+        let height = 64u32;
+        let y_size = (width * height) as usize;
+        let uv_size = y_size / 2;
+
+        // Create test image data
+        let mut test_data = Vec::with_capacity(y_size + 2 * uv_size);
+        for y in 0..height {
+            for x in 0..width {
+                test_data.push(((x + y) % 256) as u8);
+            }
+        }
+        test_data.extend(std::iter::repeat_n(128, uv_size));
+        test_data.extend(std::iter::repeat_n(128, uv_size));
+
+        let input = ImageView8 {
+            data: &test_data,
+            width,
+            height,
+            format: PixelFormat::Yuv422p8,
+        };
+
+        // Test Light Profile Level 1
+        let light_config = EncoderConfig {
+            quality: 0.9,
+            profile: Profile::Light,
+            level: Level::Level1,
+        };
+        let light_bitstream = encode_frame(input, &light_config).expect("Light encoding failed");
+        assert!(!light_bitstream.data.is_empty());
+
+        // Test Main Profile Level 3
+        let main_config = EncoderConfig {
+            quality: 0.9,
+            profile: Profile::Main,
+            level: Level::Level3,
+        };
+        let main_bitstream = encode_frame(input, &main_config).expect("Main encoding failed");
+        assert!(!main_bitstream.data.is_empty());
+
+        // Test High Profile Level 5
+        let high_config = EncoderConfig {
+            quality: 0.9,
+            profile: Profile::High,
+            level: Level::Level5,
+        };
+        let high_bitstream = encode_frame(input, &high_config).expect("High encoding failed");
+        assert!(!high_bitstream.data.is_empty());
+    }
 
     #[test]
     fn test_encode_decode_roundtrip() {

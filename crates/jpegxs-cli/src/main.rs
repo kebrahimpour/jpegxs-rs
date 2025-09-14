@@ -52,6 +52,14 @@ enum Commands {
         /// Quality level (0.0-1.0)
         #[arg(short, long, default_value = "0.9")]
         quality: f32,
+
+        /// JPEG XS Profile (light, main, high)
+        #[arg(short, long, default_value = "main")]
+        profile: String,
+
+        /// JPEG XS Level (1-5, availability depends on profile)
+        #[arg(short, long, default_value = "1")]
+        level: u8,
     },
 
     /// Decode a JPEG XS file to image format (PNG, JPEG, or raw YUV)
@@ -218,6 +226,8 @@ fn main() -> Result<()> {
             height,
             format,
             quality,
+            profile,
+            level,
         } => {
             info!("Encoding {} to {}", input, output);
 
@@ -249,14 +259,50 @@ fn main() -> Result<()> {
             };
 
             info!(
-                "Resolution: {}x{}, Format: {}, Quality: {}",
-                actual_width, actual_height, format, quality
+                "Resolution: {}x{}, Format: {}, Quality: {}, Profile: {}, Level: {}",
+                actual_width, actual_height, format, quality, profile, level
             );
 
             let pixel_format = match format.as_str() {
                 "yuv422p" => jpegxs_core::types::PixelFormat::Yuv422p8,
                 _ => return Err(anyhow::anyhow!("Unsupported format: {}", format)),
             };
+
+            // Parse profile string
+            let encoder_profile = match profile.to_lowercase().as_str() {
+                "light" => jpegxs_core::types::Profile::Light,
+                "main" => jpegxs_core::types::Profile::Main,
+                "high" => jpegxs_core::types::Profile::High,
+                _ => {
+                    return Err(anyhow::anyhow!(
+                        "Invalid profile '{}'. Valid options: light, main, high",
+                        profile
+                    ))
+                }
+            };
+
+            // Parse level
+            let encoder_level = match level {
+                1 => jpegxs_core::types::Level::Level1,
+                2 => jpegxs_core::types::Level::Level2,
+                3 => jpegxs_core::types::Level::Level3,
+                4 => jpegxs_core::types::Level::Level4,
+                5 => jpegxs_core::types::Level::Level5,
+                _ => {
+                    return Err(anyhow::anyhow!(
+                        "Invalid level {}. Valid options: 1-5",
+                        level
+                    ))
+                }
+            };
+
+            // Validate profile-level combination using the profile module
+            if let Err(e) = jpegxs_core::profile::validate_profile_level_combination(
+                encoder_profile,
+                encoder_level,
+            ) {
+                return Err(anyhow::anyhow!("Invalid profile-level combination: {}", e));
+            }
 
             let image = jpegxs_core::types::ImageView8 {
                 data: &yuv_data,
@@ -268,8 +314,8 @@ fn main() -> Result<()> {
             // Configure encoder
             let config = jpegxs_core::types::EncoderConfig {
                 quality,
-                profile: jpegxs_core::types::Profile::Main,
-                level: jpegxs_core::types::Level::Level1,
+                profile: encoder_profile,
+                level: encoder_level,
             };
 
             // Encode
