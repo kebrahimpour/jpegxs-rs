@@ -3,10 +3,13 @@
 // Educational use only. This software is provided for learning and research purposes.
 // See LICENSE file for complete educational use terms and conditions.
 
+pub mod accel;
 pub mod colors;
 pub mod dwt;
 pub mod dwt_validation;
 pub mod entropy;
+pub mod gpu_dwt;
+pub mod neon_dwt;
 pub mod packet;
 pub mod profile;
 pub mod quant;
@@ -167,14 +170,17 @@ pub fn encode_frame(input: ImageView8, config: &EncoderConfig) -> Result<Bitstre
                v_plane.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
                v_plane.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)));
 
-    // Apply DWT to each plane (all are now 444)
+    // Apply DWT to each plane using Apple Silicon acceleration (all are now 444)
     let mut y_dwt = vec![0.0f32; y_plane.len()];
     let mut u_dwt = vec![0.0f32; u_plane.len()];
     let mut v_dwt = vec![0.0f32; v_plane.len()];
 
-    jpegxs_core_clean::dwt::dwt_53_forward_2d(&y_plane, &mut y_dwt, input.width, input.height)?;
-    jpegxs_core_clean::dwt::dwt_53_forward_2d(&u_plane, &mut u_dwt, input.width, input.height)?;
-    jpegxs_core_clean::dwt::dwt_53_forward_2d(&v_plane, &mut v_dwt, input.width, input.height)?;
+    // Initialize unified acceleration (GPU → NEON → Scalar fallback)
+    let accel = accel::AccelDwt::new();
+
+    accel.dwt_53_forward_2d(&y_plane, &mut y_dwt, input.width, input.height)?;
+    accel.dwt_53_forward_2d(&u_plane, &mut u_dwt, input.width, input.height)?;
+    accel.dwt_53_forward_2d(&v_plane, &mut v_dwt, input.width, input.height)?;
 
     // Log post-DWT statistics for precision analysis
     log::info!(
@@ -351,14 +357,17 @@ pub fn decode_frame_to_format(
                v_dwt.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
                v_dwt.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)));
 
-    // Apply inverse DWT (all planes are 444)
+    // Apply inverse DWT using Apple Silicon acceleration (all planes are 444)
     let mut y_plane = vec![0.0f32; y_size];
     let mut u_plane = vec![0.0f32; uv_size];
     let mut v_plane = vec![0.0f32; uv_size];
 
-    jpegxs_core_clean::dwt::dwt_53_inverse_2d(&y_dwt, &mut y_plane, width, height)?;
-    jpegxs_core_clean::dwt::dwt_53_inverse_2d(&u_dwt, &mut u_plane, width, height)?;
-    jpegxs_core_clean::dwt::dwt_53_inverse_2d(&v_dwt, &mut v_plane, width, height)?;
+    // Initialize unified acceleration (GPU → NEON → Scalar fallback)
+    let accel = accel::AccelDwt::new();
+
+    accel.dwt_53_inverse_2d(&y_dwt, &mut y_plane, width, height)?;
+    accel.dwt_53_inverse_2d(&u_dwt, &mut u_plane, width, height)?;
+    accel.dwt_53_inverse_2d(&v_dwt, &mut v_plane, width, height)?;
 
     // Log post-inverse-DWT statistics for precision analysis
     log::info!("DWT_ANALYSIS: Post-Inverse-DWT Y coefficients - min: {:.3}, max: {:.3}, mean: {:.3}, std: {:.3}",
