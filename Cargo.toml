@@ -13,7 +13,7 @@ members = [
 [workspace.package]
 version = "0.1.0-alpha"
 edition = "2021"
-license-file = "LICENSE"
+license-file = "legal/LICENSE"
 authors = ["Keyvan Ebrahimpour"]
 repository = "https://github.com/kebrahimpour/jpegxs-rs"
 homepage = "https://github.com/kebrahimpour/jpegxs-rs"

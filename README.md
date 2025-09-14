@@ -81,10 +81,18 @@ Your support enables:
 - **Week 2**: Implementation of quality-aware entropy system
 - **Target**: Achieve 30+ dB PSNR while maintaining >40 Mbps encoding speed
 
-## 📚 Documentation
-- [`QUALITY_IMPROVEMENTS_ANALYSIS.md`](QUALITY_IMPROVEMENTS_ANALYSIS.md) - Detailed analysis of fixes applied
-- [`DWT_VALIDATION_REPORT.md`](DWT_VALIDATION_REPORT.md) - Comprehensive DWT validation results
-- [`ENTROPY_CODING_INVESTIGATION_PLAN.md`](ENTROPY_CODING_INVESTIGATION_PLAN.md) - Roadmap for quality improvements
+## 📁 Repository Organization
+
+### 📚 Key Documentation
+- [`ACHIEVEMENTS.md`](ACHIEVEMENTS.md) - Technical accomplishments and milestones
+- [`ROADMAP.md`](ROADMAP.md) - Development priorities and future plans
+- [`test-data/analysis/`](test-data/analysis/) - Performance analysis and validation reports
+- [`legal/`](legal/) - Licensing, compliance, and legal documentation
+
+### 🧪 Testing & Validation
+- [`test-data/`](test-data/) - Test images, artifacts, and analysis results
+- [`tests/`](tests/) - Unit and integration test suites
+- [`benches/`](benches/) - Performance benchmarking
 
 ## 🏢 Commercial Edition Features
 
@@ -327,7 +335,7 @@ For commercial licensing options, contact:
 - **Patent Licensing**: Contact Vectis IP separately for JPEG XS essential patents
 
 ### License Terms
-See the [LICENSE](LICENSE) file for complete terms and conditions.
+See the [`legal/LICENSE`](legal/LICENSE) file for complete terms and conditions.
 
 ⚠️ **WARNING**: Violation of license terms will result in immediate termination of rights and potential legal action.
 

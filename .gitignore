@@ -20,10 +20,13 @@ Cargo.lock
 # Reference implementation build
 /reference/jxs/build/
 
-# Test data
+# Test data (except organized test-data folder)
 *.yuv
 *.jxs
 *.raw
+!test-data/**/*.yuv
+!test-data/**/*.jxs
+!test-data/**/*.raw
 
 # Logs
 *.log
