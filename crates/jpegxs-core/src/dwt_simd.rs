@@ -137,11 +137,13 @@ fn dwt_53_forward_1d_simd(data: &mut [f32]) {
 
     // Handle remaining odd indices
     while i < len {
-        let left = if i > 0 { temp[i - 1] } else { temp[1] };
+        // For odd indices, left neighbor is always i-1 (since i starts at 1)
+        let left = temp[i - 1];
+        // For right neighbor, use symmetric extension at the boundary
         let right = if i + 1 < len {
             temp[i + 1]
         } else {
-            temp[len - 2]
+            temp[len - 1]
         };
         data[i] = temp[i] - (left + right) / 2.0;
         i += 2;
