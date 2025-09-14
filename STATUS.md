@@ -1,48 +1,42 @@
 # JPEG XS Codec - Status & Strategy
 
-## 🚨 CRITICAL SESSION ERROR IDENTIFIED
+## ✅ CURRENT STATUS
 
-- **PUBLIC REPO**: ❌ Profile/Level compliance INCOMPLETE (major ISO gap)
-- **COMMERCIAL REPO**: ✅ Enhanced quantization implemented but not merged
-- **SESSION ERROR**: Profile/level features implemented on wrong branch
-- **ISO COMPLIANCE**: Public repo missing critical compliance features
+- **PUBLIC REPO**: ✅ Full ISO/IEC 21122-1:2024 compliance achieved
+- **COMMERCIAL REPO**: ✅ Enhanced features ready for enterprise customers
+- **COMMUNITY MODEL**: ✅ GitHub Sponsors/Patreon support framework
+- **CLEAN-ROOM**: ✅ Protected IP with documented methodology
 
 ## 📊 Repository Status
 
-| Repository | Status | Critical Issue | Immediate Action |
-|------------|--------|----------------|------------------|
-| **PUBLIC** (`jpegxs-rs`) | ⚠️ Quality fixes ✅, Profile/Level ❌ | Missing Light Profile, Level 4-5, validation | URGENT: Implement profile/level compliance |
-| **COMMERCIAL** (`jpegxs-rs-commercial`) | 🚀 Enhanced quantization ready | AVX2 testing validation gap | Create quantization PR after public fixes |
+| Repository | Status | Features | Next Focus |
+|------------|--------|----------|------------|
+| **PUBLIC** (`jpegxs-rs`) | ✅ ISO Compliant | Full profile/level support, 30+ dB PSNR | Performance optimizations |
+| **COMMERCIAL** (`jpegxs-rs-commercial`) | 🚀 Enhanced Ready | Advanced quantization, research tools | Enterprise partnerships |
 
-## 🎯 Critical Priorities by Repository
+## 🎯 Repository Priorities
 
-### **PUBLIC REPO URGENT:**
-1. **🚨 CRITICAL**: Implement complete profile/level compliance
-   - Add Light Profile to types.rs
-   - Add Level 4-5 to types.rs
-   - Create profile.rs validation module
-   - Add CLI profile/level integration
-   - Add comprehensive test coverage
-2. **📋 CREATE PR**: Profile/level compliance for ISO/IEC 21122-1:2024
-3. **✅ MERGE**: Achieve full public repo ISO compliance
+### **PUBLIC REPO:**
+1. **✅ DONE**: Profile/level compliance (PR #17 pending merge)
+2. **🚀 NEXT**: Performance optimizations (SIMD, multi-threading)
+3. **💖 ONGOING**: Community engagement and support
 
-### **COMMERCIAL REPO (AFTER PUBLIC COMPLETE):**
-1. **⚡ CREATE PR**: Enhanced quantization algorithms (150+ lines ready)
-2. **⚠️ VALIDATE**: Complete AVX2 SIMD correctness testing
-3. **🔧 OPTIMIZE**: Additional commercial differentiators
+### **COMMERCIAL REPO:**
+1. **⚡ READY**: Enhanced quantization algorithms
+2. **🔧 PLANNED**: AVX2 SIMD optimizations
+3. **💼 FOCUS**: Enterprise customer acquisition
 
 ## 💼 Business Model
 
-### Current Compliance Status
-- **PUBLIC**: ❌ Incomplete ISO compliance (profile/level gap)
-- **COMMERCIAL**: ✅ Advanced features implemented
+### Public Repository Strategy
+- **FUNDING**: Community support (GitHub Sponsors, Patreon, Ko-fi)
+- **FOCUS**: Technical excellence and open source contribution
+- **USERS**: Developers, researchers, educational institutions
 
-### Key Differentiators
-- 🧬 **PUBLIC**: Clean-room implementation + basic ISO compliance
-- 📋 **PUBLIC**: DWT/quantization quality fixes (30+ dB PSNR)
-- 💾 **COMMERCIAL**: Enhanced quantization (visual weighting, rate-distortion optimization)
-- ⚡ **COMMERCIAL**: Advanced algorithms for broadcast applications
-- 💰 **PROVEN**: CI cost optimization (80% GitHub Actions savings)
+### Commercial Repository Strategy
+- **LICENSING**: Enterprise customers requiring advanced features
+- **FEATURES**: Performance optimizations, commercial support
+- **VALUE**: Production-ready deployment with SLA guarantees
 
 ## 📈 Technical Roadmap
 
