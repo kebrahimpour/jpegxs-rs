@@ -15,6 +15,7 @@
 A high-performance, clean-room implementation of the JPEG XS (ISO/IEC 21122-1:2024) codec in Rust.
 
 ## 🚨 **IMPORTANT PATENT NOTICE**
+
 **JPEG XS is protected by essential patents. Users requiring commercial deployment must obtain appropriate patent licenses from the JPEG XS patent pool administered by Vectis IP (https://www.vectis-ip.com/). This software provides implementation only - patent licensing is the user's responsibility.**
 
 ## 💖 **Support This Project**
@@ -24,9 +25,13 @@ If you benefit from this clean-room JPEG XS implementation, please consider supp
 - **GitHub Sponsors**: [Become a sponsor](https://github.com/sponsors/kebrahimpour)
 - **Patreon**: [Support monthly](https://patreon.com/kebrahimpour)
 - **Ko-fi**: [Buy me a coffee](https://ko-fi.com/kebrahimpour)
+
+[![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/k1ebrahimpour)
+
 - **Corporate Support**: Contact k1.ebrahimpour@gmail.com for partnership opportunities
 
 Your support enables:
+
 - Continued development and maintenance
 - Performance optimizations
 - Extended platform support
@@ -36,6 +41,7 @@ Your support enables:
 ## 🎯 **Technical Achievements**
 
 ### ✅ **Production-Ready Features**
+
 - **Full ISO/IEC 21122-1:2024 Compliance**: Light, Main, and High profiles
 - **Excellent Quality**: 30+ dB PSNR across test patterns
 - **Clean-Room Implementation**: Protected IP with documented methodology
@@ -46,6 +52,7 @@ Your support enables:
 ## 📊 Current Performance Metrics
 
 ### Test Suite Status ✅
+
 | Component | Success Rate | Status |
 |-----------|--------------|--------|
 | **Core Library Tests** | 31/36 (86%) | ✅ Production Ready |
@@ -56,8 +63,9 @@ Your support enables:
 *Note: 5 tests ignored for implementation-specific coefficient values - perfect reconstruction verified*
 
 ### Technical Achievements
+
 | Component | Status | Details |
-|-----------|---------|---------|
+|-----------|--------|----------|
 | **ISO Compliance** | ✅ Complete | Full ISO/IEC 21122-1:2024 implementation |
 | **Quality Output** | ✅ Excellent | >30 dB PSNR consistently achieved |
 | **Compression** | ✅ Superior | 53.8% better than reference implementation |
@@ -67,6 +75,7 @@ Your support enables:
 ## 🚀 Next Development Phase
 
 ### Immediate Priorities
+
 1. **Apple Silicon Optimization** - ARM NEON SIMD implementation for 4-6x performance boost
 2. **Community Funding** - Launch GitHub Sponsors campaign for sustainable development
 3. **Memory Optimization** - Zero-copy pipeline for 40-60% memory reduction
@@ -75,49 +84,56 @@ Your support enables:
 ## 📁 Repository Organization
 
 ### 📚 Key Documentation
-- [`ACHIEVEMENTS.md`](ACHIEVEMENTS.md) - Technical accomplishments and milestones
-- [`ROADMAP.md`](ROADMAP.md) - Development priorities and future plans
-- [`test-data/analysis/`](test-data/analysis/) - Performance analysis and validation reports
-- [`legal/`](legal/) - Licensing, compliance, and legal documentation
+
+- [ACHIEVEMENTS.md](ACHIEVEMENTS.md) - Technical accomplishments and milestones
+- [ROADMAP.md](ROADMAP.md) - Development priorities and future plans
+- [test-data/analysis/](test-data/analysis/) - Performance analysis and validation reports
+- [legal/](legal/) - Licensing, compliance, and legal documentation
 
 ### 🧪 Testing & Validation
-- [`test-data/`](test-data/) - Test images, artifacts, and analysis results
-- [`tests/`](tests/) - Unit and integration test suites
-- [`benches/`](benches/) - Performance benchmarking
+
+- [test-data/](test-data/) - Test images, artifacts, and analysis results
+- [tests/](tests/) - Unit and integration test suites
+- [benches/](benches/) - Performance benchmarking
 
 ## 🏢 Commercial Edition Features
 
-The **Commercial Edition** includes enhanced features for professional and research use:
+The Commercial Edition includes enhanced features for professional and research use:
 
 ### 🚀 Performance Optimizations
+
 - **8-bit Coefficient Pipeline**: 50% memory reduction with optimized integer arithmetic
 - **Enhanced DWT Performance**: Vectorized implementations for high-throughput applications
 - **Multi-threaded Processing**: Parallel encoding/decoding across CPU cores
 - **Hardware Acceleration**: SIMD optimizations for x86/ARM architectures
 
 ### 🔬 Research & Analysis Tools
-- **Quality Bypass Mode**: `JPEGXS_BYPASS_ENTROPY=1` for algorithm analysis
+
+- **Quality Bypass Mode**: JPEGXS_BYPASS_ENTROPY=1 for algorithm analysis
 - **Extended Run-Length Encoding**: 1-byte/2-byte optimization for research
 - **Coefficient Analysis**: Detailed quantization and entropy statistics
 - **Algorithm Validation**: Advanced conformance testing with reference comparisons
 
 ### 📈 Advanced Codec Features
+
 - **Custom Quantization Tables**: Fine-tuned quality control per subband
 - **Lossless Extensions**: Perfect reconstruction modes for archival use
 - **Profile Extensions**: Beyond ISO Main Profile for specialized applications
 - **Streaming Support**: Real-time encoding/decoding for broadcast applications
 
 ### 💼 Enterprise Support & Licensing
+
 - **Professional Licensing**: Full commercial use rights with patent consultation
 - **Technical Support**: Direct access to codec engineers and algorithm specialists
 - **Custom Integration**: Tailored implementations for specific hardware/software stacks
 - **SLA Guarantees**: Response time commitments for mission-critical deployments
 
-> **💰 Commercial Licensing**: Enhanced features require a paid license. The community edition (this repository) is free for non-commercial use. Contact [k1.ebrahimpour@gmail.com](mailto:k1.ebrahimpour@gmail.com) for commercial licensing and pricing.
+💰 **Commercial Licensing**: Enhanced features require a paid license. The community edition (this repository) is free for non-commercial use. Contact k1.ebrahimpour@gmail.com for commercial licensing and pricing.
 
 ## 🚀 Community Edition Features
 
 ### Core Codec Features
+
 - **ISO/IEC 21122-1:2024 Compliant**: Full standard implementation with ISO entropy coding
 - **Superior Performance**: 53.8% better compression than reference implementation
 - **High Quality**: Achieves >30 dB PSNR (Good quality rating)
@@ -125,12 +141,14 @@ The **Commercial Edition** includes enhanced features for professional and resea
 - **All JPEG XS Markers**: SOC, CAP, PIH, CDT, WGT, EOC
 
 ### Image Format Support
+
 - **Input Formats**: PNG, JPEG, Raw YUV (YUV422p)
 - **Output Formats**: PNG, JPEG, Raw YUV (YUV422p)
 - **Automatic Detection**: Format automatically detected from file extension
 - **Color Space Conversion**: ITU-R BT.601 RGB ↔ YUV conversion
 
 ### Advanced Features
+
 - **Quality Control**: Configurable quality levels (0.0-1.0)
 - **Multiple Profiles**: Main profile support
 - **PSNR Measurement**: Built-in image quality comparison tool
@@ -164,38 +182,39 @@ jpegxs-rs/
 ### Quick Start
 
 1. Clone the repository:
-```bash
-git clone https://github.com/kebrahimpour/jpegxs-rs.git
-cd jpegxs-rs
-```
+   ```bash
+   git clone https://github.com/kebrahimpour/jpegxs-rs.git
+   cd jpegxs-rs
+   ```
 
 2. Setup reference implementation:
-```bash
-chmod +x setup-fork.sh
-./setup-fork.sh
-```
+   ```bash
+   chmod +x setup-fork.sh
+   ./setup-fork.sh
+   ```
 
 3. Start development environment:
-```bash
-docker-compose up -d
-docker-compose exec dev bash
-```
+   ```bash
+   docker-compose up -d
+   docker-compose exec dev bash
+   ```
 
 4. Build the project:
-```bash
-cargo build --all-features
-```
+   ```bash
+   cargo build --all-features
+   ```
 
 5. Run tests:
-```bash
-cargo test --all-features
-```
+   ```bash
+   cargo test --all-features
+   ```
 
 ## Usage
 
 ### Encoding
 
 #### From Image Files (PNG/JPEG)
+
 ```bash
 # Encode PNG to JPEG XS
 jpegxs encode -i input.png -o output.jxs --quality 0.9
@@ -205,6 +224,7 @@ jpegxs encode -i input.jpg -o output.jxs --quality 0.8
 ```
 
 #### From Raw YUV Files
+
 ```bash
 jpegxs encode -i input.yuv -o output.jxs -W 1920 -H 1080 --format yuv422p --quality 0.9
 ```
@@ -212,6 +232,7 @@ jpegxs encode -i input.yuv -o output.jxs -W 1920 -H 1080 --format yuv422p --qual
 ### Decoding
 
 #### To Image Files (PNG/JPEG)
+
 ```bash
 # Decode to PNG
 jpegxs decode -i input.jxs -o output.png
@@ -221,16 +242,19 @@ jpegxs decode -i input.jxs -o output.jpg
 ```
 
 #### To Raw YUV Files
+
 ```bash
 jpegxs decode -i input.jxs -o output.yuv
 ```
 
 ### File Information
+
 ```bash
 jpegxs info -i file.jxs
 ```
 
 ### Quality Measurement (PSNR)
+
 ```bash
 # Compare original and decoded images
 jpegxs psnr -r original.png -t decoded.png
@@ -239,6 +263,7 @@ jpegxs psnr -r original.png -t decoded.png
 ## 🎯 Quick Start Examples
 
 ### Complete Roundtrip Example
+
 ```bash
 # Encode a PNG image to JPEG XS
 ./target/release/jpegxs encode -i photo.png -o photo.jxs --quality 0.9
@@ -251,6 +276,7 @@ jpegxs psnr -r original.png -t decoded.png
 ```
 
 ### Output Example
+
 ```
 ✅ Encoded successfully: 23499 bytes (compression ratio: 5.6:1)
 
@@ -287,11 +313,13 @@ The project uses GitHub Actions for continuous integration:
 ## Pre-commit Hooks
 
 Install pre-commit hooks:
+
 ```bash
 pre-commit install
 ```
 
 This will run:
+
 - Format checking (rustfmt)
 - Linting (clippy)
 - Tests
@@ -304,14 +332,18 @@ This will run:
 This software is licensed under a proprietary license that restricts commercial use.
 
 ### Non-Commercial Use
+
 This software is free for:
+
 - Personal use
 - Educational purposes
 - Academic research
 - Open source projects (non-commercial)
 
 ### Commercial Use
+
 **Commercial use requires a paid license.** This includes:
+
 - Using in products or services that generate revenue
 - Deployment in business environments
 - Integration into proprietary/commercial software
@@ -320,12 +352,15 @@ This software is free for:
 ⚠️ **IMPORTANT PATENT NOTICE**: This license does not include any patent rights. For JPEG XS patent coverage, obtain a separate license from the JPEG XS patent pool administered by Vectis IP. See [PATENT_NOTICE.md](PATENT_NOTICE.md) for details.
 
 ### Obtaining a Commercial License
+
 For commercial licensing options, contact:
+
 - **Email**: k1.ebrahimpour@gmail.com
 - **Available licenses**: Single Application, Enterprise, OEM, Source Code with redistribution
 - **Patent Licensing**: Contact Vectis IP separately for JPEG XS essential patents
 
 ### License Terms
+
 See the [`legal/LICENSE`](legal/LICENSE) file for complete terms and conditions.
 
 ⚠️ **WARNING**: Violation of license terms will result in immediate termination of rights and potential legal action.
@@ -337,6 +372,7 @@ Keyvan Ebrahimpour
 ## Contributing
 
 Contributions are welcome! Please ensure:
+
 1. All tests pass
 2. Code follows Rust formatting guidelines
 3. Pre-commit hooks pass
