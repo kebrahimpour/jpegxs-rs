@@ -118,6 +118,9 @@
 This roadmap represents hundreds of hours of advanced development work. Your support enables faster implementation of these features:
 
 - **💖 GitHub Sponsors**: [https://github.com/sponsors/kebrahimpour](https://github.com/sponsors/kebrahimpour)
+- **☕ Ko-fi**: [https://ko-fi.com/k1ebrahimpour](https://ko-fi.com/k1ebrahimpour)
+- **🎯 Patreon**: [https://www.patreon.com/k1ebrahimpour/](https://www.patreon.com/k1ebrahimpour/)
+- **☕ Buy Me a Coffee**: [https://buymeacoffee.com/k1ebrahimpour](https://buymeacoffee.com/k1ebrahimpour)
 - **🎯 Feature Sponsorship**: Contact k1.ebrahimpour@gmail.com for specific feature funding
 - **🤝 Collaboration**: Academic institutions and research partnerships welcome
 
