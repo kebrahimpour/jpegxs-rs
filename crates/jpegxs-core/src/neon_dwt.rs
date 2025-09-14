@@ -277,7 +277,7 @@ impl NeonDwt {
         // Step 1: Predict step - High-pass coefficients (odd indices)
         // ISO equation: Y[i] = X[i] - ((X[i-1] + X[i+1]) / 2)
         for i in (1..len).step_by(2) {
-            let left = if i > 0 { output[i - 1] } else { output[1] }; // Symmetric extension
+            let left = if i > 0 { output[i - 1] } else { output[0] }; // Symmetric extension
             let right = if i + 1 < len {
                 output[i + 1]
             } else {
@@ -355,7 +355,7 @@ impl NeonDwt {
         // Step 2: Inverse predict step - Undo the predict step
         // Reverse: Y[i] = X[i] - ((X[i-1] + X[i+1]) / 2)
         for i in (1..len).step_by(2) {
-            let left = if i > 0 { output[i - 1] } else { output[1] }; // Symmetric extension
+            let left = if i > 0 { output[i - 1] } else { output[0] }; // Symmetric extension
             let right = if i + 1 < len {
                 output[i + 1]
             } else {
@@ -393,66 +393,31 @@ impl NeonDwt {
         Ok(())
     }
 
-    /// Scalar fallback for small inputs - implement directly since 1D functions are private
+    /// Scalar fallback for small inputs - use main DWT implementation
     #[cfg(target_arch = "aarch64")]
     fn dwt_53_inverse_1d_scalar(&self, input: &[f32], output: &mut [f32]) -> Result<()> {
         if input.len() != output.len() {
             return Err(anyhow::anyhow!("Input and output lengths must match"));
         }
 
-        let len = input.len();
-        if len < 2 {
-            output.copy_from_slice(input);
-            return Ok(());
-        }
+        output.copy_from_slice(input);
+        super::dwt::dwt_53_inverse_1d(output);
 
-        // Reconstruct interleaved signal from subbands
-        let mut temp = vec![0.0f32; len];
+        // Reconstruct from subband-separated format: [LL...][HH...] to interleaved
+        let len = output.len();
         let mid = len.div_ceil(2);
+        let mut temp = vec![0.0f32; len];
 
-        // Unpack low-pass coefficients to even positions
+        // Unpack from separated format back to interleaved
         for i in 0..mid {
             if i * 2 < len {
-                temp[i * 2] = input[i];
+                temp[i * 2] = output[i];
             }
         }
-
-        // Unpack high-pass coefficients to odd positions
         for i in 0..(len / 2) {
-            temp[i * 2 + 1] = input[mid + i];
+            temp[i * 2 + 1] = output[mid + i];
         }
-
-        // Helper function for symmetric extension boundary handling
-        let get_sample_safe = |buffer: &[f32], index: i32| -> f32 {
-            if index < 0 {
-                buffer[(-index) as usize] // Left boundary reflection
-            } else if index >= len as i32 {
-                let overshoot = index - (len as i32 - 1);
-                buffer[(len as i32 - 1 - overshoot) as usize] // Right boundary reflection
-            } else {
-                buffer[index as usize]
-            }
-        };
-
-        // Step 1: Inverse update step (undo the forward update step)
-        for i in (0..len).step_by(2) {
-            let left = if i > 0 { temp[i - 1] } else { 0.0 };
-            let right = if i + 1 < len { temp[i + 1] } else { 0.0 };
-            output[i] = temp[i] - ((left + right + 2.0) / 4.0).floor();
-        }
-
-        // Update temp buffer with first step results
-        for i in (0..len).step_by(2) {
-            temp[i] = output[i];
-        }
-
-        // Step 2: Inverse predict step (undo the forward predict step)
-        for i in (1..len).step_by(2) {
-            let left = get_sample_safe(&temp, i as i32 - 1);
-            let right = get_sample_safe(&temp, i as i32 + 1);
-            output[i] = temp[i] + (left + right) / 2.0;
-        }
-
+        output.copy_from_slice(&temp);
         Ok(())
     }
 
