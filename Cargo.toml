@@ -6,7 +6,7 @@ members = [
     "crates/jpegxs-cli",
     "crates/jpegxs-ffi",
     "crates/jpegxs-conformance",
-    "commercial/jpegxs-core-clean",
+    "clean-room/jpegxs-core-clean",
     "testing/benchmarks",
 ]
 

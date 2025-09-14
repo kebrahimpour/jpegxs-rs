@@ -26,7 +26,7 @@ Each entry should include:
 ### YYYY-MM-DD: Component Name
 - **Component**: What you're implementing
 - **Resources**:
-  - ISO/IEC 21122-1:2019 Section X.X
+  - ISO/IEC 21122-1:2024 Section X.X
   - Paper: "Title" by Authors
   - Book: "Title" Chapter X
 - **Notes**:
@@ -42,12 +42,12 @@ Each entry should include:
 
 ### Allowed Resources
 1. **ISO/IEC Standards**
-   - ISO/IEC 21122-1:2019 - JPEG XS Part 1: Core coding system
-   - ISO/IEC 21122-2:2019 - JPEG XS Part 2: Profiles and buffer models
-   - ISO/IEC 21122-3:2019 - JPEG XS Part 3: Transport and container formats
+   - ISO/IEC 21122-1:2024 - JPEG XS Part 1: Core coding system
+   - ISO/IEC 21122-2:2024 - JPEG XS Part 2: Profiles and buffer models
+   - ISO/IEC 21122-3:2024 - JPEG XS Part 3: Transport and container formats
 
 2. **Academic Papers**
-   - "The JPEG XS Standard for Low-Latency Lightweight Image Coding System" (2019)
+   - "The JPEG XS Standard for Low-Latency Lightweight Image Coding System" (2024)
    - General wavelet transform papers
    - General entropy coding papers
 

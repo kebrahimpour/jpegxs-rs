@@ -30,7 +30,7 @@ chrono = { version = "0.4", features = ["serde"] }
 
 # Local dependencies
 jpegxs-core = { path = "../../crates/jpegxs-core" }
-jpegxs-core-clean = { path = "../../commercial/jpegxs-core-clean" }
+jpegxs-core-clean = { path = "../../clean-room/jpegxs-core-clean" }
 
 # For comparison codecs (optional - will gracefully handle if not available)
 webp = "0.3.1"
