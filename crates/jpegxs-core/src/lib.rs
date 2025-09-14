@@ -172,7 +172,7 @@ pub fn encode_frame(input: ImageView8, config: &EncoderConfig) -> Result<Bitstre
                v_plane.iter().fold(f32::INFINITY, |a, &b| a.min(b)),
                v_plane.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b)));
 
-    // Apply DWT to each plane using Apple Silicon acceleration (all are now 444)
+    // Apply DWT to each plane using unified acceleration (GPU, NEON, or scalar fallback; all are now 444)
     let mut y_dwt = vec![0.0f32; y_plane.len()];
     let mut u_dwt = vec![0.0f32; u_plane.len()];
     let mut v_dwt = vec![0.0f32; v_plane.len()];

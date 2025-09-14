@@ -277,7 +277,7 @@ impl NeonDwt {
         // Step 1: Predict step - High-pass coefficients (odd indices)
         // ISO equation: Y[i] = X[i] - ((X[i-1] + X[i+1]) / 2)
         for i in (1..len).step_by(2) {
-            let left = if i > 0 { output[i - 1] } else { output[0] }; // Symmetric extension
+            let left = if i > 0 { output[i - 1] } else { output[1] }; // Symmetric extension
             let right = if i + 1 < len {
                 output[i + 1]
             } else {
@@ -355,7 +355,7 @@ impl NeonDwt {
         // Step 2: Inverse predict step - Undo the predict step
         // Reverse: Y[i] = X[i] - ((X[i-1] + X[i+1]) / 2)
         for i in (1..len).step_by(2) {
-            let left = if i > 0 { output[i - 1] } else { output[0] }; // Symmetric extension
+            let left = if i > 0 { output[i - 1] } else { output[1] }; // Symmetric extension
             let right = if i + 1 < len {
                 output[i + 1]
             } else {
@@ -376,6 +376,20 @@ impl NeonDwt {
 
         output.copy_from_slice(input);
         super::dwt::dwt_53_forward_1d(output);
+
+        // Rearrange output to subband-separated format: [LL...][HH...]
+        let len = output.len();
+        let mid = len.div_ceil(2);
+        let mut temp = vec![0.0f32; len];
+        // Low-pass (even indices) to first half
+        for i in 0..mid {
+            temp[i] = output[i * 2];
+        }
+        // High-pass (odd indices) to second half
+        for i in 0..(len / 2) {
+            temp[mid + i] = output[i * 2 + 1];
+        }
+        output.copy_from_slice(&temp);
         Ok(())
     }
 
