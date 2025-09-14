@@ -1,12 +1,12 @@
-// Copyright (c) 2025 Keyvan Ebrahimpour. All rights reserved.
+// JPEG XS Educational Implementation - Copyright (c) 2025 Keyvan Ebrahimpour
 //
-// This software is proprietary and confidential. Commercial use is prohibited
-// without a valid license. See LICENSE file for full terms and conditions.
-//
-// For commercial licensing: k1.ebrahimpour@gmail.com
+// Educational use only. This software is provided for learning and research purposes.
+// See LICENSE file for complete educational use terms and conditions.
 
 pub mod colors;
 pub mod dwt;
+#[cfg(feature = "simd")]
+pub mod dwt_simd;
 pub mod dwt_validation;
 pub mod entropy;
 pub mod packet;
