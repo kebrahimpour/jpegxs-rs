@@ -1,14 +1,14 @@
-// Apple Silicon GPU-accelerated DWT implementation using Metal
-// Leverages unified memory architecture for optimal performance
-// Target: 4-6x performance improvement over CPU implementation
+// GPU DWT implementation (currently falls back to CPU)
+// Metal GPU acceleration is planned but not yet implemented
+// Currently provides CPU fallback with same interface
 
 use anyhow::Result;
 
 #[cfg(target_os = "macos")]
 use metal::*;
 
-/// GPU-accelerated DWT implementation for Apple Silicon
-/// Uses Metal Performance Shaders and unified memory for maximum performance
+/// GPU DWT interface (currently CPU fallback)
+/// Planned: Metal GPU acceleration for Apple Silicon
 pub struct GpuDwt {
     #[cfg(target_os = "macos")]
     #[allow(dead_code)]
@@ -22,20 +22,8 @@ pub struct GpuDwt {
 impl GpuDwt {
     /// Initialize GPU acceleration if available
     pub fn new() -> Self {
-        #[cfg(target_os = "macos")]
-        {
-            if let Some(device) = Device::system_default() {
-                let command_queue = device.new_command_queue();
-                println!("GPU DWT: Initialized Metal on {}", device.name());
-                return Self {
-                    device: Some(device),
-                    command_queue: Some(command_queue),
-                    enabled: true,
-                };
-            }
-        }
-
-        println!("GPU DWT: Metal not available, falling back to CPU");
+        // GPU acceleration not yet implemented - always use CPU fallback
+        println!("GPU DWT: Using CPU implementation (GPU acceleration planned)");
         Self {
             #[cfg(target_os = "macos")]
             device: None,
@@ -97,7 +85,7 @@ impl GpuDwt {
         #[cfg(not(target_os = "macos"))]
         {
             // Fallback for non-macOS platforms
-            super::dwt::dwt_53_inverse_2d(input, output, width, height)
+            crate::dwt::dwt_53_inverse_2d(input, output, width, height)
         }
     }
 
@@ -109,18 +97,9 @@ impl GpuDwt {
         width: u32,
         height: u32,
     ) -> Result<()> {
-        // TEMPORARY: GPU Metal shader has accuracy issues
-        // Fall back to CPU implementation while we debug the Metal kernels
-        // The performance benchmark shows potential, but accuracy must be correct first
-
-        super::dwt::dwt_53_forward_2d(input, output, width, height)
-
-        // TODO: Fix Metal shader implementation
-        // Issues identified:
-        // 1. Thread synchronization problems in horizontal/vertical passes
-        // 2. Boundary handling not working correctly
-        // 3. Memory access patterns causing incorrect results
-        // 4. Need simpler, more robust Metal kernel design
+        // Currently falls back to CPU implementation
+        // TODO: Implement Metal GPU acceleration
+        crate::dwt::dwt_53_forward_2d(input, output, width, height)
 
         /*
         use std::mem;
@@ -233,7 +212,7 @@ impl GpuDwt {
     ) -> Result<()> {
         // Similar implementation for inverse transform
         // For now, fallback to CPU
-        super::dwt::dwt_53_inverse_2d(input, output, width, height)
+        crate::dwt::dwt_53_inverse_2d(input, output, width, height)
     }
 
     #[cfg(target_os = "macos")]
@@ -502,17 +481,8 @@ mod tests {
     fn test_gpu_dwt_initialization() {
         let gpu_dwt = GpuDwt::new();
 
-        #[cfg(target_os = "macos")]
-        {
-            // On macOS, we should have GPU acceleration
-            assert!(gpu_dwt.is_available());
-        }
-
-        #[cfg(not(target_os = "macos"))]
-        {
-            // On other platforms, should gracefully fallback
-            assert!(!gpu_dwt.is_available());
-        }
+        // GPU acceleration is currently not implemented - always falls back to CPU
+        assert!(!gpu_dwt.is_available());
     }
 
     #[test]

@@ -277,7 +277,7 @@ impl NeonDwt {
         // Step 1: Predict step - High-pass coefficients (odd indices)
         // ISO equation: Y[i] = X[i] - ((X[i-1] + X[i+1]) / 2)
         for i in (1..len).step_by(2) {
-            let left = if i > 0 { output[i - 1] } else { output[1] }; // Symmetric extension
+            let left = if i > 0 { output[i - 1] } else { output[0] }; // Symmetric extension
             let right = if i + 1 < len {
                 output[i + 1]
             } else {
@@ -355,7 +355,7 @@ impl NeonDwt {
         // Step 2: Inverse predict step - Undo the predict step
         // Reverse: Y[i] = X[i] - ((X[i-1] + X[i+1]) / 2)
         for i in (1..len).step_by(2) {
-            let left = if i > 0 { output[i - 1] } else { output[1] }; // Symmetric extension
+            let left = if i > 0 { output[i - 1] } else { output[0] }; // Symmetric extension
             let right = if i + 1 < len {
                 output[i + 1]
             } else {
@@ -367,7 +367,7 @@ impl NeonDwt {
         Ok(())
     }
 
-    /// Scalar fallback for small inputs - implement directly since 1D functions are private
+    /// Scalar fallback for small inputs - use main DWT implementation
     #[cfg(target_arch = "aarch64")]
     fn dwt_53_forward_1d_scalar(&self, input: &[f32], output: &mut [f32]) -> Result<()> {
         if input.len() != output.len() {
@@ -375,61 +375,7 @@ impl NeonDwt {
         }
 
         output.copy_from_slice(input);
-        let len = output.len();
-
-        if len < 2 {
-            return Ok(());
-        }
-
-        // Temporary buffer to avoid overwriting data during transform
-        let mut temp = output.to_vec();
-
-        // Helper function for symmetric extension boundary handling
-        let get_sample_safe = |buffer: &[f32], index: i32| -> f32 {
-            if index < 0 {
-                buffer[(-index) as usize] // Left boundary reflection
-            } else if index >= len as i32 {
-                let overshoot = index - (len as i32 - 1);
-                buffer[(len as i32 - 1 - overshoot) as usize] // Right boundary reflection
-            } else {
-                buffer[index as usize]
-            }
-        };
-
-        // Step 1: Predict step (High-pass coefficients) - odd indices
-        for i in (1..len).step_by(2) {
-            let left = get_sample_safe(&temp, i as i32 - 1);
-            let right = get_sample_safe(&temp, i as i32 + 1);
-            output[i] = temp[i] - (left + right) / 2.0;
-        }
-
-        // Update temp buffer with predict step results
-        for i in (1..len).step_by(2) {
-            temp[i] = output[i];
-        }
-
-        // Step 2: Update step (Low-pass coefficients) - even indices
-        for i in (0..len).step_by(2) {
-            let left = if i > 0 { temp[i - 1] } else { 0.0 };
-            let right = if i + 1 < len { temp[i + 1] } else { 0.0 };
-            output[i] = temp[i] + ((left + right + 2.0) / 4.0).floor();
-        }
-
-        // Separate into subbands
-        let mut separated = vec![0.0f32; len];
-        let mid = len.div_ceil(2);
-
-        // Low-pass coefficients to first half
-        for i in 0..mid {
-            separated[i] = output[i * 2];
-        }
-
-        // High-pass coefficients to second half
-        for i in 0..(len / 2) {
-            separated[mid + i] = output[i * 2 + 1];
-        }
-
-        output.copy_from_slice(&separated);
+        crate::dwt::dwt_53_forward_1d(output);
         Ok(())
     }
 
