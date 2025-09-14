@@ -47,6 +47,7 @@ pub struct DecoderConfig {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Profile {
+    Light,
     Main,
     High,
 }
@@ -56,6 +57,8 @@ pub enum Level {
     Level1,
     Level2,
     Level3,
+    Level4,
+    Level5,
 }
 
 impl Default for EncoderConfig {
