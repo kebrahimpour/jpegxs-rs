@@ -17,13 +17,19 @@ thiserror = { workspace = true }
 serde = { workspace = true }
 byteorder = { workspace = true }
 log = { workspace = true }
-jpegxs-core-clean = { path = "../../commercial/jpegxs-core-clean" }
+jpegxs-core-clean = { path = "../../clean-room/jpegxs-core-clean" }
 wide = "0.7"
 rayon = "1.8"
+
+# Apple Silicon GPU acceleration
+[target.'cfg(target_os = "macos")'.dependencies]
+metal = "0.29"
+objc = "0.2"
 
 [dev-dependencies]
 env_logger = { workspace = true }
 approx = "0.5"
+image = { workspace = true }
 
 [features]
 default = []

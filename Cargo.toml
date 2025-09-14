@@ -6,14 +6,14 @@ members = [
     "crates/jpegxs-cli",
     "crates/jpegxs-ffi",
     "crates/jpegxs-conformance",
-    "commercial/jpegxs-core-clean",
-    "benches",
+    "clean-room/jpegxs-core-clean",
+    "testing/benchmarks",
 ]
 
 [workspace.package]
 version = "0.1.0-alpha"
 edition = "2021"
-license-file = "LICENSE"
+license-file = "legal/LICENSE"
 authors = ["Keyvan Ebrahimpour"]
 repository = "https://github.com/kebrahimpour/jpegxs-rs"
 homepage = "https://github.com/kebrahimpour/jpegxs-rs"
