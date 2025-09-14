@@ -14,7 +14,7 @@ pub struct AccelDwt {
 impl AccelDwt {
     /// Initialize unified acceleration with all available methods
     pub fn new() -> Self {
-        println!("Initializing Apple Silicon Unified Acceleration");
+        log::info!("Initializing Apple Silicon Unified Acceleration");
         let gpu = GpuDwt::new();
         let neon = NeonDwt::new();
 
@@ -25,8 +25,8 @@ impl AccelDwt {
 
     /// Print available acceleration methods
     fn print_acceleration_status(gpu: &GpuDwt, neon: &NeonDwt) {
-        println!("=== Apple Silicon Acceleration Status ===");
-        println!(
+        log::info!("=== Apple Silicon Acceleration Status ===");
+        log::info!(
             "GPU (Metal):     {}",
             if gpu.is_available() {
                 "✅ Available"
@@ -34,7 +34,7 @@ impl AccelDwt {
                 "❌ Not Available"
             }
         );
-        println!(
+        log::info!(
             "NEON (ARM SIMD): {}",
             if neon.is_available() {
                 "✅ Available"
@@ -51,8 +51,8 @@ impl AccelDwt {
             "Scalar fallback"
         };
 
-        println!("Primary method:  {}", method);
-        println!("==========================================");
+        log::info!("Primary method:  {}", method);
+        log::info!("==========================================");
     }
 
     /// Get acceleration capabilities for user information

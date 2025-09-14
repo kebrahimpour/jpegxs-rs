@@ -27,7 +27,7 @@ pub fn dwt_53_forward_2d_simd(
         if width >= 8 {
             dwt_53_forward_1d_simd(&mut output[row_start..row_end]);
         } else {
-            crate::dwt::dwt_53_forward_1d(&mut output[row_start..row_end]);
+            super::dwt::dwt_53_forward_1d(&mut output[row_start..row_end]);
         }
     }
 
@@ -40,7 +40,7 @@ pub fn dwt_53_forward_2d_simd(
         }
 
         // Transform column (use scalar version for columns as they're accessed non-contiguously)
-        crate::dwt::dwt_53_forward_1d(&mut col_buffer);
+        super::dwt::dwt_53_forward_1d(&mut col_buffer);
 
         // Put column back
         for y in 0..height {
@@ -74,7 +74,7 @@ pub fn dwt_53_inverse_2d_simd(
         }
 
         // Inverse transform column
-        crate::dwt::dwt_53_inverse_1d(&mut col_buffer);
+        super::dwt::dwt_53_inverse_1d(&mut col_buffer);
 
         // Put column back
         for y in 0..height {
@@ -91,7 +91,7 @@ pub fn dwt_53_inverse_2d_simd(
         if width >= 8 {
             dwt_53_inverse_1d_simd(&mut output[row_start..row_end]);
         } else {
-            crate::dwt::dwt_53_inverse_1d(&mut output[row_start..row_end]);
+            super::dwt::dwt_53_inverse_1d(&mut output[row_start..row_end]);
         }
     }
 
@@ -103,7 +103,7 @@ fn dwt_53_forward_1d_simd(data: &mut [f32]) {
     let len = data.len();
     if len < 8 {
         // Fall back to scalar version for small arrays
-        crate::dwt::dwt_53_forward_1d(data);
+        super::dwt::dwt_53_forward_1d(data);
         return;
     }
 
@@ -215,7 +215,7 @@ fn dwt_53_inverse_1d_simd(data: &mut [f32]) {
     let len = data.len();
     if len < 8 {
         // Fall back to scalar version for small arrays
-        crate::dwt::dwt_53_inverse_1d(data);
+        super::dwt::dwt_53_inverse_1d(data);
         return;
     }
 

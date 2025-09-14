@@ -375,7 +375,7 @@ impl NeonDwt {
         }
 
         output.copy_from_slice(input);
-        crate::dwt::dwt_53_forward_1d(output);
+        super::dwt::dwt_53_forward_1d(output);
         Ok(())
     }
 

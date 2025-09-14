@@ -23,7 +23,7 @@ impl GpuDwt {
     /// Initialize GPU acceleration if available
     pub fn new() -> Self {
         // GPU acceleration not yet implemented - always use CPU fallback
-        println!("GPU DWT: Using CPU implementation (GPU acceleration planned)");
+        log::info!("GPU DWT: Using CPU implementation (GPU acceleration planned)");
         Self {
             #[cfg(target_os = "macos")]
             device: None,
@@ -85,7 +85,7 @@ impl GpuDwt {
         #[cfg(not(target_os = "macos"))]
         {
             // Fallback for non-macOS platforms
-            crate::dwt::dwt_53_inverse_2d(input, output, width, height)
+            super::dwt::dwt_53_inverse_2d(input, output, width, height)
         }
     }
 
@@ -99,7 +99,7 @@ impl GpuDwt {
     ) -> Result<()> {
         // Currently falls back to CPU implementation
         // TODO: Implement Metal GPU acceleration
-        crate::dwt::dwt_53_forward_2d(input, output, width, height)
+        super::dwt::dwt_53_forward_2d(input, output, width, height)
 
         /*
         use std::mem;
@@ -212,7 +212,7 @@ impl GpuDwt {
     ) -> Result<()> {
         // Similar implementation for inverse transform
         // For now, fallback to CPU
-        crate::dwt::dwt_53_inverse_2d(input, output, width, height)
+        super::dwt::dwt_53_inverse_2d(input, output, width, height)
     }
 
     #[cfg(target_os = "macos")]
