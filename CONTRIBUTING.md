@@ -62,7 +62,7 @@ cargo clippy --all-targets --all-features
 - `crates/jpegxs-cli` - Command-line interface
 - `crates/jpegxs-io` - I/O utilities
 - `commercial/jpegxs-core-clean` - Clean-room implementation
-- `test-data/` - Test images and validation files
+- `testing/` - All testing infrastructure (benchmarks, fixtures, integration tests)
 
 ## 💡 Good First Issues
 

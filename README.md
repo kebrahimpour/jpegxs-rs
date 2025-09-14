@@ -88,14 +88,16 @@ Your support enables:
 
 - [ACHIEVEMENTS.md](ACHIEVEMENTS.md) - Technical accomplishments and milestones
 - [ROADMAP.md](ROADMAP.md) - Development priorities and future plans
-- [test-data/analysis/](test-data/analysis/) - Performance analysis and validation reports
+- [testing/analysis/](testing/analysis/) - Performance analysis and validation reports
 - [legal/](legal/) - Licensing, compliance, and legal documentation
 
 ### 🧪 Testing & Validation
 
-- [test-data/](test-data/) - Test images, artifacts, and analysis results
-- [tests/](tests/) - Unit and integration test suites
-- [benches/](benches/) - Performance benchmarking
+- [testing/](testing/) - All testing infrastructure consolidated
+  - `benchmarks/` - Performance benchmarking suite
+  - `integration/` - Integration test suites
+  - `fixtures/` - Test images and data files
+  - `analysis/` - Historical debugging and analysis
 
 ## 🏢 Commercial Edition Features
 
@@ -166,10 +168,13 @@ jpegxs-rs/
 │   ├── jpegxs-io/      # I/O utilities and bit operations
 │   ├── jpegxs-cli/     # Command-line interface
 │   └── jpegxs-ffi/     # FFI bindings for cross-validation
+├── testing/            # All testing infrastructure
+│   ├── benchmarks/     # Performance benchmarking suite
+│   ├── integration/    # Integration test suites
+│   ├── fixtures/       # Test images and data files
+│   └── analysis/       # Historical debugging logs
 ├── reference/          # Reference C implementation (TangKii/jxs)
-├── tests/              # Integration tests
-├── benches/            # Performance benchmarks
-└── tools/              # Utility scripts
+└── scripts/            # Utility scripts and tools
 ```
 
 ## Development Setup
