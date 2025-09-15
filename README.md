@@ -124,14 +124,16 @@ The Commercial Edition includes enhanced features for professional and research 
 - **Profile Extensions**: Beyond ISO Main Profile for specialized applications
 - **Streaming Support**: Real-time encoding/decoding for broadcast applications
 
-### 💼 Enterprise Support & Licensing
+### 💼 Technical Services Available
 
-- **Professional Licensing**: Full commercial use rights with patent consultation
-- **Technical Support**: Direct access to codec engineers and algorithm specialists
-- **Custom Integration**: Tailored implementations for specific hardware/software stacks
-- **SLA Guarantees**: Response time commitments for mission-critical deployments
+- **Implementation Consulting**: Technical guidance for JPEG XS integration
+- **Custom Development**: Contracted development work for specific requirements
+- **Algorithm Support**: Assistance with codec optimization and debugging
+- **Educational Training**: Workshops and training on JPEG XS implementation
 
-💰 **Commercial Licensing**: Enhanced features require a paid license. The community edition (this repository) is free for non-commercial use. Contact k1.ebrahimpour@gmail.com for commercial licensing and pricing.
+📧 **Contact**: For technical consulting and custom development services, contact k1.ebrahimpour@gmail.com
+
+⚠️ **Note**: This educational implementation is provided as-is. Commercial use requires understanding of JPEG XS patent landscape and appropriate licensing from patent holders.
 
 ## 🚀 Community Edition Features
 
