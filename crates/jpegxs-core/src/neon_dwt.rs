@@ -390,20 +390,6 @@ impl NeonDwt {
             temp[mid + i] = output[i * 2 + 1];
         }
         output.copy_from_slice(&temp);
-
-        // Rearrange output to subband-separated format: [LL...][HH...]
-        let len = output.len();
-        let mid = len.div_ceil(2);
-        let mut temp = vec![0.0f32; len];
-        // Low-pass (even indices) to first half
-        for i in 0..mid {
-            temp[i] = output[i * 2];
-        }
-        // High-pass (odd indices) to second half
-        for i in 0..(len / 2) {
-            temp[mid + i] = output[i * 2 + 1];
-        }
-        output.copy_from_slice(&temp);
         Ok(())
     }
 
