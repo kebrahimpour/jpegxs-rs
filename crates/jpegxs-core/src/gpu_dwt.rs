@@ -496,13 +496,14 @@ mod tests {
 
     #[test]
     fn test_gpu_dwt_initialization() {
-        let _gpu_dwt = GpuDwt::new();
+        let gpu_dwt = GpuDwt::new();
 
         #[cfg(target_os = "macos")]
         {
             // On macOS, we should have GPU acceleration if Metal is available
             // Note: GPU implementation currently falls back to CPU, but device detection works
             // This test checks that the initialization logic is working correctly
+            let _ = gpu_dwt; // Avoid unused variable warning
         }
 
         #[cfg(not(target_os = "macos"))]

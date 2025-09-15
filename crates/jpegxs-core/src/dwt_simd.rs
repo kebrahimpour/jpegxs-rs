@@ -143,7 +143,9 @@ fn dwt_53_forward_1d_simd(data: &mut [f32]) {
         let right = if i + 1 < len {
             temp[i + 1]
         } else {
-            temp[len - 1]
+            // Symmetric extension: reflect at boundary
+            // When i+1 == len, we want temp[len-2] (one before the last)
+            temp[len - 2]
         };
         data[i] = temp[i] - (left + right) / 2.0;
         i += 2;
