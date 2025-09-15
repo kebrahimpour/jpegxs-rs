@@ -19,9 +19,9 @@ impl NeonDwt {
     pub fn new() -> Self {
         let available = Self::detect_neon_support();
         if available {
-            println!("NEON DWT: ARM NEON SIMD acceleration enabled");
+            log::info!("NEON DWT: ARM NEON SIMD acceleration enabled");
         } else {
-            println!("NEON DWT: ARM NEON not available, falling back to scalar");
+            log::info!("NEON DWT: ARM NEON not available, falling back to scalar");
         }
 
         Self { available }
